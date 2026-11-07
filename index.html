@@ -72,6 +72,13 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .thumb{width:100%;max-height:300px;object-fit:cover;border-radius:16px}
 .tips{margin:0;padding-right:18px;color:var(--muted);font-size:.9rem}
 .err{color:var(--low);text-align:center;font-weight:500}
+.err.pose{text-align:start;background:var(--surface2);border:2px solid var(--low);border-radius:16px;padding:14px;line-height:1.6}
+.err.pose b{display:block;font-size:1.05rem;margin-bottom:4px}
+.err.pose button{margin-top:10px}
+.angle-warn{color:var(--low);font-weight:500;background:var(--surface2);border-inline-start:4px solid var(--low);border-radius:12px;padding:10px 12px;font-size:.92rem}
+.ainote{font-size:.85rem;color:var(--muted);text-align:center;margin:6px 0 0}
+.book-mid{text-align:center}
+.book-mid p{margin:0 0 10px;font-weight:500}
 
 /* scan stage */
 .stage{position:relative;border-radius:22px;overflow:hidden;background:#17110c;line-height:0}
@@ -206,12 +213,14 @@ img{-webkit-user-drag:none;user-select:none}
     <div class="kicker">yy brow artist</div>
     <h1>מעבדת הגבות של יובל יעקב</h1>
     <svg viewBox="0 0 150 28" fill="none" aria-hidden="true"><path d="M4 22C30 4 62 2 96 8c22 4 38 8 50 14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-    <p class="lead">הסריקה האישית של יובל יעקב עיצוב גבות. המעבדה מודדת את הגבות שלך, מציירת על התמונה תבנית זהובה של הגבות שיובל יכולה לעצב ולשקם לך בחוט, בשעווה ובפינצטה, ואומרת מה כדאי לשפר.</p>
+    <p class="lead">הסריקה האישית של יובל יעקב עיצוב גבות. המעבדה מודדת את הגבות שלך ומציירת על התמונה תבנית זהובה, שמציגה לך תמונה ראשונית של עיצוב הגבות הקיים שלך ומה כדאי לשפר ולשמר. לאחר מכן אפשר ליצור קשר עם יובל, שמעצבת ומשקמת גבות בשעווה, בחוט ובפינצטה.</p>
+    <p class="ainote">הסריקה היא הערכה של בינה מלאכותית (AI) מתוך תמונה אחת, והיא לא מדויקת במאה אחוזים.</p>
     <div class="steps">
       <div class="step"><b>1</b>מעלים תמונה</div>
       <div class="step"><b>2</b>המעבדה סורקת</div>
       <div class="step"><b>3</b>מקבלים תבנית וציון</div>
     </div>
+    <a class="btn wa" id="wa0" target="_blank" rel="noopener">לקביעת תור אצלי</a>
   </header>
 
   <section class="card" id="intake">
@@ -293,18 +302,21 @@ img{-webkit-user-drag:none;user-select:none}
       </div>
       <p class="verdict" id="verdict"></p>
       <p id="browDesc" style="color:var(--muted)"></p>
-      <p class="legend" id="warn" hidden style="color:var(--low)"></p>
+      <p class="angle-warn" id="warn" role="status" hidden></p>
+      <p class="ainote">זו הערכה של בינה מלאכותית (AI) מתוך תמונה, והיא לא מדויקת במאה אחוזים. ההתאמה הסופית נעשית בפגישה אישית עם יובל.</p>
     </section>
 
     <section class="card" id="strCard"><h2>מה כבר עובד לך</h2><div class="tags" id="strengths"></div></section>
 
     <section class="card" id="prioCard"><h2>מה הכי ישנה את המראה</h2><ol class="prio" id="prio"></ol></section>
 
+    <section class="card book-mid" aria-label="קביעת תור"><p>רוצה שיובל תעצב לך את הגבות לפי התבנית?</p><a class="btn wa" id="waMid" target="_blank" rel="noopener">לקביעת תור אצלי</a></section>
+
     <section class="card"><h2>כל 8 המדדים</h2><div class="metrics" id="metrics"></div></section>
 
     <section class="card">
       <h2>מה מעניין אותך?</h2>
-      <p style="color:var(--muted);font-size:.92rem">יובל עובדת בחוט, בשעווה ובפינצטה, ומשרטטת את הצורה לפני העבודה. סמני מה מעניין אותך וההודעה ליובל תיפתח כבר עם הבחירה. סימנו מראש את מה שהמעבדה ממליצה.</p>
+      <p style="color:var(--muted);font-size:.92rem">יובל עובדת בשעווה, בחוט ובפינצטה, ומשרטטת את הצורה לפני העבודה. סמני מה מעניין אותך וההודעה ליובל תיפתח כבר עם הבחירה. סימנו מראש את מה שהמעבדה ממליצה.</p>
       <div class="layers" id="treat" style="justify-content:flex-start"></div>
       <a class="btn wa" id="wa1" target="_blank" rel="noopener">קבעי תור עם יובל בוואטסאפ</a>
       <button class="btn alt" id="again">סריקה עם תמונה חדשה</button>
@@ -359,7 +371,7 @@ img{-webkit-user-drag:none;user-select:none}
   <h3>התמונות שלך</h3>
   <p>התמונה שאת מעלה נשארת במכשיר שלך ואינה נשלחת לשום שרת. הזכויות בתמונה שלך נשארות שלך.</p>
   <h3>הערכה ראשונית</h3>
-  <p>הציונים והתבנית הם הערכה ראשונית מתמונה בלבד, ואינם מחליפים ייעוץ אישי. ההתאמה הסופית נקבעת בפגישה עם יובל.</p>
+  <p>הציונים והתבנית הם הערכה ראשונית של בינה מלאכותית (AI) מתמונה בלבד. הם אינם מדויקים במאה אחוזים ואינם מחליפים ייעוץ אישי. ההתאמה הסופית נקבעת בפגישה עם יובל.</p>
   <h3>הפרות</h3>
   <p>הפרת זכויות היוצרים עלולה לחשוף לתביעה אזרחית ולסעדים לפי הדין, ובהם צו מניעה ופיצויים.</p>
   <form method="dialog"><button class="x">סגירה</button></form>
@@ -391,7 +403,7 @@ const enginePromise = (async () => {
   const mod = await import(LIB);
   const fileset = await mod.FilesetResolver.forVisionTasks(WASM);
   const make = delegate => mod.FaceLandmarker.createFromOptions(fileset, {
-    baseOptions: {modelAssetPath: MODEL, delegate}, runningMode: "IMAGE", numFaces: 1});
+    baseOptions: {modelAssetPath: MODEL, delegate}, runningMode: "IMAGE", numFaces: 1, outputFacialTransformationMatrixes: true});
   try { return await make("GPU"); } catch (_) { return await make("CPU"); }
 })();
 enginePromise.catch(e => { engineErr = e; });
@@ -424,7 +436,39 @@ function shrink(file) {
     img.src = URL.createObjectURL(file);
   });
 }
-function showErr(m) { $("err").textContent = m; $("err").hidden = false; }
+function showErr(m) { const e = $("err"); e.classList.remove("pose"); e.textContent = m; e.hidden = false; }
+
+/* ---------- head angle check: a photo taken from a bad angle distorts the measurements ---------- */
+let poseOverride = false;
+function poseProblem(lms, mtx, W, H) {
+  const P = i => [lms[i].x * W, lms[i].y * H];
+  // tilt sideways (from the eye corners)
+  const roll = Math.abs(Math.atan2(P(263)[1] - P(33)[1], P(263)[0] - P(33)[0]) * 180 / Math.PI);
+  // turned left/right (nose tip vs. the edges of the cheeks)
+  const tp = P(1), a = Math.abs(tp[0] - P(234)[0]), b = Math.abs(P(454)[0] - tp[0]);
+  const yawR = Math.abs((a - b) / (a + b));
+  let yaw = null, pitch = null;
+  if (mtx && mtx.data && mtx.data.length >= 16) {   // column-major 4x4 from the face engine
+    const m = (r, c) => mtx.data[c * 4 + r], D = 180 / Math.PI;
+    yaw = Math.abs(Math.asin(Math.max(-1, Math.min(1, -m(2, 0)))) * D);
+    pitch = Math.abs(Math.atan2(m(2, 1), m(2, 2)) * D);
+  }
+  const why = [];
+  if (yawR > 0.28 || (yaw != null && yaw > 22)) why.push("הפנים מסובבות הצידה ולא פונות ישר למצלמה");
+  if (pitch != null && pitch > 22) why.push("הראש מורם או מורכן מדי (המצלמה מלמעלה או מלמטה)");
+  if (roll > 22) why.push("הראש נוטה הצידה");
+  return why.length ? why : null;
+}
+function showPoseErr(why) {
+  const e = $("err"); e.classList.add("pose"); e.textContent = "";
+  const t = document.createElement("b"); t.textContent = "התמונה צולמה מזווית שתפגע בציון";
+  const p = document.createElement("p"); p.style.margin = "0";
+  p.textContent = "זיהינו ש" + why.join(", ") + ". בזווית כזו המדידות של הגבות יוצאות לא נכונות והציון יהיה נמוך מהמציאות. כדאי לצלם שוב: טלפון בגובה העיניים, מבט ישר למצלמה, ראש ישר.";
+  const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn alt"; btn.textContent = "להמשיך בכל זאת (התוצאה תהיה פחות מדויקת)";
+  btn.addEventListener("click", () => { poseOverride = true; $("go").click(); });
+  e.append(t, p, btn); e.hidden = false;
+  e.scrollIntoView({behavior: "smooth", block: "center"});
+}
 
 /* ---------- phases + real progress ---------- */
 function phase(p) {
@@ -452,14 +496,18 @@ $("go").addEventListener("click", async () => {
   try {
     await enginePromise; progress(2); await nextFrame();
     const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = imgUrl; });
-    let lms;
+    let lms, mtx = null;
     if (window.__TEST_LM__) lms = window.__TEST_LM__;
     else {
       const eng = await enginePromise;
       const out = eng.detect(img);
       lms = out && out.faceLandmarks && out.faceLandmarks[0];
+      mtx = out && out.facialTransformationMatrixes && out.facialTransformationMatrixes[0];
     }
     if (!lms || lms.length < 468) { phase("intake"); showErr("לא זיהינו פנים בתמונה. נסי תמונה ישרה, באור טוב, שבה כל הפנים נראות."); return; }
+    const bad = poseProblem(lms, mtx, img.naturalWidth, img.naturalHeight);
+    if (bad && !poseOverride) { phase("intake"); showPoseErr(bad); return; }
+    poseOverride = false;
     progress(3); await nextFrame();
     const r = analyze(lms, img.naturalWidth, img.naturalHeight, getPix(img));
     progress(4); await nextFrame();
@@ -1210,8 +1258,9 @@ function updateWa() {
   const msg = "היי יובל! עשיתי את סריקת הגבות במעבדת הגבות שלך. קיבלתי " + (r.overall || 0) + "/100" + (r.browType ? " (" + r.browType + ")" : "") + ". " +
     (labels.length ? "מה שמעניין אותי: " + labels.join(", ") + ". " : "") + "אשמח לקבוע תור 🌿";
   const href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(msg);
-  $("wa1").href = href; $("wa2").href = href;
+  ["wa0", "waMid", "wa1", "wa2"].forEach(id => { $(id).href = href; });
 }
+$("wa0").href = "https://wa.me/" + WA + "?text=" + encodeURIComponent("היי יובל! אשמח לקבוע תור לעיצוב גבות 🌿");
 $("again").addEventListener("click", () => { phase("intake"); window.scrollTo({top: 0, behavior: "smooth"}); });
 window.__analyze = analyze; window.__getLast = () => last;
 
