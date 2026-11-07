@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="copyright" content="© יובל יעקב עיצוב גבות. כל הזכויות שמורות.">
+<meta name="robots" content="noai, noimageai">
+<meta name="theme-color" content="#f6ece1">
+<title>מעבדת הגבות של יובל יעקב</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Concept: a brow-mapping lab. The photo becomes a scan plate; measuring lines and a gold stencil are drawn on top of it. */
+:root{
+  --bg:#f6ece1; --surface:#fffaf4; --surface2:#f1e3d2; --ink:#3f2e20; --muted:#7f6a56;
+  --gold:#b98f45; --gold2:#dcb86f; --brown:#6e4f33; --line:#e6d4bf;
+  --good:#58824d; --mid:#b88a2c; --low:#b4553f; --on-gold:#2a1d10; --bar:rgba(246,236,225,.92);
+  --f-display:"Frank Ruhl Libre",Georgia,serif; --f-body:"Heebo",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1b1511; --surface:#261d17; --surface2:#32261d; --ink:#f4e8d8; --muted:#bba68e;
+  --gold:#d4ab5f; --gold2:#ecd08e; --brown:#e3c590; --line:#3d3025;
+  --good:#8fbb82; --mid:#dcb24f; --low:#e08a74; --bar:rgba(27,21,17,.92); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1b1511; --surface:#261d17; --surface2:#32261d; --ink:#f4e8d8; --muted:#bba68e;
+  --gold:#d4ab5f; --gold2:#ecd08e; --brown:#e3c590; --line:#3d3025;
+  --good:#8fbb82; --mid:#dcb24f; --low:#e08a74; --bar:rgba(27,21,17,.92); color-scheme:dark}
+*{box-sizing:border-box}
+html{direction:rtl}
+body{text-align:start;margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--f-body);
+  padding-block:22px 36px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body.has-bar{padding-bottom:110px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3,p{margin:0}
+h1,h2{text-wrap:balance}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+/* hero */
+.hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px}
+.logo{width:92px;height:92px;border-radius:50%;object-fit:cover;border:1px solid var(--gold);padding:3px;background:#f7ede4}
+.kicker{font-size:.74rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);direction:ltr;margin-top:6px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6rem);line-height:1.15}
+.hero svg{width:150px;height:28px;color:var(--gold)}
+.lead{color:var(--muted);max-width:30em}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;width:100%}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 6px;font-size:.82rem;line-height:1.35;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.step b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--gold);color:var(--on-gold);font-size:.8rem}
+
+/* cards and buttons */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.card h2{font-family:var(--f-display);font-size:1.35rem;line-height:1.25}
+.btn{font:inherit;font-weight:700;border:0;border-radius:999px;padding:14px 22px;width:100%;font-size:1.02rem;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--on-gold);transition:transform .15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.alt{background:transparent;color:var(--brown);border:1px solid var(--gold)}
+.btn.wa{background:linear-gradient(135deg,#2fbf62,#1f9d4f);color:#fff}
+.btn .ic{width:22px;height:22px;flex:none}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.checks li{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.95rem}
+.checks li i{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:.75rem;font-weight:700}
+.checks li.done{color:var(--ink)}
+.checks li.done i{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
+.checks li.now{color:var(--ink);font-weight:500}
+.checks li.now i{border-color:var(--gold);border-top-color:transparent;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.drop{border:1.5px dashed var(--gold);border-radius:18px;padding:20px 12px;text-align:center;cursor:pointer;color:var(--brown);display:flex;flex-direction:column;gap:4px;align-items:center;background:var(--surface2)}
+.drop input{display:none}
+.drop svg{width:34px;height:34px}
+.thumb{width:100%;max-height:300px;object-fit:cover;border-radius:16px}
+.tips{margin:0;padding-right:18px;color:var(--muted);font-size:.9rem}
+.err{color:var(--low);text-align:center;font-weight:500}
+
+/* scan stage */
+.stage{position:relative;border-radius:22px;overflow:hidden;background:#17110c;line-height:0}
+.stage img{width:100%;display:block}
+.stage svg{position:absolute;inset:0;width:100%;height:100%}
+.beam{position:absolute;left:0;right:0;top:-22%;height:22%;background:linear-gradient(to bottom,transparent,rgba(236,208,142,.6),transparent);animation:sweep 2.1s ease-in-out infinite}
+.frame{position:absolute;inset:14px;border:1.5px solid rgba(236,208,142,.85);border-radius:14px;pointer-events:none}
+@keyframes sweep{0%{top:-22%}100%{top:100%}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.l1{animation:fade .6s .2s both}.l2{animation:fade .6s .8s both}.l3{animation:fade .6s 1.4s both}
+.status{text-align:center;font-weight:500;min-height:1.6em}
+.prog{height:6px;border-radius:6px;background:var(--surface2);overflow:hidden}
+.prog i{display:block;height:100%;width:6%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:6px;transition:width .5s ease-out}
+.layers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{font:inherit;font-size:.9rem;border:1px solid var(--gold);background:transparent;color:var(--brown);border-radius:999px;padding:8px 14px;cursor:pointer;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);font-weight:700}
+.legend{font-size:.82rem;color:var(--muted);text-align:center}
+.stage#resStage{touch-action:pan-y;cursor:zoom-in;user-select:none;-webkit-user-select:none}
+.stage#resStage.zoomed{touch-action:none;cursor:grab}
+#zwrap{position:relative;transform-origin:0 0;will-change:transform}
+.stage#resStage{transition:height .35s ease}
+/* no double-tap page zoom anywhere (pinch-zoom of the page still works, for accessibility) */
+html,body,button,a,label,.chip,.zoombar,.layers{touch-action:manipulation}
+.zoombar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.zoombar .zb{min-width:44px;font-size:1.2rem;font-weight:700;padding:4px 12px}
+.redo{padding-top:14px;padding-bottom:14px}
+.redo-t{margin:0 0 10px;text-align:center;font-weight:500}
+.redo-b{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.redo-b .btn{margin:0;text-align:center;cursor:pointer}
+
+.how{list-style:none;margin:10px 0;padding:0;display:flex;flex-direction:column;gap:12px}
+.how li{display:flex;gap:12px;align-items:flex-start}
+.how p{margin:2px 0 0;font-size:.92rem;color:var(--muted)}
+.how b{font-weight:700}
+.hnum{flex:none;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--on-gold);font-weight:800;display:grid;place-items:center}
+
+
+.mlist{display:flex;flex-direction:column;gap:10px}
+.mrow{display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:12px 14px;border-radius:16px;background:var(--surface2);align-items:center}
+.mrow b{font-weight:500}
+.mrow .st{font-size:.78rem;font-weight:700;border-radius:999px;padding:2px 10px;border:1px solid currentColor}
+.mrow .st.ok{color:var(--good)}
+.mrow .st.warn{color:var(--low)}
+.mrow .v{grid-column:1/-1;font-size:.86rem;color:var(--muted)}
+.mrow .n{grid-column:1/-1;font-size:.92rem}
+/* score */
+.score{display:grid;grid-template-columns:128px 1fr;gap:16px;align-items:center}
+.ring{position:relative;width:128px;height:128px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.ring .bg{stroke:var(--surface2)}
+.ring .fg{stroke:var(--gold);stroke-dasharray:326.7;stroke-dashoffset:326.7;transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
+.ring .num{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-family:var(--f-display);font-weight:700;font-size:2.5rem;line-height:1}
+.ring .num small{font-family:var(--f-body);font-size:.75rem;font-weight:400;color:var(--muted)}
+.score h2{font-size:1.5rem}
+.score .kicker{letter-spacing:0}
+.tag{display:inline-block;font-size:.82rem;color:var(--brown);background:var(--surface2);border-radius:999px;padding:3px 12px;margin-top:6px}
+.verdict{font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tags .tag{margin:0;font-size:.9rem;padding:6px 14px}
+ol.prio{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;counter-reset:p}
+ol.prio li{counter-increment:p;display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
+ol.prio li::before{content:counter(p);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--on-gold);font-weight:700}
+ol.prio b{display:block}
+ol.prio span{color:var(--muted);font-size:.92rem}
+
+/* metrics */
+.metrics{display:flex;flex-direction:column;gap:8px}
+details.m{background:var(--surface2);border-radius:16px;padding:0 14px}
+details.m summary{list-style:none;cursor:pointer;padding:12px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-weight:500}
+details.m summary::-webkit-details-marker{display:none}
+details.m .sc{font-family:var(--f-display);font-weight:700;font-size:1.2rem}
+details.m .bar{grid-column:1/-1;height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+details.m .bar i{display:block;height:100%;width:0;border-radius:6px;transition:width .9s}
+details.m .body{padding:2px 0 14px;display:flex;flex-direction:column;gap:8px;font-size:.93rem}
+details.m .body em{font-style:normal;font-weight:700;color:var(--brown)}
+
+/* footer + sticky */
+.links{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:.78rem;color:var(--muted);text-align:center}
+.bar-fixed{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));background:var(--bar);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.bar-fixed .btn{max-width:640px;margin:0 auto}
+@media (max-width:420px){.score{grid-template-columns:1fr;justify-items:center;text-align:center}.links,.row2{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.beam{animation:none;top:40%}.checks li.now i{animation:none}.l1,.l2,.l3{animation:none}.ring .fg,.prog i,details.m .bar i{transition:none}}
+
+/* accessibility + legal */
+.skip{position:absolute;top:-80px;inset-inline-start:8px;z-index:100;background:var(--gold);color:var(--on-gold);padding:10px 16px;border-radius:12px;font-weight:700;text-decoration:none}
+.skip:focus{top:8px}
+.a11y-btn{position:fixed;top:10px;left:10px;z-index:60;font:inherit;font-size:.9rem;font-weight:700;border:2px solid var(--gold);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:44px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.a11y-panel{position:fixed;top:62px;left:10px;z-index:60;width:min(300px,calc(100vw - 20px));background:var(--surface);color:var(--ink);border:2px solid var(--gold);border-radius:18px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}
+.a11y-panel .row{display:flex;gap:8px}
+.a11y-panel button{font:inherit;font-size:.92rem;flex:1;border:1px solid var(--gold);background:transparent;color:var(--ink);border-radius:12px;padding:10px;min-height:44px;cursor:pointer}
+.a11y-panel button[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);font-weight:700}
+.a11y-panel h2{font-size:1rem;margin:0 0 2px}
+.foot{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0 90px;text-align:center;font-size:.85rem;color:var(--muted)}
+.foot .fl{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.foot button{font:inherit;font-size:.88rem;background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;padding:10px 6px;min-height:44px}
+dialog.doc{max-width:min(640px,calc(100vw - 24px));max-height:86vh;overflow:auto;border:2px solid var(--gold);border-radius:20px;background:var(--surface);color:var(--ink);padding:20px;line-height:1.7}
+dialog.doc::backdrop{background:rgba(0,0,0,.55)}
+dialog.doc h2{margin-top:0}
+dialog.doc h3{font-size:1rem;margin:14px 0 2px}
+dialog.doc p,dialog.doc li{font-size:.95rem}
+dialog.doc .x{font:inherit;margin-top:14px;border:0;background:var(--gold);color:var(--on-gold);font-weight:700;border-radius:12px;padding:10px 18px;min-height:44px;cursor:pointer}
+html.fs1{font-size:112.5%}html.fs2{font-size:125%}html.fs3{font-size:150%}
+html.hc{--bg:#000;--surface:#000;--surface2:#141414;--ink:#fff;--muted:#fff;--gold:#ffd54a;--gold2:#ffd54a;--brown:#fff;--on-gold:#000;--good:#7dff8a;--mid:#ffd54a;--low:#ff8a80;color-scheme:dark}
+html.hc body{background:#000;color:#fff}
+html.hc .bar-fixed{background:#000}
+html.hc .card,html.hc .mrow,html.hc details.m{border:1px solid #fff}
+html.ul a{text-decoration:underline!important;outline:2px dashed var(--gold);outline-offset:2px}
+html.rf body,html.rf button,html.rf input{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:.02em}
+html.nm *,html.nm *::before,html.nm *::after{animation:none!important;transition:none!important}
+img{-webkit-user-drag:none;user-select:none}
+</style><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<a class="skip" href="#main">דילוג לתוכן הראשי</a>
+<button class="a11y-btn" id="a11yBtn" type="button" aria-expanded="false" aria-controls="a11yPanel"><span aria-hidden="true">♿</span> נגישות</button>
+<div class="a11y-panel" id="a11yPanel" role="dialog" aria-label="הגדרות נגישות" hidden>
+  <h2>הגדרות נגישות</h2>
+  <div class="row"><button type="button" id="fsUp" aria-label="הגדלת טקסט">א+ הגדלת טקסט</button><button type="button" id="fsDown" aria-label="הקטנת טקסט">א- הקטנה</button></div>
+  <button type="button" id="optHc" aria-pressed="false">ניגודיות גבוהה</button>
+  <button type="button" id="optUl" aria-pressed="false">הדגשת קישורים</button>
+  <button type="button" id="optRf" aria-pressed="false">גופן קריא</button>
+  <button type="button" id="optNm" aria-pressed="false">עצירת אנימציות</button>
+  <div class="row"><button type="button" id="optReset">איפוס</button><button type="button" id="openA11y">הצהרת נגישות</button></div>
+</div>
+
+
+<div class="wrap" id="main" role="main" tabindex="-1">
+  <header class="hero">
+    <img class="logo" src="data:image/jpeg;base64,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" alt="לוגו yy brow artist">
+    <div class="kicker">yy brow artist</div>
+    <h1>מעבדת הגבות של יובל יעקב</h1>
+    <svg viewBox="0 0 150 28" fill="none" aria-hidden="true"><path d="M4 22C30 4 62 2 96 8c22 4 38 8 50 14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+    <p class="lead">הסריקה האישית של יובל יעקב עיצוב גבות. המעבדה מודדת את הגבות שלך, מציירת על התמונה תבנית זהובה של הגבות שיובל יכולה לעצב ולשקם לך בחוט, בשעווה ובפינצטה, ואומרת מה כדאי לשפר.</p>
+    <div class="steps">
+      <div class="step"><b>1</b>מעלים תמונה</div>
+      <div class="step"><b>2</b>המעבדה סורקת</div>
+      <div class="step"><b>3</b>מקבלים תבנית וציון</div>
+    </div>
+  </header>
+
+  <section class="card" id="intake">
+    <div class="row2">
+      <label class="drop" for="file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-9 9"/></svg>
+        <b>מהגלריה</b>
+        <input type="file" id="file" accept="image/*">
+      </label>
+      <label class="drop" for="cam">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+        <b>צילום עכשיו</b>
+        <input type="file" id="cam" accept="image/*" capture="user">
+      </label>
+    </div>
+    <img class="thumb" id="preview" alt="התמונה שלך" hidden>
+    <ul class="tips">
+      <li>מבט ישר למצלמה, פנים רפויות, כל הפנים בפריים</li>
+      <li>אור יום טבעי, שיער מורם מהמצח</li>
+      <li>בלי פילטרים ובלי איפור גבות כבד, אם אפשר</li>
+    </ul>
+    <button class="btn" id="go" disabled>התחילי סריקה</button>
+    <p class="err" id="err" role="alert" hidden></p>
+  </section>
+
+  <section class="card" id="scan" hidden>
+    <h2>סורקת את הגבות…</h2>
+    <div class="stage"><img id="scanImg" alt=""><div class="beam"></div><div class="frame"></div></div>
+    <div class="prog"><i id="prog"></i></div>
+    <ul class="checks" id="steps" aria-live="polite"></ul>
+  </section>
+
+  <div id="result" hidden style="display:contents">
+    <section class="card redo" aria-label="סריקה עם תמונה חדשה">
+      <p class="redo-t">רוצה לנסות תמונה אחרת?</p>
+      <div class="redo-b"><label class="btn alt" for="file">🖼️ מהגלריה</label><label class="btn alt" for="cam">📷 צילום חדש</label></div>
+    </section>
+    <section class="card">
+      <div class="stage"><img id="resImg" alt="התמונה שלך עם קווי המדידה"><svg id="ov" preserveAspectRatio="none"></svg></div>
+      <div class="zoombar" id="zoombar" role="group" aria-label="זום על התמונה">
+        <button type="button" class="chip" data-z="right" aria-pressed="false">🔍 גבה ימנית</button>
+        <button type="button" class="chip" data-z="both" aria-pressed="false">שתי הגבות</button>
+        <button type="button" class="chip" data-z="left" aria-pressed="false">🔍 גבה שמאלית</button>
+        <button type="button" class="chip" data-z="all" aria-pressed="true">כל התמונה</button>
+        <button type="button" class="chip zb" id="zIn" aria-label="הגדלה">+</button>
+        <button type="button" class="chip zb" id="zOut" aria-label="הקטנה">−</button>
+      </div>
+      <p class="legend">אפשר גם לצבוט בשתי אצבעות להגדלה, לגרור באצבע אחת, ולהקיש פעמיים כדי להגדיל או לחזור.</p>
+      <div class="layers" id="layers" role="group" aria-label="שכבות על התמונה"></div>
+      <p class="legend">הנקודות והקווים מוסברים בכרטיס "איך קוראים את הסימונים" שמתחת. אפשר להדליק ולכבות כל שכבה.</p>
+    </section>
+
+    <section class="card" id="howCard">
+      <h2>איך קוראים את הסימונים</h2>
+      <p class="legend" style="text-align:start">קווים 1 ו-2 יוצאים מקצה הנחיר הפנימי: קצה פתח הנחיר שהכי רחוק מאמצע האף. קו 3 יוצא מקצה הנחיר החיצוני: המקום שבו האף מסתיים לצד, בקו אופקי. כך מקובל למפות גבה מקצועית.</p>
+      <ol class="how">
+        <li><span class="hnum">1</span><div><b>ראש הגבה (הקצה הקרוב לאף)</b><p>קו ישר שעולה מקצה הנחיר הפנימי כלפי מעלה, דרך שקע העין (הפינה הפנימית של העין), עד גובה הגבה. הנקודה שבה הוא פוגש את גובה הגבה היא המקום שבו הגבה אמורה להתחיל.</p></div></li>
+        <li><span class="hnum">2</span><div><b>שיא הקשת (הנקודה הגבוהה ביותר)</b><p>קו אלכסוני מקצה הנחיר שעובר דרך הקצה החיצוני של הקשתית (החלק הצבעוני של העין). המקום שבו הקו פוגש את הגבה הוא השיא, בערך 60% מאורך הגבה כשסופרים מהראש.</p></div></li>
+        <li><span class="hnum">3</span><div><b>סוף הגבה (הזנב)</b><p>קו אלכסוני שיוצא מקצה הנחיר החיצוני (המקום שבו האף מסתיים לצד) ועובר דרך הפינה החיצונית של העין. הגבה אמורה להסתיים במקום שבו הקו פוגש את גובה קו הבסיס. אם השיער שלך קצר יותר, התבנית הזהובה לא תתארך מעבר לשיער שקיים, והנקודה 3 תראה לך עד איפה אפשר להצמיח.</p></div></li>
+        <li><span class="hnum">&ndash;</span><div><b>קו בסיס</b><p>קו אופקי מתחתית ראש הגבה. הזנב אמור להסתיים בגובה הקו או מעט מעליו. זנב שיורד מתחתיו נותן מראה עייף.</p></div></li>
+      </ol>
+      <p class="legend" style="text-align:start"><b>נקודות לבנות עם קו מקווקו:</b> הגבה שלך כמו שהיא היום. <b>התבנית הזהובה:</b> הצורה המומלצת. <b>קו זהב קצר:</b> המרחק בין המקום הנוכחי למקום המומלץ.</p>
+    </section>
+
+    <section class="card" id="statCard" hidden>
+      <h2>המדידות על הפנים שלך</h2>
+      <div class="mlist" id="stats"></div>
+      <p class="legend">כל המידות נחשבות לפי רוחב העין שלך, ולכן הן לא תלויות בגודל התמונה. זו הערכה מתוך תמונה, ולא מדידה במילימטרים.</p>
+    </section>
+
+    <section class="card">
+      <div class="score">
+        <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" id="fg" cx="60" cy="60" r="52"/></svg><div class="num"><span id="scoreNum">0</span><small>מתוך 100</small></div></div>
+        <div>
+          <p class="kicker" style="margin:0">סוג הגבה שלך</p>
+          <h2 id="browType"></h2>
+          <span class="tag" id="faceTag"></span>
+        </div>
+      </div>
+      <p class="verdict" id="verdict"></p>
+      <p id="browDesc" style="color:var(--muted)"></p>
+      <p class="legend" id="warn" hidden style="color:var(--low)"></p>
+    </section>
+
+    <section class="card" id="strCard"><h2>מה כבר עובד לך</h2><div class="tags" id="strengths"></div></section>
+
+    <section class="card" id="prioCard"><h2>מה הכי ישנה את המראה</h2><ol class="prio" id="prio"></ol></section>
+
+    <section class="card"><h2>כל 8 המדדים</h2><div class="metrics" id="metrics"></div></section>
+
+    <section class="card">
+      <h2>מה מעניין אותך?</h2>
+      <p style="color:var(--muted);font-size:.92rem">יובל עובדת בחוט, בשעווה ובפינצטה, ומשרטטת את הצורה לפני העבודה. סמני מה מעניין אותך וההודעה ליובל תיפתח כבר עם הבחירה. סימנו מראש את מה שהמעבדה ממליצה.</p>
+      <div class="layers" id="treat" style="justify-content:flex-start"></div>
+      <a class="btn wa" id="wa1" target="_blank" rel="noopener">קבעי תור עם יובל בוואטסאפ</a>
+      <button class="btn alt" id="again">סריקה עם תמונה חדשה</button>
+    </section>
+  </div>
+
+  <section class="links">
+    <a class="btn alt" href="https://www.instagram.com/_yuvalyaacov_/" target="_blank" rel="noopener">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="igg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#feda75"/><stop offset=".35" stop-color="#fa7e1e"/><stop offset=".62" stop-color="#d62976"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="5.5" fill="none" stroke="url(#igg)" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="url(#igg)" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.4" fill="url(#igg)"/></svg>
+      <span>אינסטגרם</span></a>
+    <a class="btn alt" href="https://maps.app.goo.gl/1RFnvTzKhzXLKx2D6" target="_blank" rel="noopener">
+      <svg class="ic" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span>גוגל מפות</span></a>
+  </section>
+  <p class="note">התמונה נשארת במכשיר שלך ואינה נשלחת לשום מקום. התבנית והציונים הם הערכה ראשונית, וההתאמה הסופית נקבעת בייעוץ אישי עם יובל.</p>
+</div>
+  <footer class="foot">
+    <div>&copy; 2026 יובל יעקב עיצוב גבות (yy brow artist). כל הזכויות שמורות.</div>
+    <div class="fl"><button type="button" data-open="dlgA11y">הצהרת נגישות</button><button type="button" data-open="dlgLegal">זכויות יוצרים ותנאי שימוש</button></div>
+  </footer>
+
+
+<dialog class="doc" id="dlgA11y" aria-labelledby="tA11y">
+  <h2 id="tA11y">הצהרת נגישות</h2>
+  <p>יובל יעקב עיצוב גבות רואה חשיבות בשירות שוויוני ובאתר שנגיש לכולן וכולם, כולל אנשים עם מוגבלויות. האתר הותאם לדרישות הנגישות לפי תקנות שוויון זכויות לאנשים עם מוגבלות ולפי תקן ישראלי 5568 (הנחיות WCAG 2.0 ברמה AA), ככל שניתן.</p>
+  <h3>התאמות שבוצעו</h3>
+  <ul>
+    <li>האתר בעברית וכתוב מימין לשמאל, עם הגדרת שפה נכונה לקוראי מסך.</li>
+    <li>ניווט מלא במקלדת, סימון ברור של האלמנט הפעיל, וקישור "דילוג לתוכן הראשי".</li>
+    <li>תפריט נגישות עם הגדלת טקסט, ניגודיות גבוהה, הדגשת קישורים, גופן קריא ועצירת אנימציות. ההגדרות נשמרות בדפדפן.</li>
+    <li>האתר מכבד את הגדרת "הפחתת תנועה" של מערכת ההפעלה.</li>
+    <li>תוצאות הניתוח מוצגות גם כטקסט: ציון, מדידות והסברים, ולא רק על גבי התמונה. לתמונת התוצאה יש תיאור טקסטואלי.</li>
+    <li>הודעות שגיאה והתקדמות הסריקה מוקראות לקוראי מסך.</li>
+    <li>כפתורים ושדות בגודל נוח למגע, ותצוגה מותאמת למכשירים ניידים.</li>
+  </ul>
+  <h3>מגבלות</h3>
+  <p>למרות המאמצים, ייתכן שחלקים באתר טרם הונגשו במלואם. שרטוט הגבות על גבי התמונה הוא ויזואלי, והמידע שבו מופיע גם בטקסט בכרטיסי התוצאות.</p>
+  <h3>פנייה בנושא נגישות</h3>
+  <p>נתקלת בבעיה או יש לך הצעה לשיפור? אפשר לפנות ליובל יעקב בוואטסאפ <a href="https://wa.me/972545212788?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%93%D7%95%D7%95%D7%97%20%D7%A2%D7%9C%20%D7%91%D7%A2%D7%99%D7%99%D7%AA%20%D7%A0%D7%92%D7%99%D7%A9%D7%95%D7%AA%20%D7%91%D7%90%D7%AA%D7%A8" target="_blank" rel="noopener">054-5212788</a> או באינסטגרם <a href="https://www.instagram.com/_yuvalyaacov_/" target="_blank" rel="noopener">_yuvalyaacov_</a>. נשתדל להשיב ולטפל בהקדם.</p>
+  <p>עודכן לאחרונה: 05.11.2026</p>
+  <form method="dialog"><button class="x">סגירה</button></form>
+</dialog>
+<dialog class="doc" id="dlgLegal" aria-labelledby="tLegal">
+  <h2 id="tLegal">זכויות יוצרים ותנאי שימוש</h2>
+  <p>&copy; 2026 יובל יעקב עיצוב גבות (yy brow artist). כל הזכויות שמורות.</p>
+  <h3>בעלות ובלעדיות</h3>
+  <p>כל התכנים באתר, ובכלל זה הטקסטים, העיצוב והמראה, הלוגו, שם העסק ושם המעבדה, האיורים, התבניות, שיטת המדידה והדירוג, וקוד האתר, שייכים באופן בלעדי ליובל יעקב עיצוב גבות ומוגנים לפי חוק זכות יוצרים, התשס"ח-2007, ולפי כל דין אחר.</p>
+  <h3>איסורים</h3>
+  <p>ללא אישור מראש ובכתב מיובל יעקב עיצוב גבות, אסור להעתיק, לשכפל, לצלם, להפיץ, לפרסם, להציג בפומבי, לשנות, לתרגם, ליצור יצירות נגזרות, למכור או לעשות כל שימוש מסחרי בתכנים או בחלק מהם. כמו כן אסור לבצע גרידה אוטומטית של האתר (scraping), להנדס לאחור את הכלי, או להשתמש בתכנים לאימון מערכות בינה מלאכותית.</p>
+  <h3>שימוש מותר</h3>
+  <p>השימוש באתר מיועד לשימוש אישי ופרטי בלבד, לצורך בדיקת הגבות שלך וקביעת תור אצל יובל.</p>
+  <h3>התמונות שלך</h3>
+  <p>התמונה שאת מעלה נשארת במכשיר שלך ואינה נשלחת לשום שרת. הזכויות בתמונה שלך נשארות שלך.</p>
+  <h3>הערכה ראשונית</h3>
+  <p>הציונים והתבנית הם הערכה ראשונית מתמונה בלבד, ואינם מחליפים ייעוץ אישי. ההתאמה הסופית נקבעת בפגישה עם יובל.</p>
+  <h3>הפרות</h3>
+  <p>הפרת זכויות היוצרים עלולה לחשוף לתביעה אזרחית ולסעדים לפי הדין, ובהם צו מניעה ופיצויים.</p>
+  <form method="dialog"><button class="x">סגירה</button></form>
+</dialog>
+
+<div class="bar-fixed" id="stick" hidden><a class="btn wa" id="wa2" target="_blank" rel="noopener">קבעי תור מיידי בוואטסאפ</a></div>
+
+<script type="module">
+/* מעבדת הגבות: זיהוי נקודות פנים בדפדפן (MediaPipe Face Landmarker), וחישוב לפי כללי מיפוי הגבות.
+   התמונה נשארת במכשיר ואינה נשלחת לשום שרת. */
+const WA = "972545212788";
+const VER = "0.10.14";
+const LIB = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@" + VER + "/vision_bundle.mjs";
+const WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@" + VER + "/wasm";
+const MODEL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+const $ = id => document.getElementById(id);
+let imgBlob = null, imgUrl = null, last = null;
+const selected = new Set();
+const TREATMENTS = [
+  {id: "shape", label: "עיצוב גבות"}, {id: "restore", label: "שיקום גבות"}, {id: "upkeep", label: "טיפול תחזוקה"}
+];
+const METRIC_LABELS = {start: "נקודת התחלה", arch: "שיא הקשת", tail: "זנב ואורך", height: "גובה מעל העין",
+  spacing: "מרווח בין הגבות", thickness: "עובי הגבה", symmetry: "סימטריה", faceFit: "התאמה למבנה הפנים"};
+
+/* ---------- engine (starts loading as soon as the page opens) ---------- */
+let engineErr = null;
+const enginePromise = (async () => {
+  if (window.__TEST_LM__) return null;
+  const mod = await import(LIB);
+  const fileset = await mod.FilesetResolver.forVisionTasks(WASM);
+  const make = delegate => mod.FaceLandmarker.createFromOptions(fileset, {
+    baseOptions: {modelAssetPath: MODEL, delegate}, runningMode: "IMAGE", numFaces: 1});
+  try { return await make("GPU"); } catch (_) { return await make("CPU"); }
+})();
+enginePromise.catch(e => { engineErr = e; });
+
+/* ---------- upload ---------- */
+function onPick(e) {
+  const f = e.target.files[0]; if (!f) return;
+  shrink(f).then(b => {
+    imgBlob = b;
+    if (imgUrl) URL.revokeObjectURL(imgUrl);
+    imgUrl = URL.createObjectURL(b);
+    $("preview").src = imgUrl; $("preview").hidden = false;
+    $("go").disabled = false; $("err").hidden = true;
+    if (!$("result").hidden) $("go").click();   // picked from the results screen: scan right away
+  }).catch(() => showErr("לא הצלחנו לקרוא את התמונה, נסי תמונה אחרת."));
+}
+$("file").addEventListener("change", onPick);
+$("cam").addEventListener("change", onPick);
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 1280 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(b => b ? res(b) : rej(), "image/jpeg", 0.92);
+    };
+    img.onerror = rej;
+    img.src = URL.createObjectURL(file);
+  });
+}
+function showErr(m) { $("err").textContent = m; $("err").hidden = false; }
+
+/* ---------- phases + real progress ---------- */
+function phase(p) {
+  $("intake").hidden = p !== "intake"; $("scan").hidden = p !== "scan"; $("result").hidden = p !== "result";
+  $("stick").hidden = p !== "result"; document.body.classList.toggle("has-bar", p === "result");
+}
+const STEPS = ["התמונה נקראה", "טוענת את מנוע זיהוי הפנים", "מזהה את הפנים", "ממפה את הגבות והעיניים", "מחשבת מידות ותבנית"];
+function progress(n) { // n steps are finished; step n is running
+  const ul = $("steps"); ul.innerHTML = "";
+  STEPS.forEach((label, i) => {
+    const li = document.createElement("li");
+    li.className = i < n ? "done" : i === n ? "now" : "";
+    li.innerHTML = "<i></i><span></span>";
+    li.querySelector("i").textContent = i < n ? "✓" : "";
+    li.querySelector("span").textContent = label;
+    ul.appendChild(li);
+  });
+  $("prog").style.width = Math.max(6, Math.round(n / STEPS.length * 100)) + "%";
+}
+const nextFrame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 30)));
+
+$("go").addEventListener("click", async () => {
+  $("err").hidden = true; $("go").disabled = true;
+  phase("scan"); $("scanImg").src = imgUrl; progress(1); window.scrollTo({top: 0, behavior: "smooth"});
+  try {
+    await enginePromise; progress(2); await nextFrame();
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = imgUrl; });
+    let lms;
+    if (window.__TEST_LM__) lms = window.__TEST_LM__;
+    else {
+      const eng = await enginePromise;
+      const out = eng.detect(img);
+      lms = out && out.faceLandmarks && out.faceLandmarks[0];
+    }
+    if (!lms || lms.length < 468) { phase("intake"); showErr("לא זיהינו פנים בתמונה. נסי תמונה ישרה, באור טוב, שבה כל הפנים נראות."); return; }
+    progress(3); await nextFrame();
+    const r = analyze(lms, img.naturalWidth, img.naturalHeight, getPix(img));
+    progress(4); await nextFrame();
+    last = r; render(r); progress(5);
+    phase("result"); window.scrollTo({top: 0, behavior: "smooth"});
+  } catch (e) {
+    phase("intake");
+    console.error(e);
+    showErr(engineErr ? "לא הצלחנו לטעון את מנוע הזיהוי. בדקי את החיבור לאינטרנט ונסי שוב, או שלחי לנו את התמונה בוואטסאפ." : "משהו השתבש בסריקה. נסי שוב או תמונה אחרת.");
+  } finally { $("go").disabled = false; }
+});
+
+/* ---------- geometry (standard brow mapping) ----------
+   1. head: vertical line up from the outer flare of the nostril (passes the inner eye corner)
+   2. arch peak: diagonal from the nostril flare through the outer edge of the iris (about 62% of brow length)
+   3. tail: diagonal from the nostril flare through the outer eye corner; the tail tip never drops below the head baseline
+   Every size is measured in eye widths, so nothing depends on how big the photo is. */
+const IDX = {
+  L: {up: [70, 63, 105, 66, 107], lo: [46, 53, 52, 65, 55], eo: 33, ei: 133, iris: 468, ring: [469, 470, 471, 472], lid: 159, ala: 129, dir: -1},
+  R: {up: [300, 293, 334, 296, 336], lo: [276, 283, 282, 295, 285], eo: 263, ei: 362, iris: 473, ring: [474, 475, 476, 477], lid: 386, ala: 358, dir: 1}
+};
+const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+const pct = v => Math.round(v * 100);
+const lineX = (n, q, y) => { const dy = q[1] - n[1]; return Math.abs(dy) < 1e-6 ? null : n[0] + (q[0] - n[0]) * (y - n[1]) / dy; };
+const band = (v, lo, hi, soft) => (v >= lo && v <= hi) ? 100 : Math.max(35, 100 - 65 * (v < lo ? lo - v : v - hi) / soft);
+
+function herm(p0, p1, m0, m1, n) {
+  const out = [], dx = p1[0] - p0[0];
+  for (let i = 0; i <= n; i++) {
+    const u = i / n, u2 = u * u, u3 = u2 * u;
+    out.push([p0[0] + dx * u, (2 * u3 - 3 * u2 + 1) * p0[1] + (u3 - 2 * u2 + u) * m0 * dx + (-2 * u3 + 3 * u2) * p1[1] + (u3 - u2) * m1 * dx]);
+  }
+  return out;
+}
+function browCenter(o) {
+  const dx1 = o.arch[0] - o.start[0], dx2 = o.tail[0] - o.arch[0];
+  const m0 = Math.abs(dx1) > 1 ? (o.arch[1] - o.start[1]) / dx1 * 0.55 : 0;
+  const m2 = Math.abs(dx2) > 1 ? (o.tail[1] - o.arch[1]) / dx2 * 0.85 : 0;
+  return herm(o.start, o.arch, m0, 0, 14).concat(herm(o.arch, o.tail, 0, m2, 14).slice(1));
+}
+
+/* ---------- measuring the real brow hair from the photo ---------- */
+function getPix(img) {
+  const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const x = c.getContext("2d", {willReadFrequently: true}); x.drawImage(img, 0, 0);
+  const d = x.getImageData(0, 0, c.width, c.height).data, lum = new Float32Array(c.width * c.height), sat = new Float32Array(c.width * c.height);
+  for (let i = 0, j = 0; j < lum.length; i += 4, j++) { lum[j] = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; sat[j] = Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]); }
+  return {w: c.width, h: c.height, lum, sat};
+}
+function segDist(p, a, b) {
+  const vx = b[0] - a[0], vy = b[1] - a[1], l2 = vx * vx + vy * vy || 1;
+  const t = clampN(((p[0] - a[0]) * vx + (p[1] - a[1]) * vy) / l2, 0, 1);
+  return Math.hypot(p[0] - a[0] - vx * t, p[1] - a[1] - vy * t);
+}
+const pctile = (arr, q) => { const a = arr.slice().sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.max(0, Math.round(q * (a.length - 1))))]; };
+/* Finds the dark hair mass around the landmark brow, then reads head / arch / tail / thickness from it.
+   Returns null when the contrast is too low, so the caller falls back to landmarks. All output is in the straightened frame (toF). */
+function refineBrow(pix, cen, ew, th, lid, outward, toF) {
+  if (!pix) return null;
+  const k = pix.w / 1000, Rr = Math.max(th.head, th.arch, th.tail, 0.14 * ew) / 2 + 0.10 * ew;
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  cen.forEach(p => { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+  const px0 = Math.max(1, Math.floor((x0 - Rr) * k)), px1 = Math.min(pix.w - 2, Math.ceil((x1 + Rr) * k));
+  const py0 = Math.max(1, Math.floor((y0 - Rr) * k)), py1 = Math.min(pix.h - 2, Math.ceil((y1 + Rr) * k));
+  const bw = px1 - px0 + 1, bh = py1 - py0 + 1; if (bw < 10 || bh < 6) return null;
+  const val = new Float32Array(bw * bh), inR = new Uint8Array(bw * bh), vals = [];
+  const L = pix.lum, w = pix.w;
+  for (let y = py0; y <= py1; y++) for (let x = px0; x <= px1; x++) {
+    const i = (y - py0) * bw + (x - px0), u = [x / k, y / k];
+    let d = 1e9; for (let j = 0; j < cen.length - 1; j++) d = Math.min(d, segDist(u, cen[j], cen[j + 1]));
+    if (d > Rr || u[1] > lid - 0.05 * ew) continue;
+    val[i] = (L[(y - 1) * w + x - 1] + L[(y - 1) * w + x] + L[(y - 1) * w + x + 1] + L[y * w + x - 1] + L[y * w + x] + L[y * w + x + 1] +
+      L[(y + 1) * w + x - 1] + L[(y + 1) * w + x] + L[(y + 1) * w + x + 1]) / 9;
+    inR[i] = 1; vals.push(val[i]);
+  }
+  if (vals.length < 200) return null;
+  const hist = new Float64Array(256); vals.forEach(v => { hist[Math.min(255, Math.max(0, Math.round(v)))]++; });
+  let tot = vals.length, sumAll = 0; for (let i = 0; i < 256; i++) sumAll += i * hist[i];
+  let wB = 0, sumB = 0, best = -1, thr = 128, m0 = 0, m1 = 0;
+  for (let t = 0; t < 256; t++) {
+    wB += hist[t]; if (!wB) continue; const wF = tot - wB; if (!wF) break;
+    sumB += t * hist[t]; const mB = sumB / wB, mF = (sumAll - sumB) / wF, v = wB * wF * (mB - mF) * (mB - mF);
+    if (v > best) { best = v; thr = t; m0 = mB; m1 = mF; }
+  }
+  const frac = vals.filter(v => v <= thr).length / tot;
+  if (m1 - m0 < 22 || frac < 0.08 || frac > 0.8) return null;
+  // largest connected dark component
+  const lab = new Int32Array(bw * bh); let bestLab = 0, bestN = 0, cur = 0; const stack = [];
+  for (let s0 = 0; s0 < bw * bh; s0++) {
+    if (!inR[s0] || val[s0] > thr || lab[s0]) continue;
+    cur++; let n = 0; stack.push(s0); lab[s0] = cur;
+    while (stack.length) {
+      const q = stack.pop(); n++; const qx = q % bw, qy = (q - qx) / bw;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const nx = qx + dx, ny = qy + dy; if (nx < 0 || ny < 0 || nx >= bw || ny >= bh) continue;
+        const ni = ny * bw + nx; if (inR[ni] && !lab[ni] && val[ni] <= thr) { lab[ni] = cur; stack.push(ni); }
+      }
+    }
+    if (n > bestN) { bestN = n; bestLab = cur; }
+  }
+  if (bestN < 60) return null;
+  const pts = [];
+  for (let i = 0; i < bw * bh; i++) if (lab[i] === bestLab) { const x = i % bw, y = (i - x) / bw; pts.push(toF([(px0 + x) / k, (py0 + y) / k])); }
+  // u grows toward the nose (head)
+  const sg = -outward;
+  // never extend past the landmark span by more than a little: beyond that it is usually hair or shadow, not brow
+  const lu = cen.map(p => toF(p)[0] * sg), luT = Math.min(...lu) - 0.08 * ew, luH = Math.max(...lu) + 0.08 * ew;
+  const keep = pts.filter(p => p[0] * sg >= luT && p[0] * sg <= luH);
+  if (keep.length < 60) return null;
+  pts.length = 0; keep.forEach(p => pts.push(p));
+  const us = pts.map(p => p[0] * sg);
+  const uT = pctile(us, 0.02), uH = pctile(us, 0.98), len = uH - uT;
+  if (len < 0.8 * ew || len > 2.4 * ew) return null;
+  const NB = 16, bins = Array.from({length: NB}, () => []);
+  pts.forEach((p, i) => { const f = (us[i] - uT) / len; if (f >= 0 && f <= 1) bins[Math.min(NB - 1, Math.floor(f * NB))].push(p[1]); });
+  const prof = [];
+  bins.forEach((ys, i) => { if (ys.length >= 3) prof.push({f: (i + 0.5) / NB, c: avg(ys), t: pctile(ys, 0.9) - pctile(ys, 0.1)}); });
+  if (prof.length < 8) return null;
+  const sm = prof.map((p, i) => ({f: p.f, c: avg([prof[Math.max(0, i - 1)].c, p.c, prof[Math.min(prof.length - 1, i + 1)].c]), t: p.t}));
+  const xAt = f => (uT + f * len) * sg;           // f=0 tail, f=1 head
+  const hd = sm.filter(p => p.f > 0.86), tl = sm.filter(p => p.f < 0.14);
+  const mids = sm.filter(p => p.f >= 0.3 && p.f <= 0.9);
+  if (!hd.length || !tl.length || !mids.length) return null;
+  const ap = mids.reduce((a, p) => p.c < a.c ? p : a, mids[0]);
+  const medT = a => pctile(a.map(p => p.t), 0.5);
+  return {
+    start: [xAt(1), avg(hd.map(p => p.c))], arch: [xAt(ap.f), ap.c], tail: [xAt(0), avg(tl.map(p => p.c))],
+    th: {head: medT(hd), arch: ap.t, tail: medT(tl)}, archBottom: ap.c + ap.t / 2,
+    line: sm.map(p => [xAt(p.f), p.c])   // tail -> head
+  };
+}
+
+
+/* The lines start at the farthest (outermost) point of the inner nostril opening, not at the outer wing of the nose.
+   Starting from a geometric estimate, we look for the dark opening in the photo and take its outermost point. */
+function refineNostril(pix, est, ew, outward, maxU) {
+  if (!pix) return null;
+  const k = pix.w / 1000, r = 0.24 * ew, w = pix.w, L = pix.lum;
+  const x0 = Math.max(1, Math.floor((est[0] - r) * k)), x1 = Math.min(pix.w - 2, Math.ceil((est[0] + r) * k));
+  const y0 = Math.max(1, Math.floor((est[1] - r) * k)), y1 = Math.min(pix.h - 2, Math.ceil((est[1] + r) * k));
+  const bw = x1 - x0 + 1, bh = y1 - y0 + 1; if (bw < 8 || bh < 8) return null;
+  const val = new Float32Array(bw * bh);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++)
+    val[(y - y0) * bw + x - x0] = (L[(y - 1) * w + x - 1] + L[(y - 1) * w + x] + L[(y - 1) * w + x + 1] + L[y * w + x - 1] + L[y * w + x] + L[y * w + x + 1] +
+      L[(y + 1) * w + x - 1] + L[(y + 1) * w + x] + L[(y + 1) * w + x + 1]) / 9;
+  // the nostril opening is the darkest spot around here: take the dark pixels connected to the darkest one
+  let mi = 0; for (let i = 1; i < val.length; i++) if (val[i] < val[mi]) mi = i;
+  const med = pctile(Array.from(val), 0.5), vmin = val[mi];
+  if (med - vmin < 30) return null;
+  const thr = vmin + 0.5 * (med - vmin), seen = new Uint8Array(bw * bh), st = [mi], pts = []; seen[mi] = 1;
+  while (st.length) {
+    const q = st.pop(), qx = q % bw, qy = (q - qx) / bw; pts.push([qx, qy]);
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const nx = qx + dx, ny = qy + dy; if (nx < 0 || ny < 0 || nx >= bw || ny >= bh) continue;
+      const ni = ny * bw + nx; if (!seen[ni] && val[ni] <= thr) { seen[ni] = 1; st.push(ni); }
+    }
+  }
+  if (pts.length < 10) return null;
+  let pp = pts;
+  if (maxU != null) { pp = pts.filter(p => (p[0] + x0) / k * outward <= maxU); if (pp.length < 10) return null; }
+  const us = pp.map(p => (p[0] + x0) / k * outward), cut = pctile(us, 0.9);
+  const edge = pp.filter((p, i) => us[i] >= cut);
+  const pt = [avg(edge.map(p => (p[0] + x0) / k)), avg(edge.map(p => (p[1] + y0) / k))];
+  return dist(pt, est) <= 0.25 * ew ? pt : null;
+}
+
+/* Inner eye corner (tear duct). The landmark can land a little short, so we follow the white of the eye (sclera) from beside the iris
+   toward the nose until it ends, and place the corner just past that end, where the upper and lower lid lines meet. */
+function refineInnerCorner(pix, ei, iris, irisR, ew, medial) {
+  if (!pix || !iris) return null;
+  const k = pix.w / 1000, w = pix.w, L = pix.lum, S = pix.sat;
+  const seed = [iris[0] + medial * irisR * 1.3, iris[1] + irisR * 0.3];
+  const xa = Math.min(seed[0], ei[0] + medial * 0.25 * ew, ei[0] - medial * 0.25 * ew), xb = Math.max(seed[0], ei[0] + medial * 0.25 * ew, ei[0] - medial * 0.25 * ew);
+  const ya = Math.min(seed[1], ei[1]) - 0.14 * ew, yb = Math.max(seed[1], ei[1]) + 0.20 * ew;
+  const x0 = Math.max(1, Math.floor(xa * k)), x1 = Math.min(pix.w - 2, Math.ceil(xb * k)), y0 = Math.max(1, Math.floor(ya * k)), y1 = Math.min(pix.h - 2, Math.ceil(yb * k));
+  const bw = x1 - x0 + 1, bh = y1 - y0 + 1; if (bw < 8 || bh < 6) return null;
+  const sx = Math.round(seed[0] * k) - x0, sy = Math.round(seed[1] * k) - y0; if (sx < 0 || sy < 0 || sx >= bw || sy >= bh) return null;
+  const ref = L[(sy + y0) * w + sx + x0]; if (S[(sy + y0) * w + sx + x0] > 55 || ref < 90) return null;
+  const seedSat = S[(sy + y0) * w + sx + x0];
+  const ok = new Uint8Array(bw * bh);
+  for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) { const i = (y + y0) * w + x + x0; ok[y * bw + x] = (Math.abs(L[i] - ref) < 38 && S[i] < seedSat + 22) ? 1 : 0; }
+  // flood fill from the seed
+  const seen = new Uint8Array(bw * bh), st = [sy * bw + sx], pts = [];
+  // seed might sit on a speck; widen to the nearest ok pixel
+  if (!ok[st[0]]) return null;
+  seen[st[0]] = 1;
+  while (st.length) {
+    const q = st.pop(), qx = q % bw, qy = (q - qx) / bw; pts.push([qx, qy]);
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const nx = qx + dx, ny = qy + dy; if (nx < 0 || ny < 0 || nx >= bw || ny >= bh) continue;
+      const ni = ny * bw + nx; if (ok[ni] && !seen[ni]) { seen[ni] = 1; st.push(ni); }
+    }
+  }
+  if (pts.length < 40) return null;
+  // if the white region ran into the edge of the search window it leaked into skin: do not trust it
+  const wallX = medial > 0 ? bw - 2 : 1;
+  if (pts.some(p => p[0] === wallX || p[0] === wallX + (medial > 0 ? 1 : -1))) return null;
+  const us = pts.map(p => (p[0] + x0) / k * medial), cut = pctile(us, 0.96);
+  const tip = pts.filter((p, i) => us[i] >= cut);
+  const end = [avg(tip.map(p => (p[0] + x0) / k)), avg(tip.map(p => (p[1] + y0) / k))];
+  // The white of the eye narrows into a wedge. Fit its upper and lower edges near the nose end and
+  // extend them until they meet: that meeting point is the true inner corner (it lies past the visible white).
+  const tops = new Map(), bots = new Map();
+  pts.forEach((p, i) => {
+    const u = us[i]; if (u < end[0] * medial - 0.24 * ew || u > end[0] * medial - 0.03 * ew) return;
+    const cx = p[0] + x0, y = (p[1] + y0) / k;
+    if (!tops.has(cx) || y < tops.get(cx)) tops.set(cx, y);
+    if (!bots.has(cx) || y > bots.get(cx)) bots.set(cx, y);
+  });
+  const fit = m => { const xs = [...m.keys()].map(x => x / k), ys = [...m.values()]; if (xs.length < 5) return null;
+    const mx = avg(xs), my = avg(ys); let sxx = 0, sxy = 0; xs.forEach((x, i) => { sxx += (x - mx) * (x - mx); sxy += (x - mx) * (ys[i] - my); });
+    return sxx < 1e-6 ? null : {b: sxy / sxx, a: my - sxy / sxx * mx}; };
+  const ft = fit(tops), fb = fit(bots);
+  let est = [end[0] + medial * 0.04 * ew, end[1] + 0.04 * ew];
+  if (ft && fb && Math.abs(ft.b - fb.b) > 0.05) {
+    const xi = (fb.a - ft.a) / (ft.b - fb.b), yi = ft.a + ft.b * xi;
+    const past = (xi - end[0]) * medial;
+    if (past >= 0 && past <= 0.2 * ew && Math.abs(yi - end[1]) < 0.15 * ew) est = [xi, yi];
+  }
+  if (dist(est, ei) > 0.3 * ew) return null;
+  // the landmark can fall short of the corner but not beyond it: a move away from the nose means the estimate is wrong
+  if ((est[0] - ei[0]) * medial < -0.02 * ew) return null;
+  return [est[0] * 0.7 + ei[0] * 0.3, est[1] * 0.7 + ei[1] * 0.3];
+}
+
+/* Outer edge of the nostril (where the nose ends sideways). Walking outward from the inner nostril, row by row,
+   we look for the strongest step from darker nose wing (or its crease) to brighter cheek. This works on both the
+   shadowed side (a dark crease) and the lit side (no crease, just a step). We keep the widest rows. */
+function refineAlaEdge(pix, n, ew, outward) {
+  if (!pix || !n) return null;
+  const k = pix.w / 1000, w = pix.w, L = pix.lum, rows = [];
+  for (let dy = -0.16; dy <= 0.0001; dy += 0.02) {
+    const y = Math.round((n[1] + dy * ew) * k); if (y < 2 || y >= pix.h - 2) continue;
+    const ts = [], vs = [];
+    for (let t = 0.03; t <= 0.42; t += 0.01) {
+      const x = Math.round((n[0] + outward * t * ew) * k); if (x < 2 || x >= w - 2) continue;
+      let v = 0; for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) v += L[(y + yy) * w + x + xx];
+      ts.push(t); vs.push(v / 9);
+    }
+    if (ts.length < 15) continue;
+    const sm = vs.map((v, i) => avg(vs.slice(Math.max(0, i - 1), i + 2)));
+    let best = null;
+    for (let i = 2; i < ts.length - 2; i++) {
+      if (ts[i] < 0.06 || ts[i] > 0.38) continue;
+      const g = sm[i + 2] - sm[i - 2];
+      if (!best || g > best.g) best = {t: ts[i], g};
+    }
+    if (best && best.g >= 12) rows.push({t: best.t, y: y / k, g: best.g});
+  }
+  if (rows.length < 3) return null;
+  rows.sort((a, b) => b.t - a.t);
+  const top = rows.slice(0, Math.max(2, Math.ceil(rows.length * 0.3)));
+  const t = avg(top.map(r => r.t));
+  return {pt: [n[0] + outward * t * ew, avg(top.map(r => r.y))], conf: rows.length + avg(top.map(r => r.g)) / 40};
+}
+
+function analyze(lms, W, H, pix) {
+  const U = 1000, V = 1000 * H / W;
+  const R0 = i => [lms[i].x * U, lms[i].y * V];
+  const hasIris = lms.length >= 478;
+  // straighten the head: rotate everything so the eye line is horizontal (all geometry below happens in this frame)
+  const rollRad = (Math.atan2(R0(263)[1] - R0(33)[1], R0(263)[0] - R0(33)[0]) + Math.atan2(R0(362)[1] - R0(133)[1], R0(362)[0] - R0(133)[0])) / 2;
+  const roll = rollRad * 180 / Math.PI;
+  const c0 = mid(mid(R0(133), R0(362)), mid(R0(33), R0(263)));
+  const cs = Math.cos(-rollRad), sn = Math.sin(-rollRad);
+  const toF = p => { const x = p[0] - c0[0], y = p[1] - c0[1]; return [c0[0] + x * cs - y * sn, c0[1] + x * sn + y * cs]; };
+  const fromF = p => { const x = p[0] - c0[0], y = p[1] - c0[1]; return [c0[0] + x * cs + y * sn, c0[1] - x * sn + y * cs]; };
+  const L = i => toF(R0(i));
+  const sd = {}; const measured = {};
+  ["L", "R"].forEach(s => {
+    const c = IDX[s];
+    let EI = L(c.ei); const EO = L(c.eo), ALAo = L(c.ala), LID = L(c.lid);
+    if (hasIris) {
+      try {
+        const ir = R0(c.iris), irR = avg(c.ring.map(i => dist(ir, R0(i))));
+        const eiN = refineInnerCorner(pix, R0(c.ei), ir, irR, dist(R0(c.ei), R0(c.eo)), -c.dir);
+        if (eiN) EI = toF(eiN);
+      } catch (e) { console.warn(e); }
+    }
+    const eyeW = dist(EI, EO);
+    // inner nostril: estimated a little inward and down from the outer wing, then checked against the photo
+    const nEst = [ALAo[0] - c.dir * 0.17 * eyeW, ALAo[1] + 0.10 * eyeW];
+    let nRaw = null; try { nRaw = refineNostril(pix, fromF(nEst), eyeW, c.dir); } catch (e) { console.warn(e); }
+    let ALA = nRaw ? toF(nRaw) : nEst;
+    // outer nostril edge for line 3: found in the photo, else the landmark on the nose wing
+    let aRes = null; try { aRes = refineAlaEdge(pix, fromF(ALA), eyeW, c.dir); } catch (e) { console.warn(e); }
+    if (aRes && dist(toF(aRes.pt), ALAo) > 0.35 * eyeW) aRes = null;
+    const aRaw = aRes ? aRes.pt : null, alaConf = aRes ? aRes.conf : 0;
+    // the opening of the nostril always ends inside the nose wing: if it reached the wing's edge, it ran into a shadow
+    if (aRaw && nRaw && (aRaw[0] - nRaw[0]) * c.dir < 0.08 * eyeW) {
+      let n2 = null; try { n2 = refineNostril(pix, fromF(nEst), eyeW, c.dir, aRaw[0] * c.dir - 0.08 * eyeW); } catch (e) { console.warn(e); }
+      nRaw = n2; ALA = nRaw ? toF(nRaw) : toF([aRaw[0] - c.dir * 0.18 * eyeW, aRaw[1] + 0.12 * eyeW]);
+    }
+    const ALAout = aRaw ? toF(aRaw) : ALAo;
+    let IO;
+    if (hasIris) { const ctr = L(c.iris), rad = avg(c.ring.map(i => dist(ctr, L(i)))); IO = [ctr[0] + c.dir * rad, ctr[1]]; }
+    else { const m = mid(EI, EO); IO = [m[0] + c.dir * 0.2 * eyeW, m[1]]; }
+    const upR = c.up.map(R0), loR = c.lo.map(R0), cenR = upR.map((p, i) => mid(p, loR[i]));
+    const up = upR.map(toF), lo = loR.map(toF), centers = cenR.map(toF);
+    let ai = 1; for (let i = 1; i <= 3; i++) if (centers[i][1] < centers[ai][1]) ai = i;
+    const th = {head: dist(up[4], lo[4]), arch: dist(up[ai], lo[ai]), tail: dist(up[0], lo[0])};
+    let ref = null;
+    try { ref = refineBrow(pix, cenR, eyeW, th, R0(c.lid)[1], c.dir, toF); } catch (e) { console.warn(e); }
+    measured[s] = !!ref;
+    sd[s] = {EI, EO, ALA, ALAo: ALAout, ALAlm: ALAo, alaFound: !!aRaw, alaConf, nosFound: !!nRaw, alaMirrored: false, LID, IO, eyeW, up, lo,
+      centers: ref ? ref.line : centers,
+      start: ref ? ref.start : centers[4], arch: ref ? ref.arch : centers[ai], tail: ref ? ref.tail : centers[0],
+      th: ref ? ref.th : th, lowArch: ref ? [ref.arch[0], ref.archBottom] : lo[ai], ref: !!ref};
+  });
+  const eyeW = (sd.L.eyeW + sd.R.eyeW) / 2;
+  // The nose is symmetric: when one side's outer nostril edge was not found, or the two sides disagree a lot,
+  // mirror the more reliable side across the middle line of the nose.
+  {
+    const midN = avg([168, 6, 197, 195, 5, 4, 1, 2, 94].map(i => L(i)[0]));
+    const dOf = s => Math.abs(sd[s].ALAo[0] - midN), dLm = s => Math.abs(sd[s].ALAlm[0] - midN);
+    const yawEarly = (() => { const tp = L(1), a = Math.abs(tp[0] - L(234)[0]), b = Math.abs(L(454)[0] - tp[0]); return (a - b) / (a + b); })();
+    const mirror = (from, to) => { const f = sd[from].ALAo; sd[to].ALAo = [2 * midN - f[0], f[1]]; sd[to].alaMirrored = true; };
+    if (Math.abs(yawEarly) < 0.12) {
+      // inner nostril: the thin outer end of the opening tends to fade, so a detection falls short rather than long.
+      // Use the wider of the two sides for both (or mirror when one side was not found).
+      const nd = s => Math.abs(sd[s].ALA[0] - midN), setN = (s, d) => { sd[s].ALA = [midN + (s === "L" ? -1 : 1) * d, sd[s].ALA[1]]; };
+      const nL = sd.L.nosFound, nR = sd.R.nosFound;
+      if (nL && nR && Math.abs(nd("L") - nd("R")) < 0.12 * eyeW) { const d = Math.max(nd("L"), nd("R")); setN("L", d); setN("R", d); }
+      else if (nL && !nR) { setN("R", nd("L")); sd.R.ALA[1] = sd.L.ALA[1]; }
+      else if (nR && !nL) { setN("L", nd("R")); sd.L.ALA[1] = sd.R.ALA[1]; }
+      const fL = sd.L.alaFound, fR = sd.R.alaFound;
+      if (fL && !fR) mirror("L", "R");
+      else if (fR && !fL) mirror("R", "L");
+      else if (fL && fR && Math.abs(dOf("L") - dOf("R")) > 0.10 * eyeW) {
+        // keep the side that agrees better with the face model and with a stronger detection
+        const badL = Math.abs(dOf("L") - dLm("L")) - sd.L.alaConf * 0.002 * eyeW, badR = Math.abs(dOf("R") - dLm("R")) - sd.R.alaConf * 0.002 * eyeW;
+        if (badL > badR) mirror("R", "L"); else mirror("L", "R");
+      }
+    }
+  }
+  const midEye = mid(sd.L.EI, sd.R.EI);
+  // face shape + pose
+  const faceLen = dist(L(10), L(152)), cheek = dist(L(234), L(454)), jaw = dist(L(172), L(397)), fore = dist(L(54), L(284));
+  const lenR = faceLen / cheek, jawR = jaw / cheek, foreR = fore / cheek;
+  let faceShape = "אליפטי";
+  if (lenR >= 1.45) faceShape = "מאורך";
+  else if (jawR >= 0.88 && lenR < 1.35) faceShape = "מרובע";
+  else if (jawR < 0.72 && foreR >= 0.88) faceShape = "לב";
+  else if (lenR < 1.25 && jawR >= 0.72) faceShape = "עגול";
+  const tip = L(1), dl = Math.abs(tip[0] - L(234)[0]), dr = Math.abs(L(454)[0] - tip[0]);
+  const yaw = (dl - dr) / (dl + dr);
+  const warn = [];
+  if (Math.abs(roll) > 25) warn.push("הראש נוטה הרבה הצידה, ולכן חלק מהמדידות פחות מדויקות. כדאי לצלם עם ראש ישר.");
+  if (Math.abs(yaw) > 0.15) warn.push("הפנים לא פונות ישר למצלמה, ולכן חלק מהמדידות פחות מדויקות.");
+  if (!(measured.L && measured.R)) warn.push("לא הצלחנו לזהות את שיער הגבה בבירור בתמונה (ייתכן שהגבה בהירה או שהתאורה חלשה), ולכן חלק מהמדידות מבוססות על הערכה מנקודות הפנים. תמונה באור יום, מול החלון, תיתן תוצאה מדויקת יותר.");
+
+  // ideal brows, from the standard lines (all in the straightened frame)
+  const wt = 0.10 * eyeW;
+  const ideal = {L: null, R: null};
+  ["L", "R"].forEach(s => {
+    const c = sd[s], N = c.ALA;
+    const wh = clampN(c.th.head, 0.24 * eyeW, 0.38 * eyeW), wa = clampN(c.th.arch, 0.20 * eyeW, 0.32 * eyeW);
+    const yS = c.start[1], base = yS + wh / 2;
+    // head: the line from the nostril flare up through the inner eye corner, read at the height of the brow head
+    let xS = N[0];   // line 1 is a straight vertical from the inner nostril, up past the eye socket
+    // the template head stays close to the hair that exists: at most a little trimming or growth versus the real head
+    const xStd = xS;
+    xS = clampN(xS, c.start[0] - 0.10 * eyeW, c.start[0] + 0.10 * eyeW);
+    // the tail sits on the baseline level (the horizontal line at the bottom of the head), at most a little above it
+    const yTmax = base - wt / 2, yTmin = yTmax - 0.10 * eyeW;
+    const yT = clampN(c.tail[1], yTmin, yTmax);
+    const rise = clampN(yS - c.arch[1], 0.18 * eyeW, 0.50 * eyeW), yA = yS - rise;
+    // line 3 starts at the OUTER edge of the nostril (where the nose ends sideways); lines 1 and 2 start at the inner nostril
+    const N3 = c.ALAo;
+    let xT = lineX(N3, c.EO, yT), xA = lineX(N, c.IO, yA);
+    if (xT === null || !isFinite(xT) || Math.abs(xT - c.tail[0]) > 0.2 * U) xT = c.tail[0];
+    // thread, wax and tweezers cannot add hair: the template tail never runs more than a little past the hair that exists
+    const xT0 = xT, out = IDX[s].dir, capT = c.tail[0] + out * 0.12 * eyeW;
+    if (out * (xT - capT) > 0) xT = capT;
+    if ((s === "L" && !(xT < xS)) || (s === "R" && !(xT > xS))) return;
+    let archOnLine = true;
+    if (xA === null || !isFinite(xA) || Math.abs(xA - c.arch[0]) > 0.2 * U) { xA = c.arch[0]; archOnLine = false; }
+    const ratio = (xA - xS) / (xT - xS);
+    if (!(ratio > 0.5 && ratio < 0.76)) { xA = xS + (xT - xS) * 0.618; archOnLine = false; }
+    const lA = lineX(N, c.IO, yA);
+    ideal[s] = {s1: [xStd, yS], s2: [lA !== null && isFinite(lA) ? lA : xA, yA], s3: [xT0, yT], start: [xS, yS], arch: [xA, yA], tail: [xT, yT], N3, wh, wa, wt, base, N, archOnLine};
+  });
+  // The two gold brows must be a matching pair: same length and arch position, measured from the middle of the nose.
+  if (ideal.L && ideal.R) {
+    const midX = (ideal.L.N[0] + ideal.R.N[0]) / 2, SS = ["L", "R"];
+    const avgD = k => avg(SS.map(s => Math.abs(ideal[s][k][0] - midX)));
+    const capD = SS.map(s => Math.abs(sd[s].tail[0] - midX) + 0.25 * eyeW);   // no more than a little past the hair that exists
+    const hD = avgD("start"), tD = Math.max(hD + 0.8 * eyeW, Math.min(avgD("tail"), ...capD));
+    let aD = avgD("arch"); if (!(aD > hD + 0.2 * eyeW && aD < tD - 0.2 * eyeW)) aD = hD + (tD - hD) * 0.618;
+    const rise = avg(SS.map(s => ideal[s].start[1] - ideal[s].arch[1])), wh = avg(SS.map(s => ideal[s].wh)), wa = avg(SS.map(s => ideal[s].wa));
+    SS.forEach(s => {
+      const o = ideal[s], sg = s === "L" ? -1 : 1;
+      o.start = [midX + sg * hD, o.start[1]]; o.arch = [midX + sg * aD, o.start[1] - rise]; o.tail = [midX + sg * tD, o.tail[1]];
+      o.wh = wh; o.wa = wa; o.base = o.start[1] + wh / 2;
+    });
+  }
+  const both = ["L", "R"].filter(s => ideal[s]);
+
+  // numbers
+  const gc = Math.abs(sd.L.start[0] - sd.R.start[0]) / eyeW, gi = (ideal.L && ideal.R ? Math.abs(ideal.L.s1[0] - ideal.R.s1[0]) : Math.abs(sd.L.ALA[0] - sd.R.ALA[0])) / eyeW, gd = gc - gi;
+  const dIn = avg(["L", "R"].map(s => (sd[s].start[0] - (ideal[s] ? ideal[s].s1[0] : sd[s].ALA[0])) * (-IDX[s].dir)));
+  const dInN = dIn / eyeW;
+  const rc = avg(["L", "R"].map(s => Math.abs(sd[s].arch[0] - sd[s].start[0]) / Math.abs(sd[s].tail[0] - sd[s].start[0])));
+  const ri = both.length ? avg(both.map(s => Math.abs(ideal[s].arch[0] - ideal[s].start[0]) / Math.abs(ideal[s].tail[0] - ideal[s].start[0]))) : 0.618;
+  const drop = both.length ? avg(both.map(s => ((sd[s].tail[1] + ideal[s].wt / 2) - ideal[s].base) / eyeW)) : 0;
+  const lr = both.length ? avg(both.map(s => dist(sd[s].start, sd[s].tail) / dist(ideal[s].start, ideal[s].tail))) : 1;
+  const rs = avg(["L", "R"].map(s => (sd[s].start[1] - sd[s].arch[1]) / eyeW));
+  const gap = avg(["L", "R"].map(s => (sd[s].LID[1] - sd[s].lowArch[1]) / eyeW));
+  const thH = avg(["L", "R"].map(s => sd[s].th.head)) / eyeW, thA = avg(["L", "R"].map(s => sd[s].th.arch)) / eyeW;
+  const hl = (sd.L.EI[1] - sd.L.arch[1]) / eyeW, hr = (sd.R.EI[1] - sd.R.arch[1]) / eyeW, dh = Math.abs(hl - hr);
+  const dsym = Math.abs((midEye[0] - sd.L.start[0]) - (sd.R.start[0] - midEye[0])) / eyeW;
+  const angle = avg(["L", "R"].map(s => {
+    const a = [sd[s].start[0] - sd[s].arch[0], sd[s].start[1] - sd[s].arch[1]], b = [sd[s].tail[0] - sd[s].arch[0], sd[s].tail[1] - sd[s].arch[1]];
+    const cos = (a[0] * b[0] + a[1] * b[1]) / ((Math.hypot(a[0], a[1]) * Math.hypot(b[0], b[1])) || 1);
+    return Math.acos(clampN(cos, -1, 1)) * 180 / Math.PI;
+  }));
+
+  // face-shape fit
+  const FIT = {
+    "עגול": {lo: 0.25, hi: 0.45, tip: "קשת מורמת מעט עם זנב מוגדר מאריכה את הפנים"},
+    "מרובע": {lo: 0.18, hi: 0.32, tip: "קשת רכה ומעוגלת מרככת את קו הלסת"},
+    "מאורך": {lo: 0.10, hi: 0.25, tip: "גבה ישרה יחסית וארוכה מקצרת ויזואלית את הפנים"},
+    "לב": {lo: 0.18, hi: 0.32, tip: "קשת רכה ועגולה בלי זנב חד מאזנת את המצח"},
+    "אליפטי": {lo: 0.18, hi: 0.40, tip: "רוב הצורות מתאימות, וקשת רכה היא בחירה בטוחה"}
+  }[faceShape];
+
+  const M = {};
+  M.start = {score: band(dInN, -0.08, 0.08, 0.35),
+    finding: Math.abs(dInN) <= 0.08 ? "ראש הגבה מתחיל על האנך מקצה הנחיר, בדיוק במקום." :
+      dInN > 0 ? "ראש הגבה נכנס פנימה, " + pct(dInN) + "% מרוחב עין לפני האנך מקצה הנחיר." : "ראש הגבה מתחיל " + pct(-dInN) + "% מרוחב עין אחרי האנך מקצה הנחיר.",
+    tip: Math.abs(dInN) <= 0.08 ? "לשמור על נקודת ההתחלה בכל תחזוקה." :
+      dInN > 0 ? "להסיר שערות בין הגבות עד האנך מקצה הנחיר, בפינצטה או בחוט." : "אפשר לתת לשיער לצמוח פנימה ולשרטט את ההתחלה מחדש לפני העיצוב."};
+  M.arch = {score: band(rc, 0.55, 0.68, 0.25),
+    finding: (rc >= 0.55 && rc <= 0.68) ? "שיא הקשת נמצא ב-" + pct(rc) + "% מאורך הגבה, קרוב ליחס הזהב." :
+      rc < 0.55 ? "שיא הקשת מוקדם מדי (" + pct(rc) + "% מהאורך), קרוב לראש הגבה." : "שיא הקשת מאוחר מדי (" + pct(rc) + "% מהאורך), קרוב לזנב.",
+    tip: (rc >= 0.55 && rc <= 0.68) ? "לשמור על השיא במקומו." :
+      rc < 0.55 ? "לשרטט את השיא מעל קצה הקשתית ולהסיר שיער שמזיז את השיא פנימה." : "להזיז את השיא פנימה, מעל קצה הקשתית."};
+  const dropS = band(drop, -1, 0.10, 0.35), lenS = band(lr, 0.9, 1.1, 0.45);
+  M.tail = {score: (dropS + lenS) / 2,
+    finding: drop > 0.10 ? "הזנב יורד מתחת לקו הבסיס של הראש ונותן מראה עייף." :
+      lr < 0.9 ? "הגבה קצרה מהאורך המומלץ (" + pct(lr) + "% ממנו)." : lr > 1.1 ? "הגבה ארוכה מעט מהאורך המומלץ (" + pct(lr) + "% ממנו)." : "הזנב בגובה ובאורך מתאימים.",
+    tip: drop > 0.10 ? "להסיר שערות מתחת לזנב ולהרים אותו עד קו הבסיס." :
+      lr < 0.9 ? "לתת לשיער לצמוח בזנב, ולשרטט את האורך עד הקו מפינת העין." : lr > 1.1 ? "לקצר את הזנב עד הקו מפינת העין." : "לשמור על הצורה בתחזוקה."};
+  M.height = {score: band(gap, 0.32, 0.65, 0.5),
+    finding: gap < 0.32 ? "הגבות קרובות יחסית לעין (" + pct(gap) + "% מרוחב עין)." : gap > 0.65 ? "הגבות גבוהות יחסית מעל העין (" + pct(gap) + "% מרוחב עין)." : "מרחק נעים בין הגבה לעין.",
+    tip: gap < 0.32 ? "להסיר בעדינות שיער מתחת לגבה כדי לפתוח את המבט, בלי לדלל יותר מדי." : gap > 0.65 ? "לשמור על הקו התחתון ולא להסיר שיער מתחת לגבה." : "לשמור על הקו התחתון."};
+  M.spacing = {score: band(gd, -0.12, 0.12, 0.6),
+    finding: Math.abs(gd) <= 0.12 ? "ראשי הגבות במרחק הנכון זה מזה." : gd > 0 ? "ראשי הגבות רחוקים זה מזה." : "ראשי הגבות קרובים מדי זה לזה.",
+    tip: Math.abs(gd) <= 0.12 ? "לשמור על המרווח." : gd > 0 ? "אפשר לשקם ולהצמיח פנימה." : "להסיר שיער בין הגבות עד האנך מקצה הנחיר."};
+  M.thickness = {score: (band(thH, 0.18, 0.42, 0.3) + band(thA, 0.15, 0.38, 0.3)) / 2,
+    finding: thH < 0.18 ? "הגבות דקות באזור הראש (" + pct(thH) + "% מרוחב עין)." : thH > 0.42 ? "הגבות עבות יחסית, ויש מקום לדייק את הקו." : "עובי מאוזן ביחס לפנים.",
+    tip: thH < 0.18 ? "לשקם: להפסיק תלישה, לתת לשיער לצמוח, ולשרטט צורה מלאה יותר." : thH > 0.42 ? "לדייק את הקו העליון והתחתון בחוט ובפינצטה." : "לשמור על העובי הטבעי."};
+  M.symmetry = {score: (band(dh, 0, 0.06, 0.25) + band(dsym, 0, 0.08, 0.4)) / 2,
+    finding: dh <= 0.06 && dsym <= 0.08 ? "שתי הגבות סימטריות." :
+      dh > 0.06 ? "הפרש גובה של " + pct(dh) + "% מרוחב עין בין שיאי הגבות." : "ראשי הגבות לא סימטריים ביחס לקו האמצע של הפנים.",
+    tip: dh <= 0.06 && dsym <= 0.08 ? "לשמור על האיזון." : "לשרטט את שתי הגבות יחד ולאזן בעזרת חוט או פינצטה."};
+  const fitS = band(rs, FIT.lo, FIT.hi, 0.25);
+  M.faceFit = {score: fitS,
+    finding: "מבנה הפנים נראה " + faceShape + ". " + (fitS >= 85 ? "גובה הקשת מתאים לו." : "גובה הקשת הנוכחי לא הכי מחמיא לו."),
+    tip: FIT.tip + "."};
+
+  const keys = Object.keys(M);
+  keys.forEach(k => { M[k].score = Math.round(M[k].score); });
+  const overall = Math.round(avg(keys.map(k => M[k].score)));
+  const verdict = overall >= 90 ? "הגבות מאוזנות מאוד. מספיקה תחזוקה וליטוש קל." : overall >= 75 ? "בסיס יפה, וכמה תיקונים קטנים יתנו תוצאה מושלמת." :
+    overall >= 60 ? "יש פוטנציאל טוב, ועיצוב מדויק ישנה את המראה." : "יש הרבה מקום לשיפור, ובעיצוב ושרטוט נכון ההבדל יהיה גדול.";
+  let browType, browDesc;
+  if (rs < 0.15) { browType = "הישרה והטבעית"; browDesc = "גבה ישרה ורכה שנותנת מראה צעיר וטבעי."; }
+  else if (angle < 135 && rs >= 0.25) { browType = "הזוויתית והדרמטית"; browDesc = "קשת מוגדרת עם שיא ברור שמעניקה מראה חד ובטוח."; }
+  else if (angle >= 150) { browType = "הרכה והעגולה"; browDesc = "קשת עדינה ועגולה שמרככת את הפנים."; }
+  else { browType = "הקשת האלגנטית"; browDesc = "קשת מאוזנת עם שיא עדין, צורה קלאסית שמתאימה לרוב הפנים."; }
+  const strengths = keys.filter(k => M[k].score >= 85).map(k => ({
+    start: "נקודת ההתחלה במקום הנכון", arch: "שיא הקשת במיקום מאוזן", tail: "הזנב בגובה ובאורך מתאימים", height: "מרחק נעים בין הגבה לעין",
+    spacing: "מרווח מאוזן בין הגבות", thickness: "עובי מאוזן", symmetry: "סימטריה טובה בין שתי הגבות", faceFit: "הצורה מתאימה למבנה הפנים"}[k])).slice(0, 4);
+  const priorities = keys.filter(k => M[k].score < 85).sort((a, b) => M[a].score - M[b].score).slice(0, 3).map(k => ({title: METRIC_LABELS[k], why: M[k].tip}));
+  const rec = new Set();
+  if (priorities.length) rec.add("shape");
+  if (thH < 0.18 || lr < 0.9 || dInN < -0.08 || gd > 0.12) rec.add("restore");
+  if (overall >= 80) rec.add("upkeep");
+  if (!rec.size) rec.add("upkeep");
+
+  return {lmsRaw: lms, W, H, U, V, eyeW, sd, ideal, both, fromF, toF, roll, measured, M, overall, verdict, browType, browDesc, faceShape, strengths, priorities, recommended: [...rec], warn,
+    needsChanges: overall < 90,
+    stats: buildStats({gc, gi, gd, rc, ri, drop, lr, rs, dh, FIT})};
+}
+
+function buildStats(v) {
+  const s = [];
+  s.push({label: "מרווח בין ראשי הגבות", cur: v.gc.toFixed(2) + " רוחב עין", ideal: v.gi.toFixed(2) + " (לפי קו הנחיר)", ok: Math.abs(v.gd) <= 0.12,
+    note: Math.abs(v.gd) <= 0.12 ? "ראשי הגבות במקום הנכון" : v.gd > 0 ? "ראשי הגבות רחוקים זה מזה. אפשר לשקם ולהצמיח פנימה" : "ראשי הגבות קרובים מדי. כדאי להסיר שיער בין הגבות"});
+  s.push({label: "מיקום שיא הקשת לאורך הגבה", cur: pct(v.rc) + "%", ideal: pct(v.ri) + "%", ok: Math.abs(v.rc - v.ri) <= 0.07,
+    note: Math.abs(v.rc - v.ri) <= 0.07 ? "השיא במקום הנכון" : v.rc < v.ri ? "השיא קרוב מדי לראש הגבה" : "השיא רחוק מדי, קרוב לזנב"});
+  s.push({label: "גובה הזנב מול קו הבסיס", cur: v.drop > 0 ? "נמוך ב-" + pct(v.drop) + "%" : "גבוה ב-" + pct(-v.drop) + "%", ideal: "על הקו או מעליו", ok: v.drop <= 0.10,
+    note: v.drop <= 0.10 ? "הזנב בגובה הנכון" : "הזנב יורד מתחת לקו הבסיס ונותן מראה עייף. כדאי להרים אותו"});
+  s.push({label: "אורך הגבה", cur: pct(v.lr) + "% מהמומלץ", ideal: "100%", ok: v.lr >= 0.88 && v.lr <= 1.12,
+    note: v.lr < 0.88 ? "הגבה קצרה. אפשר להצמיח בזנב" : v.lr > 1.12 ? "הגבה ארוכה מעט. כדאי לקצר את הזנב" : "אורך מתאים"});
+  s.push({label: "גובה הקשת מעל הראש", cur: pct(v.rs) + "% מרוחב עין", ideal: pct(v.FIT.lo) + "%-" + pct(v.FIT.hi) + "%", ok: v.rs >= v.FIT.lo && v.rs <= v.FIT.hi,
+    note: v.rs < v.FIT.lo ? "הקשת שטוחה יחסית למבנה הפנים. אפשר לעצב קשת מורמת יותר" : v.rs > v.FIT.hi ? "הקשת גבוהה יחסית. כדאי להרגיע אותה" : "גובה קשת מאוזן"});
+  s.push({label: "סימטריה בגובה השיא", cur: "הפרש " + pct(v.dh) + "% מרוחב עין", ideal: "עד 6%", ok: v.dh <= 0.06,
+    note: v.dh <= 0.06 ? "שתי הגבות באותו גובה" : "אחת הגבות גבוהה מהשנייה. כדאי לאזן"});
+  return s;
+}
+
+/* ---------- overlay ---------- */
+function buildOverlay(r) {
+  const U = r.U, V = r.V, f1 = v => v.toFixed(1), eyeW = r.eyeW, sd = r.sd, ideal = r.ideal, P = q => r.fromF(q);
+  const svg = $("ov"); svg.setAttribute("viewBox", "0 0 " + U + " " + V.toFixed(1));
+  const avail = {measure: false, ideal: false, mine: false};
+  let g1 = "", g2 = "", g3 = "";
+  const fs = clampN(eyeW * 0.2, 18, 30);
+  const text = (x, y, t, size) => `<text x="${f1(x)}" y="${f1(y)}" text-anchor="middle" font-size="${f1(size || fs)}" font-weight="700" fill="#fff" stroke="rgba(0,0,0,.65)" stroke-width="5" paint-order="stroke" font-family="Heebo,sans-serif">${t}</text>`;
+  const line = (a, b, o) => `<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" ${o}/>`;
+  const dot = (q, rad, fill, stroke) => `<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="${f1(rad)}" fill="${fill}" stroke="${stroke || "none"}" stroke-width="2.5"/>`;
+  ["L", "R"].forEach(s => {
+    const o = ideal[s]; if (!o) return;
+    avail.ideal = true; avail.measure = true;
+    const c = sd[s], N = o.N, Np = P(N);
+    // the three standard lines, each starting at the nostril flare
+    [[o.s1, "1", {pt: [N[0], c.EI[1]], lab: "שקע העין"}], [o.s2, "2", {pt: c.IO, lab: "קצה האישון"}], [o.s3, "3", {pt: c.EO, lab: "פינת העין"}]].forEach(([q, n, thru]) => {
+      const qp = P(q);
+      const lst = 'stroke="#fff" stroke-opacity=".88" stroke-width="2.6" stroke-linecap="round"';
+      const from = n === "3" ? P(o.N3) : Np;
+      g1 += line(from, qp, lst);
+      if (thru) {
+        const tp = P(thru.pt);
+        g1 += dot(tp, fs * 0.2, "#fff", "rgba(0,0,0,.55)");
+        if (s === "L") g1 += text(tp[0], tp[1] + fs * (n === "3" ? 2.7 : n === "1" ? 2.7 : 1.5), thru.lab, fs * 0.78);
+      }
+      g1 += dot(qp, fs * 0.36, "none", "#fff") + dot(qp, fs * 0.13, "#ecd08e");
+      const bp = P([q[0], q[1] - fs * 1.55]);
+      g1 += dot(bp, fs * 0.62, "#ecd08e", "#fff") +
+        `<text x="${f1(bp[0])}" y="${f1(bp[1] + fs * 0.27)}" text-anchor="middle" font-size="${f1(fs * 0.8)}" font-weight="800" fill="#3b2a1e" font-family="Heebo,sans-serif">${n}</text>`;
+    });
+    g1 += dot(Np, 6.5, "#ecd08e", "rgba(0,0,0,.55)");
+    const N3p = P(o.N3); g1 += dot(N3p, 6.5, "#ecd08e", "rgba(0,0,0,.55)");
+    if (s === "R") g1 += text(N3p[0] + fs * 1.6, N3p[1] + fs * 3.4, "קצה הנחיר החיצוני", fs * 0.78);
+    if (s === "L") g1 += text(Np[0], Np[1] + fs * 1.5, "קצה הנחיר הפנימי", fs * 0.78);
+    // baseline: horizontal line at the bottom of the head, to the tail
+    const b0 = P([o.start[0], o.base]), b1 = P([o.tail[0] + (o.tail[0] - o.start[0]) * 0.08, o.base]);
+    g1 += line(b0, b1, 'stroke="#ecd08e" stroke-opacity=".9" stroke-width="2.2" stroke-dasharray="3 6"');
+    [["start", "start"], ["arch", "arch"], ["tail", "tail"]].forEach(([a, b]) => {
+      if (dist(c[a], o[b]) > 0.04 * eyeW) g1 += line(P(c[a]), P(o[b]), 'stroke="#ecd08e" stroke-width="2.4" stroke-linecap="round"');
+    });
+    // gold template, built from the measured thickness
+    const pts = browCenter(o), xS = o.start[0], xT = o.tail[0], ar = (o.arch[0] - xS) / (xT - xS);
+    const up = [], lo = [];
+    pts.forEach((p, i) => {
+      const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)];
+      const tx = b[0] - a[0], ty = b[1] - a[1], len = Math.hypot(tx, ty) || 1;
+      let nx = -ty / len, ny = tx / len; if (ny > 0) { nx = -nx; ny = -ny; }
+      const k = clampN((p[0] - xS) / (xT - xS), 0, 1);
+      const w = k <= ar ? lerp(o.wh, o.wa, k / ar) : lerp(o.wa, o.wt, Math.pow((k - ar) / (1 - ar), 1.1));
+      up.push(P([p[0] + nx * w / 2, p[1] + ny * w / 2])); lo.push(P([p[0] - nx * w / 2, p[1] - ny * w / 2]));
+    });
+    const poly = up.concat(lo.reverse()).map(p => f1(p[0]) + "," + f1(p[1])).join(" ");
+    g2 += `<polygon points="${poly}" fill="rgba(236,208,142,.3)" stroke="#f6dca0" stroke-width="2.6" stroke-dasharray="7 5" stroke-linejoin="round"/>`;
+  });
+  ["L", "R"].forEach(s => {
+    const c = sd[s]; avail.mine = true;
+    const pts = c.centers.map(p => { const q = P(p); return f1(q[0]) + "," + f1(q[1]); }).join(" ");
+    g3 += `<polyline points="${pts}" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".9" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 7"/>`;
+    [c.start, c.arch, c.tail].forEach(q => { g3 += dot(P(q), 5.5, "#fff", "rgba(0,0,0,.5)"); });
+  });
+  svg.innerHTML = `<g id="gMeasure" class="l1">${g1}</g><g id="gMine" class="l3">${g3}</g><g id="gIdeal" class="l2">${g2}</g>`;
+  return avail;
+}
+function buildLayers(avail) {
+  const box = $("layers"); box.innerHTML = "";
+  [["measure", "gMeasure", "קווי מדידה"], ["ideal", "gIdeal", "התבנית הזהובה"], ["mine", "gMine", "הגבות שלך"]].forEach(([k, gid, label]) => {
+    if (!avail[k]) return;
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = label; b.setAttribute("aria-pressed", "true");
+    b.addEventListener("click", () => {
+      const on = b.getAttribute("aria-pressed") !== "true"; b.setAttribute("aria-pressed", String(on));
+      const g = document.getElementById(gid); if (g) g.style.display = on ? "" : "none";
+    });
+    box.appendChild(b);
+  });
+}
+function buildStatsUI(stats) {
+  const box = $("stats"); box.innerHTML = "";
+  stats.forEach(s => {
+    const d = document.createElement("div"); d.className = "mrow";
+    d.innerHTML = '<b></b><span class="st"></span><span class="v"></span><span class="n"></span>';
+    d.querySelector("b").textContent = s.label;
+    const st = d.querySelector(".st"); st.textContent = s.ok ? "תקין" : "כדאי לתקן"; st.classList.add(s.ok ? "ok" : "warn");
+    d.querySelector(".v").textContent = "אצלך: " + s.cur + "  |  מומלץ: " + s.ideal;
+    d.querySelector(".n").textContent = s.note;
+    box.appendChild(d);
+  });
+}
+
+/* ---------- debug view (only with ?debug=1 in the address): every face point with its number, zoomed ---------- */
+const DEBUG = /[?&#]debug=1/.test(location.href);
+function buildDebug(r) {
+  let box = $("dbgBox");
+  if (!box) {
+    box = document.createElement("section"); box.className = "card"; box.id = "dbgBox";
+    const anchor = $("ov").closest(".card"); anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  }
+  box.innerHTML = '<h2>מצב בדיקה</h2><p class="legend" style="text-align:start">נקודות תכלת: כל נקודות מנוע הפנים עם המספר שלהן. ' +
+    'זהב: קצה הנחיר הפנימי (קווים 1 ו-2). אדום: קצה הנחיר החיצוני (קו 3). סגול: נקודת מנוע הפנים שהייתה בשימוש לפני כן (129/358). ירוק: פינות העין שבשימוש.</p>' +
+    '<p class="legend" style="text-align:start" id="dbgInfo"></p>';
+  const img = $("resImg"), sx = img.naturalWidth / 1000, lm = r.lmsRaw, W = img.naturalWidth, H = img.naturalHeight;
+  const toPx = pU => [pU[0] * sx, pU[1] * sx];
+  const used = s => { const c = r.sd[s]; return {n: toPx(r.fromF(c.ALA)), n3: toPx(r.fromF(c.ALAo)), lm: toPx(r.fromF(c.ALAlm)), ei: toPx(r.fromF(c.EI)), eo: toPx(r.fromF(c.EO))}; };
+  const UL = used("L"), UR = used("R"), ew = r.eyeW * sx;
+  $("dbgInfo").textContent = "קצה חיצוני נמצא בתמונה: שמאל " + (r.sd.L.alaFound ? "כן" : "לא") + (r.sd.L.alaMirrored ? " (הועתק בשיקוף מהצד השני)" : "") + ", ימין " + (r.sd.R.alaFound ? "כן" : "לא") + (r.sd.R.alaMirrored ? " (הועתק בשיקוף מהצד השני)" : "") +
+    ". קצה פנימי נמצא בתמונה: שמאל " + (r.sd.L.nosFound ? "כן" : "לא") + ", ימין " + (r.sd.R.nosFound ? "כן" : "לא") + ".";
+  const crops = [
+    {title: "אף", x0: Math.min(UL.n3[0], UR.n3[0], UL.lm[0], UR.lm[0]) - 0.35 * ew, x1: Math.max(UL.n3[0], UR.n3[0], UL.lm[0], UR.lm[0]) + 0.35 * ew,
+      y0: Math.min(UL.n[1], UR.n[1]) - 0.75 * ew, y1: Math.max(UL.n[1], UR.n[1]) + 0.35 * ew},
+    {title: "עין שמאל בתמונה", x0: Math.min(UL.eo[0], UL.ei[0]) - 0.3 * ew, x1: Math.max(UL.eo[0], UL.ei[0]) + 0.3 * ew, y0: UL.ei[1] - 0.35 * ew, y1: UL.ei[1] + 0.3 * ew},
+    {title: "עין ימין בתמונה", x0: Math.min(UR.eo[0], UR.ei[0]) - 0.3 * ew, x1: Math.max(UR.eo[0], UR.ei[0]) + 0.3 * ew, y0: UR.ei[1] - 0.35 * ew, y1: UR.ei[1] + 0.3 * ew}
+  ];
+  crops.forEach(cr => {
+    const h3 = document.createElement("p"); h3.style.fontWeight = "700"; h3.textContent = cr.title; box.appendChild(h3);
+    const cw = Math.max(10, cr.x1 - cr.x0), ch = Math.max(10, cr.y1 - cr.y0), outW = 1200, sc = outW / cw;
+    const cv = document.createElement("canvas"); cv.width = outW; cv.height = Math.round(ch * sc); cv.style.width = "100%"; cv.style.borderRadius = "12px";
+    const g = cv.getContext("2d"); g.drawImage(img, cr.x0, cr.y0, cw, ch, 0, 0, cv.width, cv.height);
+    const P = p => [(p[0] - cr.x0) * sc, (p[1] - cr.y0) * sc];
+    g.font = "bold 30px sans-serif"; g.textAlign = "center";
+    for (let i = 0; i < lm.length; i++) {
+      const px = lm[i].x * W, py = lm[i].y * H; if (px < cr.x0 || px > cr.x1 || py < cr.y0 || py > cr.y1) continue;
+      const q = P([px, py]);
+      g.fillStyle = "#29d3ff"; g.beginPath(); g.arc(q[0], q[1], 6, 0, 7); g.fill();
+      g.lineWidth = 4; g.strokeStyle = "rgba(0,0,0,.75)"; g.lineWidth = 6; g.strokeText(String(i), q[0], q[1] - 12); g.fillStyle = "#fff"; g.fillText(String(i), q[0], q[1] - 12);
+    }
+    const mark = (p, col) => { const q = P(p); g.lineWidth = 4; g.strokeStyle = col; g.beginPath(); g.arc(q[0], q[1], 18, 0, 7); g.stroke(); };
+    [UL, UR].forEach(U => { mark(U.lm, "#c04dff"); mark(U.n, "#f2c14e"); mark(U.n3, "#ff3b3b"); mark(U.ei, "#3ddc84"); mark(U.eo, "#3ddc84"); });
+    box.appendChild(cv);
+  });
+}
+
+/* ---------- zoom on the result picture: pinch, drag, double tap, or one tap on a region button ---------- */
+const Z = {s: 1, x: 0, y: 0, boxes: {}};
+(function initZoom() {
+  const st = $("resImg").parentNode; st.id = "resStage";
+  const w = document.createElement("div"); w.id = "zwrap"; st.insertBefore(w, $("resImg")); w.appendChild($("resImg")); w.appendChild($("ov"));
+  const pts = new Map(); let last = null, tapT = 0, tapP = null, moved = false;
+  const loc = e => { const b = st.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  st.addEventListener("pointerdown", e => {
+    pts.set(e.pointerId, loc(e)); moved = false;
+    if (pts.size === 2 || Z.s > 1.01) { try { st.setPointerCapture(e.pointerId); } catch (_) {} }
+    last = null;
+  });
+  st.addEventListener("pointermove", e => {
+    if (!pts.has(e.pointerId)) return;
+    const prev = pts.get(e.pointerId), cur = loc(e); pts.set(e.pointerId, cur);
+    if (Math.hypot(cur[0] - prev[0], cur[1] - prev[1]) > 2) moved = true;
+    if (pts.size >= 2) {
+      const [a, b] = [...pts.values()], m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      if (last) { const f = d / (last.d || d); zoomAt(m, Z.s * f, false); Z.x += m[0] - last.m[0]; Z.y += m[1] - last.m[1]; zClamp(); zApply(false); }
+      last = {m, d}; e.preventDefault();
+    } else if (Z.s > 1.01) { Z.x += cur[0] - prev[0]; Z.y += cur[1] - prev[1]; zClamp(); zApply(false); e.preventDefault(); }
+  });
+  const up = e => {
+    if (!pts.has(e.pointerId)) return;
+    const p = pts.get(e.pointerId); pts.delete(e.pointerId); last = null;
+    if (e.type === "pointerup" && !moved && pts.size === 0) {
+      const now = Date.now();
+      if (now - tapT < 320 && tapP && Math.hypot(p[0] - tapP[0], p[1] - tapP[1]) < 30) { if (Z.s > 1.3) zReset(true); else { zoomAt(p, 2.6, false); zClamp(); zApply(true); } tapT = 0; }
+      else { tapT = now; tapP = p; }
+    }
+  };
+  st.addEventListener("pointerup", up); st.addEventListener("pointercancel", up);
+  st.addEventListener("wheel", e => { if (!e.ctrlKey && Z.s <= 1.01) return; e.preventDefault(); zoomAt(loc(e), Z.s * Math.exp(-e.deltaY * 0.002), false); zClamp(); zApply(false); }, {passive: false});
+  window.addEventListener("resize", () => zReset(false));
+})();
+function zoomAt(m, s2, _) { s2 = clampN(s2, 1, 6); const cx = (m[0] - Z.x) / Z.s, cy = (m[1] - Z.y) / Z.s; Z.s = s2; Z.x = m[0] - cx * s2; Z.y = m[1] - cy * s2; }
+function zClamp() { const st = $("resStage"), W = st.clientWidth, H = st.clientHeight, Hc = $("zwrap").offsetHeight; Z.s = clampN(Z.s, 1, 6); Z.x = clampN(Z.x, W - W * Z.s, 0); Z.y = clampN(Z.y, Math.min(0, H - Hc * Z.s), 0); }
+function zApply(anim) {
+  const w = $("zwrap"); w.style.transition = anim ? "transform .35s ease" : "none";
+  w.style.transform = "translate(" + Z.x.toFixed(1) + "px," + Z.y.toFixed(1) + "px) scale(" + Z.s.toFixed(3) + ")";
+  $("resStage").classList.toggle("zoomed", Z.s > 1.01);
+  document.querySelectorAll("#zoombar [data-z]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.z === Z.cur)));
+}
+function zReset(anim) { Z.s = 1; Z.x = 0; Z.y = 0; Z.cur = "all"; const st = $("resStage"); if (st) st.style.height = ""; zApply(anim); }
+function zTo(key) {
+  const bx = Z.boxes[key]; if (!bx) { zReset(true); return; }
+  // fill the width with the chosen region and shrink the frame to its height, so a wide brow is shown big
+  const st = $("resStage"), W = st.clientWidth, Hc = $("zwrap").offsetHeight, bw = (bx[2] - bx[0]) * W, bh = (bx[3] - bx[1]) * Hc;
+  Z.s = clampN(W / bw, 1, 6);
+  const vh = Math.min(Hc, Math.max(bh * Z.s, W * 0.55));
+  st.style.height = vh.toFixed(0) + "px";
+  Z.x = W / 2 - (bx[0] + bx[2]) / 2 * W * Z.s; Z.y = vh / 2 - (bx[1] + bx[3]) / 2 * Hc * Z.s; Z.cur = key; zClamp(); zApply(true);
+}
+function buildZoomBoxes(r) {
+  const P = q => r.fromF(q), boxOf = list => {
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    list.forEach(q => { const p = P(q); x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+    const pad = 0.55 * r.eyeW; return [(x0 - pad) / r.U, (y0 - pad * 1.3) / r.V, (x1 + pad) / r.U, (y1 + pad) / r.V].map((v, i) => clampN(v, 0, 1));
+  };
+  const side = s => { const c = r.sd[s], o = r.ideal[s], L = c.centers.concat([c.start, c.arch, c.tail]); if (o) L.push(o.start, o.arch, o.tail, o.s1, o.s2, o.s3); return L; };
+  // the picture is shown in image-left / image-right order; name the buttons the way the viewer sees them
+  Z.boxes = {right: boxOf(side("R")), left: boxOf(side("L")), both: boxOf(side("L").concat(side("R")))};
+  zReset(false);
+}
+document.querySelectorAll("#zoombar [data-z]").forEach(b => b.addEventListener("click", () => { if (b.dataset.z === "all") zReset(true); else zTo(b.dataset.z); }));
+$("zIn").addEventListener("click", () => { const st = $("resStage"); zoomAt([st.clientWidth / 2, st.clientHeight / 2], Z.s * 1.5); Z.cur = ""; zClamp(); zApply(true); });
+$("zOut").addEventListener("click", () => { const st = $("resStage"); zoomAt([st.clientWidth / 2, st.clientHeight / 2], Z.s / 1.5); Z.cur = ""; zClamp(); zApply(true); });
+
+/* ---------- render ---------- */
+const colFor = s => s >= 80 ? "var(--good)" : s >= 60 ? "var(--mid)" : "var(--low)";
+const txt = (el, t) => { el.textContent = t == null ? "" : String(t); return el; };
+function render(r) {
+  $("resImg").onload = () => {};
+  $("resImg").src = imgUrl; $("resImg").alt = "התמונה שלך עם סימון הגבות. הציון הכללי " + r.overall + " מתוך 100, סוג הגבה: " + r.browType + ". פירוט המדידות מופיע בטקסט מתחת לתמונה.";
+  const av = buildOverlay(r); buildLayers(av);
+  $("resImg").addEventListener("load", () => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } }, {once: true}); try { buildZoomBoxes(r); } catch (e) { console.warn(e); }
+  if (DEBUG) { const im = $("resImg"); const go = () => { try { buildDebug(r); } catch (e) { console.error(e); } }; if (im.complete && im.naturalWidth) go(); else im.addEventListener("load", go, {once: true}); } buildStatsUI(r.stats); $("statCard").hidden = false;
+  txt($("browType"), r.browType); txt($("faceTag"), "מבנה פנים: " + r.faceShape);
+  txt($("verdict"), r.verdict); txt($("browDesc"), r.browDesc);
+  const w = $("warn"); w.hidden = !r.warn.length; w.textContent = r.warn.join(" ");
+  const fg = $("fg"); fg.style.strokeDashoffset = 326.7; fg.style.stroke = colFor(r.overall);
+  requestAnimationFrame(() => requestAnimationFrame(() => { fg.style.strokeDashoffset = 326.7 * (1 - r.overall / 100); }));
+  let n = 0; const el = $("scoreNum"), t = setInterval(() => { n += 2; if (n >= r.overall) { n = r.overall; clearInterval(t); } el.textContent = n; }, 16);
+  const st = $("strengths"); st.innerHTML = "";
+  (r.strengths.length ? r.strengths : ["בסיס טוב לעבודה"]).forEach(s => { const d = document.createElement("span"); d.className = "tag"; st.appendChild(txt(d, s)); });
+  const pr = $("prio"); pr.innerHTML = "";
+  r.priorities.forEach(p => { const li = document.createElement("li"), d = document.createElement("div"), b = document.createElement("b"), s = document.createElement("span");
+    d.appendChild(txt(b, p.title)); d.appendChild(txt(s, p.why)); li.appendChild(d); pr.appendChild(li); });
+  $("prioCard").hidden = !pr.children.length;
+  const mx = $("metrics"); mx.innerHTML = "";
+  Object.keys(METRIC_LABELS).forEach(k => {
+    const m = r.M[k]; if (!m) return;
+    const d = document.createElement("details"); d.className = "m";
+    d.innerHTML = '<summary><span class="lb"></span><span class="sc"></span><div class="bar"><i></i></div></summary><div class="body"><p class="f"></p><p class="tp"><em>מה מומלץ: </em><span></span></p></div>';
+    txt(d.querySelector(".lb"), METRIC_LABELS[k]); txt(d.querySelector(".sc"), m.score);
+    txt(d.querySelector(".f"), m.finding); txt(d.querySelector(".tp span"), m.tip);
+    const bar = d.querySelector(".bar i"); bar.style.background = colFor(m.score); mx.appendChild(d);
+    setTimeout(() => { bar.style.width = m.score + "%"; }, 80);
+  });
+  selected.clear(); r.recommended.forEach(id => selected.add(id));
+  const tb = $("treat"); tb.innerHTML = "";
+  TREATMENTS.forEach(t => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t.label; b.setAttribute("aria-pressed", String(selected.has(t.id)));
+    b.addEventListener("click", () => { if (selected.has(t.id)) selected.delete(t.id); else selected.add(t.id); b.setAttribute("aria-pressed", String(selected.has(t.id))); updateWa(); });
+    tb.appendChild(b);
+  });
+  updateWa();
+}
+function updateWa() {
+  const r = last || {}, labels = TREATMENTS.filter(t => selected.has(t.id)).map(t => t.label);
+  const msg = "היי יובל! עשיתי את סריקת הגבות במעבדת הגבות שלך. קיבלתי " + (r.overall || 0) + "/100" + (r.browType ? " (" + r.browType + ")" : "") + ". " +
+    (labels.length ? "מה שמעניין אותי: " + labels.join(", ") + ". " : "") + "אשמח לקבוע תור 🌿";
+  const href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(msg);
+  $("wa1").href = href; $("wa2").href = href;
+}
+$("again").addEventListener("click", () => { phase("intake"); window.scrollTo({top: 0, behavior: "smooth"}); });
+window.__analyze = analyze; window.__getLast = () => last;
+
+</script>
+<script>
+(function(){
+  var R=document.documentElement,K="brow-a11y",st={fs:0,hc:0,ul:0,rf:0,nm:0};
+  function load(){try{var v=JSON.parse(localStorage.getItem(K)||"{}");for(var k in st)if(typeof v[k]==="number")st[k]=v[k];}catch(e){}}
+  function save(){try{localStorage.setItem(K,JSON.stringify(st));}catch(e){}}
+  function apply(){
+    R.classList.remove("fs1","fs2","fs3"); if(st.fs)R.classList.add("fs"+st.fs);
+    R.classList.toggle("hc",!!st.hc);R.classList.toggle("ul",!!st.ul);R.classList.toggle("rf",!!st.rf);R.classList.toggle("nm",!!st.nm);
+    [["optHc","hc"],["optUl","ul"],["optRf","rf"],["optNm","nm"]].forEach(function(p){document.getElementById(p[0]).setAttribute("aria-pressed",String(!!st[p[1]]));});
+  }
+  load();apply();
+  var btn=document.getElementById("a11yBtn"),pan=document.getElementById("a11yPanel");
+  function toggle(open){pan.hidden=!open;btn.setAttribute("aria-expanded",String(open));if(open)document.getElementById("fsUp").focus();else btn.focus();}
+  btn.addEventListener("click",function(){toggle(pan.hidden);});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!pan.hidden)toggle(false);});
+  document.getElementById("fsUp").addEventListener("click",function(){st.fs=Math.min(3,st.fs+1);apply();save();});
+  document.getElementById("fsDown").addEventListener("click",function(){st.fs=Math.max(0,st.fs-1);apply();save();});
+  [["optHc","hc"],["optUl","ul"],["optRf","rf"],["optNm","nm"]].forEach(function(p){document.getElementById(p[0]).addEventListener("click",function(){st[p[1]]=st[p[1]]?0:1;apply();save();});});
+  document.getElementById("optReset").addEventListener("click",function(){st={fs:0,hc:0,ul:0,rf:0,nm:0};apply();save();});
+  function openDlg(id){var d=document.getElementById(id);if(d&&d.showModal)d.showModal();else if(d)d.setAttribute("open","");}
+  document.getElementById("openA11y").addEventListener("click",function(){toggle(false);openDlg("dlgA11y");});
+  document.querySelectorAll("[data-open]").forEach(function(b){b.addEventListener("click",function(){openDlg(b.getAttribute("data-open"));});});
+  // content protection that does not hurt accessibility: no image context menu / dragging (text stays selectable for assistive use)
+  document.addEventListener("contextmenu",function(e){if(e.target&&e.target.tagName==="IMG")e.preventDefault();});
+  document.addEventListener("dragstart",function(e){if(e.target&&e.target.tagName==="IMG")e.preventDefault();});
+})();
+</script>
+</body>
+</html>
