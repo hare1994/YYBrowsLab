@@ -1,0 +1,11 @@
+// Cloudflare Workers config: serves the static brow lab site from ./public.
+// Cloudflare builds and deploys this automatically on every push to main.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "yybrowslab",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application"
+  }
+}
