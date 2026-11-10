@@ -115,8 +115,6 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 @keyframes pop{from{opacity:0;transform:scale(.6)}}
 .magic-btn{background:linear-gradient(90deg,#3f2e20,#6e4f33);color:#f6dca0}
 .magic-btn[aria-pressed="true"]{background:transparent;color:var(--brown);border:1px solid var(--gold)}
-#ov #gMeasure,#ov #gMine{transition:opacity .5s}
-#ov.magic #gMeasure,#ov.magic #gMine{opacity:0;animation:none}
 #ov.magic #gIdeal polygon{fill:rgba(236,208,142,.55);stroke:#fff3cf;stroke-dasharray:none;filter:drop-shadow(0 0 6px rgba(246,220,160,.9));animation:glow 1.6s ease-in-out infinite}
 @keyframes glow{50%{fill:rgba(236,208,142,.3)}}
 canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:80}
@@ -1098,7 +1096,7 @@ function analyze(lms, W, H, pix) {
     let xS = N[0];   // line 1 is a straight vertical from the inner nostril, up past the eye socket
     // the template head stays close to the hair that exists: at most a little trimming or growth versus the real head
     const xStd = xS;
-    xS = clampN(xS, c.start[0] - 0.10 * eyeW, c.start[0] + 0.10 * eyeW);
+    xS = clampN(xS, c.start[0] - 0.16 * eyeW, c.start[0] + 0.16 * eyeW);
     // the tail sits on the baseline level (the horizontal line at the bottom of the head), at most a little above it
     const yTmax = base - wt / 2, yTmin = yTmax - 0.10 * eyeW;
     const yT = clampN(c.tail[1], yTmin, yTmax);
@@ -1163,7 +1161,7 @@ function analyze(lms, W, H, pix) {
       dInN > 0 ? "ראש הגבה נכנס פנימה, " + pct(dInN) + "% מרוחב עין לפני האנך מקצה הנחיר." : "ראש הגבה מתחיל " + pct(-dInN) + "% מרוחב עין אחרי האנך מקצה הנחיר.",
     tip: Math.abs(dInN) <= 0.08 ? "לשמור על נקודת ההתחלה בכל תחזוקה." :
       dInN > 0 ? "להסיר שערות בין הגבות עד האנך מקצה הנחיר, בפינצטה או בחוט." : "אפשר לתת לשיער לצמוח פנימה ולשרטט את ההתחלה מחדש לפני העיצוב."};
-  M.arch = {score: grade(rc, 0.615, 0.045, 0.18),
+  M.arch = {score: grade(rc, both.length ? ri : 0.615, 0.05, 0.18),
     finding: (rc >= 0.55 && rc <= 0.68) ? "שיא הקשת נמצא ב-" + pct(rc) + "% מאורך הגבה, קרוב ליחס הזהב." :
       rc < 0.55 ? "שיא הקשת מוקדם מדי (" + pct(rc) + "% מהאורך), קרוב לראש הגבה." : "שיא הקשת מאוחר מדי (" + pct(rc) + "% מהאורך), קרוב לזנב.",
     tip: (rc >= 0.55 && rc <= 0.68) ? "לשמור על השיא במקומו." :
@@ -1187,7 +1185,9 @@ function analyze(lms, W, H, pix) {
     finding: dh <= 0.06 && dsym <= 0.08 ? "שתי הגבות סימטריות." :
       dh > 0.06 ? "הפרש גובה של " + pct(dh) + "% מרוחב עין בין שיאי הגבות." : "ראשי הגבות לא סימטריים ביחס לקו האמצע של הפנים.",
     tip: dh <= 0.06 && dsym <= 0.08 ? "לשמור על האיזון." : "לשרטט את שתי הגבות יחד ולאזן בעזרת חוט או פינצטה."};
-  const fitS = grade(rs, (FIT.lo + FIT.hi) / 2, (FIT.hi - FIT.lo) * 0.3, (FIT.hi - FIT.lo) / 2 + 0.2);
+  // arch height is judged against the arch the gold template draws (already moved toward the face shape's range)
+  const riseT = both.length ? avg(both.map(s => ideal[s].start[1] - ideal[s].arch[1])) / eyeW : (FIT.lo + FIT.hi) / 2;
+  const fitS = grade(rs, riseT, 0.04, 0.20);
   M.faceFit = {score: fitS,
     finding: "מבנה הפנים נראה " + faceShape + ". " + (fitS >= 88 ? "גובה הקשת מתאים לו." : "גובה הקשת הנוכחי לא הכי מחמיא לו."),
     tip: FIT.tip + "."};
@@ -1199,7 +1199,22 @@ function analyze(lms, W, H, pix) {
   const W8 = {start: 1.2, arch: 1.2, tail: 1.1, height: 0.8, spacing: 1, thickness: 1, symmetry: 1, faceFit: 0.7};
   const wMean = keys.reduce((a, k) => a + M[k].score * W8[k], 0) / keys.reduce((a, k) => a + W8[k], 0);
   const low3 = avg(keys.map(k => M[k].score).sort((a, b) => a - b).slice(0, 3));
-  let overall = Math.round(0.75 * wMean + 0.25 * low3);
+  const metricsScore = 0.75 * wMean + 0.25 * low3;
+  // How close the brow already is to the gold template on screen (head, arch, tail and the line between them),
+  // so a template that looks almost like the brow gives a high score, and a very different one a low score.
+  const matchSide = s => {
+    const o = ideal[s], c = sd[s]; if (!o) return null;
+    const tpl = browCenter(o), xs = tpl.map(p => p[0]), lo = Math.min(...xs), hi = Math.max(...xs);
+    const yAt = (line, x) => { for (let i = 0; i < line.length - 1; i++) { const a = line[i], b = line[i + 1];
+      if ((x - a[0]) * (x - b[0]) <= 0 && a[0] !== b[0]) return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]); } return null; };
+    const dv = [];
+    for (let f = 0.1; f <= 0.9 + 1e-9; f += 0.1) { const x = lo + (hi - lo) * f, yt = yAt(tpl, x), yb = yAt(c.centers, x); if (yt !== null && yb !== null) dv.push(Math.abs(yt - yb)); }
+    const v = dv.length ? avg(dv) : 0.15 * eyeW;
+    return (0.30 * v + 0.25 * Math.abs(o.start[0] - c.start[0]) + 0.30 * Math.abs(o.tail[0] - c.tail[0]) + 0.15 * Math.abs(o.arch[1] - c.arch[1])) / eyeW;
+  };
+  const md = both.map(matchSide).filter(v => v !== null);
+  const matchScore = md.length ? grade(avg(md), 0, 0.035, 0.20) : metricsScore;
+  let overall = Math.round(0.5 * matchScore + 0.5 * metricsScore);
   // When the brow hair was not detected clearly, the shape comes from the face model's estimate,
   // which leans toward an average brow, so a near-perfect score would not be trustworthy.
   if (!(measured.L && measured.R)) overall = Math.min(overall, 90);
@@ -1222,7 +1237,7 @@ function analyze(lms, W, H, pix) {
 
   return {lmsRaw: lms, W, H, U, V, eyeW, sd, ideal, both, fromF, toF, roll, measured, M, overall, verdict, browType, browDesc, faceShape, strengths, priorities, recommended: [...rec], warn,
     needsChanges: overall < 90,
-    stats: buildStats({gc, gi, gd, rc, ri, drop, lr, rs, dh, FIT})};
+    stats: buildStats({gc, gi, gd, rc, ri, drop, lr, rs, dh, FIT, riseT})};
 }
 
 function buildStats(v) {
@@ -1235,8 +1250,9 @@ function buildStats(v) {
     note: v.drop <= 0.10 ? "הזנב בגובה הנכון" : "הזנב יורד מתחת לקו הבסיס ונותן מראה עייף. כדאי להרים אותו"});
   s.push({label: "אורך הגבה", cur: pct(v.lr) + "% מהמומלץ", ideal: "100%", ok: v.lr >= 0.88 && v.lr <= 1.12,
     note: v.lr < 0.88 ? "הגבה קצרה. אפשר להצמיח בזנב" : v.lr > 1.12 ? "הגבה ארוכה מעט. כדאי לקצר את הזנב" : "אורך מתאים"});
-  s.push({label: "גובה הקשת מעל הראש", cur: pct(v.rs) + "% מרוחב עין", ideal: pct(v.FIT.lo) + "%-" + pct(v.FIT.hi) + "%", ok: v.rs >= v.FIT.lo && v.rs <= v.FIT.hi,
-    note: v.rs < v.FIT.lo ? "הקשת שטוחה יחסית למבנה הפנים. אפשר לעצב קשת מורמת יותר" : v.rs > v.FIT.hi ? "הקשת גבוהה יחסית. כדאי להרגיע אותה" : "גובה קשת מאוזן"});
+  const archOk = Math.abs(v.rs - v.riseT) <= 0.04;
+  s.push({label: "גובה הקשת מעל הראש", cur: pct(v.rs) + "% מרוחב עין", ideal: "כ-" + pct(v.riseT) + "% (כמו בתבנית הזהובה)", ok: archOk,
+    note: archOk ? "גובה קשת מאוזן" : v.rs < v.riseT ? "הקשת שטוחה יחסית למבנה הפנים. אפשר לעצב קשת מורמת יותר" : "הקשת גבוהה יחסית. כדאי להרגיע אותה"});
   s.push({label: "סימטריה בגובה השיא", cur: "הפרש " + pct(v.dh) + "% מרוחב עין", ideal: "עד 6%", ok: v.dh <= 0.06,
     note: v.dh <= 0.06 ? "שתי הגבות באותו גובה" : "אחת הגבות גבוהה מהשנייה. כדאי לאזן"});
   return s;
@@ -1303,14 +1319,26 @@ function buildOverlay(r) {
   svg.innerHTML = `<g id="gMeasure" class="l1">${g1}</g><g id="gMine" class="l3">${g3}</g><g id="gIdeal" class="l2">${g2}</g>`;
   return avail;
 }
+const layerChips = {};
+function setLayer(gid, on) {
+  const g = document.getElementById(gid);
+  if (g) { g.style.display = on ? "" : "none"; if (on) g.classList.remove("l1", "l2", "l3"); }   // no replayed delayed fade-in
+  if (layerChips[gid]) layerChips[gid].setAttribute("aria-pressed", String(on));
+}
+function setMagic(on) {
+  $("ov").classList.toggle("magic", on); $("magicBtn").setAttribute("aria-pressed", String(on));
+  $("magicBtn").textContent = on ? "חזרה לקווי המדידה" : "✨ הראי לי את הגבות החדשות שלי";
+}
 function buildLayers(avail) {
   const box = $("layers"); box.innerHTML = "";
   [["measure", "gMeasure", "קווי מדידה"], ["ideal", "gIdeal", "התבנית הזהובה"], ["mine", "gMine", "הגבות שלך"]].forEach(([k, gid, label]) => {
+    delete layerChips[gid];
     if (!avail[k]) return;
     const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = label; b.setAttribute("aria-pressed", "true");
+    layerChips[gid] = b;
     b.addEventListener("click", () => {
-      const on = b.getAttribute("aria-pressed") !== "true"; b.setAttribute("aria-pressed", String(on));
-      const g = document.getElementById(gid); if (g) g.style.display = on ? "" : "none";
+      if ($("ov").classList.contains("magic")) setMagic(false);   // any layer tap leaves the "new brows" view
+      setLayer(gid, b.getAttribute("aria-pressed") !== "true");
     });
     box.appendChild(b);
   });
@@ -1446,7 +1474,7 @@ function render(r) {
   $("resImg").onload = () => {};
   $("resImg").src = imgUrl; $("resImg").alt = "התמונה שלך עם סימון הגבות. הציון הכללי " + r.overall + " מתוך 100, סוג הגבה: " + r.browType + ". פירוט המדידות מופיע ב'לפרטים המלאים' בהמשך העמוד.";
   const av = buildOverlay(r); buildLayers(av);
-  $("ov").classList.remove("magic"); $("magicBtn").setAttribute("aria-pressed", "false"); $("magicBtn").textContent = "✨ הראי לי את הגבות החדשות שלי";
+  setMagic(false);
   $("resImg").addEventListener("load", () => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } }, {once: true}); try { buildZoomBoxes(r); } catch (e) { console.warn(e); }
   if (DEBUG) { const im = $("resImg"); const go = () => { try { buildDebug(r); } catch (e) { console.error(e); } }; if (im.complete && im.naturalWidth) go(); else im.addEventListener("load", go, {once: true}); } buildStatsUI(r.stats); $("statCard").hidden = false;
   txt($("browType"), r.browType); txt($("faceTag"), "מבנה פנים: " + r.faceShape);
@@ -1526,9 +1554,9 @@ function burst(score) {
 
 /* ---------- "your new brows" magic view ---------- */
 $("magicBtn").addEventListener("click", () => {
-  const ov = $("ov"), on = !ov.classList.contains("magic");
-  ov.classList.toggle("magic", on); $("magicBtn").setAttribute("aria-pressed", String(on));
-  $("magicBtn").textContent = on ? "חזרה לקווי המדידה" : "✨ הראי לי את הגבות החדשות שלי";
+  const on = !$("ov").classList.contains("magic");
+  setMagic(on);
+  setLayer("gMeasure", !on); setLayer("gMine", !on); setLayer("gIdeal", true);
   if (on && Z.cur === "all" && Z.boxes.both) zTo("both");
 });
 
