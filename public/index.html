@@ -107,6 +107,19 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .lead .ln,.ainote .ln{display:block;text-wrap:balance}
 .ainote{font-size:.85rem;color:var(--muted);text-align:center;margin:6px 0 0}
 .book-mid{text-align:center}
+.brow-emoji{font-size:1.4rem}
+.vibe{margin:0;background:var(--surface2);border-radius:14px;padding:10px 14px;font-weight:500;color:var(--brown)}
+.tags .tag{animation:pop .4s cubic-bezier(.2,1.4,.4,1) both}
+.tags .tag:nth-child(2){animation-delay:.08s}.tags .tag:nth-child(3){animation-delay:.16s}.tags .tag:nth-child(4){animation-delay:.24s}.tags .tag:nth-child(5){animation-delay:.32s}
+.tags .tag::before{content:"✨ "}
+@keyframes pop{from{opacity:0;transform:scale(.6)}}
+.magic-btn{background:linear-gradient(90deg,#3f2e20,#6e4f33);color:#f6dca0}
+.magic-btn[aria-pressed="true"]{background:transparent;color:var(--brown);border:1px solid var(--gold)}
+#ov #gMeasure,#ov #gMine{transition:opacity .5s}
+#ov.magic #gMeasure,#ov.magic #gMine{opacity:0;animation:none}
+#ov.magic #gIdeal polygon{fill:rgba(236,208,142,.55);stroke:#fff3cf;stroke-dasharray:none;filter:drop-shadow(0 0 6px rgba(246,220,160,.9));animation:glow 1.6s ease-in-out infinite}
+@keyframes glow{50%{fill:rgba(236,208,142,.3)}}
+canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:80}
 .mkey{list-style:none;margin:0;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;background:var(--surface2);border-radius:16px;font-size:.95rem;font-weight:500}
 .mkey li{display:flex;align-items:center;gap:8px;line-height:1.3}
 .mkey li:nth-child(n+4){grid-column:1/-1}
@@ -115,10 +128,17 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .mk-gold{background:rgba(236,208,142,.35);border:2px dashed #c9a75c}
 .mk-white{background:repeating-linear-gradient(90deg,#8a7663 0 3px,transparent 3px 9px);height:4px;border-radius:2px}
 .mk-line{background:#8a7663;height:3px;border-radius:2px}
-.more-toggle{gap:6px}
-.more-toggle .legend{margin:0;text-align:center}
-#moreBtn span{display:inline-block;transition:transform .2s}
-#moreBtn[aria-expanded="true"] span{transform:rotate(180deg)}
+.more-card{border:2px solid var(--gold);background:linear-gradient(160deg,var(--surface),var(--surface2))}
+.more-head{display:flex;gap:12px;align-items:center}
+.more-head h2{margin:0}
+.more-head p{margin:2px 0 0;color:var(--muted);font-size:.92rem}
+.more-ic{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--gold);font-size:1.5rem}
+.more-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-weight:500}
+.more-list li{display:flex;gap:10px;align-items:center;background:var(--surface);border-radius:12px;padding:8px 12px}
+.more-btn{background:linear-gradient(90deg,var(--gold),var(--gold2));color:var(--on-gold)}
+.more-btn .chev{display:inline-block;font-size:1.2rem;animation:nudge 1.4s ease-in-out infinite}
+.more-btn[aria-expanded="true"] .chev{animation:none;transform:rotate(180deg)}
+@keyframes nudge{50%{transform:translateY(4px)}}
 .more-box{display:contents}
 .btn.share{margin-top:12px;background:linear-gradient(90deg,#c13584,#e1306c 45%,#f77737);color:#fff}
 .share-note{margin:6px 0 0}
@@ -220,7 +240,7 @@ details.m .body em{font-style:normal;font-weight:700;color:var(--brown)}
 .bar-fixed{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));background:var(--bar);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
 .bar-fixed .btn{max-width:640px;margin:0 auto}
 @media (max-width:420px){.steps{grid-template-columns:repeat(2,1fr)}.score{grid-template-columns:1fr;justify-items:center;text-align:center}.links,.row2{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){.loader .arc,.loader img{animation:none}.beam{animation:none;top:40%}.checks li.now i{animation:none}.l1,.l2,.l3{animation:none}.ring .fg,.prog i,details.m .bar i{transition:none}}
+@media (prefers-reduced-motion:reduce){.tags .tag,.more-btn .chev,#ov.magic #gIdeal polygon{animation:none}.loader .arc,.loader img{animation:none}.beam{animation:none;top:40%}.checks li.now i{animation:none}.l1,.l2,.l3{animation:none}.ring .fg,.prog i,details.m .bar i{transition:none}}
 
 /* accessibility + legal */
 .skip{position:absolute;top:-80px;inset-inline-start:8px;z-index:100;background:var(--gold);color:var(--on-gold);padding:10px 16px;border-radius:12px;font-weight:700;text-decoration:none}
@@ -339,6 +359,7 @@ img{-webkit-user-drag:none;user-select:none}
         </div>
       </div>
       <p class="legend">אפשר גם לצבוט בשתי אצבעות להגדלה, לגרור באצבע אחת, ולהקיש פעמיים כדי להגדיל או לחזור.</p>
+      <button type="button" class="btn magic-btn" id="magicBtn" aria-pressed="false">✨ הראי לי את הגבות החדשות שלי</button>
       <ul class="mkey" aria-label="מקרא הסימונים">
         <li><span class="mk-num">1</span>ראש הגבה</li>
         <li><span class="mk-num">2</span>שיא הקשת</li>
@@ -356,10 +377,11 @@ img{-webkit-user-drag:none;user-select:none}
         <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" id="fg" cx="60" cy="60" r="52"/></svg><div class="num"><span id="scoreNum">0</span><small>מתוך 100</small></div></div>
         <div>
           <p class="kicker" style="margin:0">סוג הגבה שלך</p>
-          <h2 id="browType"></h2>
+          <h2><span id="browType"></span> <span id="browEmoji" class="brow-emoji" aria-hidden="true"></span></h2>
           <span class="tag" id="faceTag"></span>
         </div>
       </div>
+      <p class="vibe" id="browVibe" hidden></p>
       <p class="verdict" id="verdict"></p>
       <p id="browDesc" style="color:var(--muted)"></p>
       <p class="angle-warn" id="warn" role="status" hidden></p>
@@ -378,9 +400,14 @@ img{-webkit-user-drag:none;user-select:none}
 
     <section class="card book-mid" aria-label="קביעת תור"><p>רוצה שיובל תעצב לך את הגבות לפי התבנית?</p><a class="btn wa" id="waMid" target="_blank" rel="noopener">לקביעת תור אצלי</a></section>
 
-    <section class="card more-toggle">
-      <button type="button" class="btn alt" id="moreBtn" aria-expanded="false" aria-controls="moreBox">לפרטים המלאים <span aria-hidden="true">▾</span></button>
-      <p class="legend">הסבר הסימונים על התמונה, המדידות על הפנים שלך וכל 8 המדדים</p>
+    <section class="card more-card">
+      <div class="more-head"><span class="more-ic" aria-hidden="true">🔍</span><div><h2>רוצה לדעת עוד?</h2><p>מחכה לך כאן ניתוח מלא של הגבות שלך:</p></div></div>
+      <ul class="more-list">
+        <li><span aria-hidden="true">📊</span>ציון מפורט לכל אחד מ-8 המדדים</li>
+        <li><span aria-hidden="true">📐</span>המדידות על הפנים שלך מול המומלץ</li>
+        <li><span aria-hidden="true">🧭</span>הסבר לכל קו ונקודה בתמונה</li>
+      </ul>
+      <button type="button" class="btn more-btn" id="moreBtn" aria-expanded="false" aria-controls="moreBox"><span class="t">לפתוח את הניתוח המלא</span><span class="chev" aria-hidden="true">▾</span></button>
     </section>
     <div id="moreBox" class="more-box" hidden>
     <section class="card" id="howCard">
@@ -496,6 +523,12 @@ const selected = new Set();
 const TREATMENTS = [
   {id: "shape", label: "עיצוב גבות"}, {id: "restore", label: "שיקום גבות"}, {id: "upkeep", label: "טיפול תחזוקה"}
 ];
+const BROW_VIBES = {
+  "הישרה והטבעית": {e: "🌿", t: "הסטייל הקוריאני הרך: מבט צעיר, טבעי ונקי."},
+  "הזוויתית והדרמטית": {e: "🔥", t: "מבט חד ובטוח שאי אפשר לפספס."},
+  "הרכה והעגולה": {e: "🌸", t: "מבט רך וחמים שמשדר עדינות."},
+  "הקשת האלגנטית": {e: "👑", t: "הקלאסיקה הנצחית שמחמיאה כמעט לכל פנים."}
+};
 const METRIC_LABELS = {start: "נקודת התחלה", arch: "שיא הקשת", tail: "זנב ואורך", height: "גובה מעל העין",
   spacing: "מרווח בין הגבות", thickness: "עובי הגבה", symmetry: "סימטריה", faceFit: "התאמה למבנה הפנים"};
 
@@ -578,7 +611,7 @@ function phase(p) {
   $("intake").hidden = p !== "intake"; $("scan").hidden = p !== "scan"; $("result").hidden = p !== "result";
   $("stick").hidden = p !== "result"; document.body.classList.toggle("has-bar", p === "result");
 }
-const STEPS = ["התמונה נקראה", "טוענת את מנוע זיהוי הפנים", "מזהה את הפנים", "ממפה את הגבות והעיניים", "מחשבת מידות ותבנית"];
+const STEPS = ["התמונה התקבלה 📸", "מכינה את המעבדה 🧪", "מאתרת את הפנים 🔍", "ממפה את הקשת ואת הזנב ✏️", "מציירת את התבנית הזהובה ✨"];
 function progress(n) { // n steps are finished; step n is running
   const ul = $("steps"); ul.innerHTML = "";
   STEPS.forEach((label, i) => {
@@ -626,7 +659,8 @@ $("go").addEventListener("click", async () => {
     last = r; render(r); await step(5);
     $("scan").classList.add("done"); $("scanTitle").textContent = "הסריקה הושלמה ✓";
     await sleep(900);
-    phase("result"); window.scrollTo({top: 0, behavior: "smooth"});
+    phase("result");
+    requestAnimationFrame(() => $("resStage").closest("section").scrollIntoView({behavior: "smooth", block: "start"}));
     requestAnimationFrame(() => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } });   // the zoom needs the visible frame size
   } catch (e) {
     phase("intake");
@@ -1334,14 +1368,14 @@ function render(r) {
   $("resImg").onload = () => {};
   $("resImg").src = imgUrl; $("resImg").alt = "התמונה שלך עם סימון הגבות. הציון הכללי " + r.overall + " מתוך 100, סוג הגבה: " + r.browType + ". פירוט המדידות מופיע ב'לפרטים המלאים' בהמשך העמוד.";
   const av = buildOverlay(r); buildLayers(av);
+  $("ov").classList.remove("magic"); $("magicBtn").setAttribute("aria-pressed", "false"); $("magicBtn").textContent = "✨ הראי לי את הגבות החדשות שלי";
   $("resImg").addEventListener("load", () => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } }, {once: true}); try { buildZoomBoxes(r); } catch (e) { console.warn(e); }
   if (DEBUG) { const im = $("resImg"); const go = () => { try { buildDebug(r); } catch (e) { console.error(e); } }; if (im.complete && im.naturalWidth) go(); else im.addEventListener("load", go, {once: true}); } buildStatsUI(r.stats); $("statCard").hidden = false;
   txt($("browType"), r.browType); txt($("faceTag"), "מבנה פנים: " + r.faceShape);
+  const vibe = BROW_VIBES[r.browType] || {e: "✨", t: ""}; txt($("browEmoji"), vibe.e); txt($("browVibe"), vibe.t); $("browVibe").hidden = !vibe.t;
   txt($("verdict"), r.verdict); txt($("browDesc"), r.browDesc);
   const w = $("warn"); w.hidden = !r.warn.length; w.textContent = r.warn.join(" ");
-  const fg = $("fg"); fg.style.strokeDashoffset = 326.7; fg.style.stroke = colFor(r.overall);
-  requestAnimationFrame(() => requestAnimationFrame(() => { fg.style.strokeDashoffset = 326.7 * (1 - r.overall / 100); }));
-  let n = 0; const el = $("scoreNum"), t = setInterval(() => { n += 2; if (n >= r.overall) { n = r.overall; clearInterval(t); } el.textContent = n; }, 16);
+  armScoreReveal(r);
   const st = $("strengths"); st.innerHTML = "";
   (r.strengths.length ? r.strengths : ["בסיס טוב לעבודה"]).forEach(s => { const d = document.createElement("span"); d.className = "tag"; st.appendChild(txt(d, s)); });
   const pr = $("prio"); pr.innerHTML = "";
@@ -1376,11 +1410,55 @@ function updateWa() {
   ["wa0", "waMid", "wa1", "wa2"].forEach(id => { $(id).href = href; });
 }
 $("wa0").href = "https://wa.me/" + WA + "?text=" + encodeURIComponent("היי יובל! אשמח לקבוע תור לעיצוב גבות 🌿");
+/* ---------- score reveal: plays when the score card scrolls into view ---------- */
+let revealObs = null, revealTimer = null;
+function armScoreReveal(r) {
+  const fg = $("fg"), el = $("scoreNum"), card = document.querySelector(".ring");
+  fg.style.transition = "none"; fg.style.strokeDashoffset = 326.7; fg.style.stroke = colFor(r.overall); el.textContent = "0";
+  if (revealObs) revealObs.disconnect(); clearInterval(revealTimer);
+  const play = () => {
+    fg.style.transition = ""; requestAnimationFrame(() => { fg.style.strokeDashoffset = 326.7 * (1 - r.overall / 100); });
+    let n = 0; revealTimer = setInterval(() => { n += 2; if (n >= r.overall) { n = r.overall; clearInterval(revealTimer); burst(r.overall); } el.textContent = n; }, 18);
+  };
+  if (!("IntersectionObserver" in window)) { play(); return; }
+  revealObs = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { revealObs.disconnect(); play(); } }, {threshold: 0.7});
+  revealObs.observe(card);
+}
+function burst(score) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("nm")) return;
+  try { navigator.vibrate && navigator.vibrate(score >= 80 ? [20, 40, 20] : 20); } catch (e) {}
+  const ring = document.querySelector(".ring").getBoundingClientRect(), cx = ring.left + ring.width / 2, cy = ring.top + ring.height / 2;
+  const c = document.createElement("canvas"), dpr = Math.min(2, window.devicePixelRatio || 1);
+  c.className = "burst"; c.width = innerWidth * dpr; c.height = innerHeight * dpr; document.body.appendChild(c);
+  const x = c.getContext("2d"); x.scale(dpr, dpr);
+  const cols = ["#dcb86f", "#b98f45", "#f6dca0", "#fff6e0", score >= 80 ? "#7fae6f" : "#e8b4a0"];
+  const N = score >= 80 ? 90 : score >= 60 ? 55 : 30;
+  const ps = Array.from({length: N}, () => { const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * 6;
+    return {x: cx, y: cy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 3, s: 3 + Math.random() * 5, r: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cols[(Math.random() * cols.length) | 0], star: Math.random() < .35}; });
+  const t0 = performance.now();
+  (function frame(t) {
+    const k = (t - t0) / 1400; x.clearRect(0, 0, innerWidth, innerHeight);
+    ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .18; p.vx *= .985; p.r += p.vr;
+      x.save(); x.globalAlpha = Math.max(0, 1 - k); x.translate(p.x, p.y); x.rotate(p.r); x.fillStyle = p.c;
+      if (p.star) { x.font = (p.s * 3) + "px serif"; x.fillText("✦", 0, 0); } else x.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+      x.restore(); });
+    if (k < 1) requestAnimationFrame(frame); else c.remove();
+  })(t0);
+}
+
+/* ---------- "your new brows" magic view ---------- */
+$("magicBtn").addEventListener("click", () => {
+  const ov = $("ov"), on = !ov.classList.contains("magic");
+  ov.classList.toggle("magic", on); $("magicBtn").setAttribute("aria-pressed", String(on));
+  $("magicBtn").textContent = on ? "חזרה לקווי המדידה" : "✨ הראי לי את הגבות החדשות שלי";
+  if (on && Z.cur === "all" && Z.boxes.both) zTo("both");
+});
+
 /* ---------- full details toggle ---------- */
 $("moreBtn").addEventListener("click", () => {
   const box = $("moreBox"), open = box.hidden;
   box.hidden = !open; $("moreBtn").setAttribute("aria-expanded", String(open));
-  $("moreBtn").firstChild.textContent = open ? "להסתיר את הפרטים " : "לפרטים המלאים ";
+  $("moreBtn").querySelector(".t").textContent = open ? "לסגור את הניתוח המלא" : "לפתוח את הניתוח המלא";
   if (open) box.querySelector("section").scrollIntoView({behavior: "smooth", block: "start"});
 });
 
@@ -1418,7 +1496,7 @@ async function makeShareCard(r) {
   x.fillStyle = "#7f6a56"; x.font = "500 44px " + SANS; x.fillText("מתוך 100", cx, cy + 125);
   // brow type
   x.fillStyle = "#b98f45"; x.font = "500 44px " + SANS; x.fillText("סוג הגבה שלי", W / 2, 1260);
-  x.fillStyle = "#3f2e20"; x.font = "700 96px " + SERIF; x.fillText(r.browType || "", W / 2, 1365);
+  x.fillStyle = "#3f2e20"; x.font = "700 96px " + SERIF; x.fillText((r.browType || "") + " " + ((BROW_VIBES[r.browType] || {}).e || ""), W / 2, 1365);
   if (r.faceShape) {
     const t = "מבנה פנים: " + r.faceShape; x.font = "500 42px " + SANS; const tw = x.measureText(t).width + 70;
     x.fillStyle = "#efdfcc"; x.beginPath(); x.roundRect(W / 2 - tw / 2, 1415, tw, 80, 40); x.fill();
