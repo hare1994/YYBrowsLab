@@ -141,6 +141,8 @@ html,body,button,a,label,.chip,.zoombar,.layers{touch-action:manipulation}
 .score .kicker{letter-spacing:0;direction:rtl;text-transform:none}
 /* notes inside result cards follow the card's right alignment (centered multi-line text looked misindented) */
 .card .legend,.card .ainote{text-align:start}
+.keylines span{display:block}
+.keylines span+span{margin-top:4px}
 .tag{display:inline-block;font-size:.82rem;color:var(--brown);background:var(--surface2);border-radius:999px;padding:3px 12px;margin-top:6px}
 .verdict{font-weight:500}
 .tags{display:flex;flex-wrap:wrap;gap:8px}
@@ -296,7 +298,7 @@ img{-webkit-user-drag:none;user-select:none}
         <li><span class="hnum">3</span><div><b>סוף הגבה (הזנב)</b><p>קו אלכסוני שיוצא מקצה הנחיר החיצוני (המקום שבו האף מסתיים לצד) ועובר דרך הפינה החיצונית של העין. הגבה אמורה להסתיים במקום שבו הקו פוגש את גובה קו הבסיס. אם השיער שלך קצר יותר, התבנית הזהובה לא תתארך מעבר לשיער שקיים, והנקודה 3 תראה לך עד איפה אפשר להצמיח.</p></div></li>
         <li><span class="hnum">&ndash;</span><div><b>קו בסיס</b><p>קו אופקי מתחתית ראש הגבה. הזנב אמור להסתיים בגובה הקו או מעט מעליו. זנב שיורד מתחתיו נותן מראה עייף.</p></div></li>
       </ol>
-      <p class="legend" style="text-align:start"><b>נקודות לבנות עם קו מקווקו:</b> הגבה שלך כמו שהיא היום. <b>התבנית הזהובה:</b> הצורה המומלצת. <b>קו זהב קצר:</b> המרחק בין המקום הנוכחי למקום המומלץ.</p>
+      <p class="legend keylines"><span><b>נקודות לבנות עם קו מקווקו:</b> הגבה שלך כמו שהיא היום.</span><span><b>התבנית הזהובה:</b> הצורה המומלצת.</span><span><b>קו זהב קצר:</b> המרחק בין המקום הנוכחי למקום המומלץ.</span></p>
     </section>
 
     <section class="card" id="statCard" hidden>
