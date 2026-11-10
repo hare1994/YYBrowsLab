@@ -6,6 +6,22 @@
 <meta name="copyright" content="© יובל יעקב עיצוב גבות. כל הזכויות שמורות.">
 <meta name="robots" content="noai, noimageai">
 <meta name="theme-color" content="#f6ece1">
+<!-- Link previews (WhatsApp, Instagram, Facebook). If the site moves to its own domain, update the address in og:url and og:image. -->
+<meta name="description" content="סריקת גבות חינמית מתמונה אחת: ציון, סוג גבה ותבנית זהובה אישית. התמונה נשארת אצלך. מאת יובל יעקב עיצוב גבות.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="he_IL">
+<meta property="og:site_name" content="yy brow artist">
+<meta property="og:title" content="מעבדת הגבות של יובל יעקב">
+<meta property="og:description" content="סריקת גבות חינמית מתמונה אחת: ציון, סוג גבה ותבנית זהובה אישית. התמונה נשארת אצלך.">
+<meta property="og:url" content="https://yybrowslab.liveapps.workers.dev/">
+<meta property="og:image" content="https://yybrowslab.liveapps.workers.dev/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="מעבדת הגבות של יובל יעקב: סריקת גבות חינמית">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>מעבדת הגבות של יובל יעקב</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
@@ -79,6 +95,15 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .lead .ln,.ainote .ln{display:block;text-wrap:balance}
 .ainote{font-size:.85rem;color:var(--muted);text-align:center;margin:6px 0 0}
 .book-mid{text-align:center}
+.more-toggle{gap:6px}
+.more-toggle .legend{margin:0;text-align:center}
+#moreBtn span{display:inline-block;transition:transform .2s}
+#moreBtn[aria-expanded="true"] span{transform:rotate(180deg)}
+.more-box{display:contents}
+.btn.share{margin-top:12px;background:linear-gradient(90deg,#c13584,#e1306c 45%,#f77737);color:#fff}
+.share-note{margin:6px 0 0}
+.share-dlg img{display:block;width:min(260px,70vw);margin:8px auto;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.share-dlg .btn{margin:10px 0 0}
 .book-mid p{margin:0 0 10px;font-weight:500}
 
 /* scan stage */
@@ -286,9 +311,37 @@ img{-webkit-user-drag:none;user-select:none}
       </div>
       <p class="legend">אפשר גם לצבוט בשתי אצבעות להגדלה, לגרור באצבע אחת, ולהקיש פעמיים כדי להגדיל או לחזור.</p>
       <div class="layers" id="layers" role="group" aria-label="שכבות על התמונה"></div>
-      <p class="legend">הנקודות והקווים מוסברים בכרטיס "איך קוראים את הסימונים" שמתחת. אפשר להדליק ולכבות כל שכבה.</p>
+      <p class="legend">אפשר להדליק ולכבות כל שכבה. הסבר מלא על הנקודות והקווים נמצא ב"לפרטים המלאים" למטה.</p>
     </section>
 
+    <section class="card">
+      <div class="score">
+        <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" id="fg" cx="60" cy="60" r="52"/></svg><div class="num"><span id="scoreNum">0</span><small>מתוך 100</small></div></div>
+        <div>
+          <p class="kicker" style="margin:0">סוג הגבה שלך</p>
+          <h2 id="browType"></h2>
+          <span class="tag" id="faceTag"></span>
+        </div>
+      </div>
+      <p class="verdict" id="verdict"></p>
+      <p id="browDesc" style="color:var(--muted)"></p>
+      <p class="angle-warn" id="warn" role="status" hidden></p>
+      <p class="ainote">זו הערכה של בינה מלאכותית (AI) מתוך תמונה, והיא לא מדויקת במאה אחוזים. ההתאמה הסופית נעשית בפגישה אישית עם יובל.</p>
+      <button type="button" class="btn share" id="shareBtn">שתפי את התוצאה בסטורי ✨</button>
+      <p class="legend share-note">התמונה שלך לא נכללת בשיתוף, רק הציון וסוג הגבה.</p>
+    </section>
+
+    <section class="card" id="strCard"><h2>מה כבר עובד לך</h2><div class="tags" id="strengths"></div></section>
+
+    <section class="card" id="prioCard"><h2>מה הכי ישנה את המראה</h2><ol class="prio" id="prio"></ol></section>
+
+    <section class="card book-mid" aria-label="קביעת תור"><p>רוצה שיובל תעצב לך את הגבות לפי התבנית?</p><a class="btn wa" id="waMid" target="_blank" rel="noopener">לקביעת תור אצלי</a></section>
+
+    <section class="card more-toggle">
+      <button type="button" class="btn alt" id="moreBtn" aria-expanded="false" aria-controls="moreBox">לפרטים המלאים <span aria-hidden="true">▾</span></button>
+      <p class="legend">הסבר הסימונים על התמונה, המדידות על הפנים שלך וכל 8 המדדים</p>
+    </section>
+    <div id="moreBox" class="more-box" hidden>
     <section class="card" id="howCard">
       <h2>איך קוראים את הסימונים</h2>
       <p class="legend" style="text-align:start">קווים 1 ו-2 יוצאים מקצה הנחיר הפנימי: קצה פתח הנחיר שהכי רחוק מאמצע האף. קו 3 יוצא מקצה הנחיר החיצוני: המקום שבו האף מסתיים לצד, בקו אופקי. כך מקובל למפות גבה מקצועית.</p>
@@ -307,28 +360,8 @@ img{-webkit-user-drag:none;user-select:none}
       <p class="legend">כל המידות נחשבות לפי רוחב העין שלך, ולכן הן לא תלויות בגודל התמונה. זו הערכה מתוך תמונה, ולא מדידה במילימטרים.</p>
     </section>
 
-    <section class="card">
-      <div class="score">
-        <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" id="fg" cx="60" cy="60" r="52"/></svg><div class="num"><span id="scoreNum">0</span><small>מתוך 100</small></div></div>
-        <div>
-          <p class="kicker" style="margin:0">סוג הגבה שלך</p>
-          <h2 id="browType"></h2>
-          <span class="tag" id="faceTag"></span>
-        </div>
-      </div>
-      <p class="verdict" id="verdict"></p>
-      <p id="browDesc" style="color:var(--muted)"></p>
-      <p class="angle-warn" id="warn" role="status" hidden></p>
-      <p class="ainote">זו הערכה של בינה מלאכותית (AI) מתוך תמונה, והיא לא מדויקת במאה אחוזים. ההתאמה הסופית נעשית בפגישה אישית עם יובל.</p>
-    </section>
-
-    <section class="card" id="strCard"><h2>מה כבר עובד לך</h2><div class="tags" id="strengths"></div></section>
-
-    <section class="card" id="prioCard"><h2>מה הכי ישנה את המראה</h2><ol class="prio" id="prio"></ol></section>
-
-    <section class="card book-mid" aria-label="קביעת תור"><p>רוצה שיובל תעצב לך את הגבות לפי התבנית?</p><a class="btn wa" id="waMid" target="_blank" rel="noopener">לקביעת תור אצלי</a></section>
-
     <section class="card"><h2>כל 8 המדדים</h2><div class="metrics" id="metrics"></div></section>
+    </div>
 
     <section class="card">
       <h2>מה מעניין אותך?</h2>
@@ -390,6 +423,14 @@ img{-webkit-user-drag:none;user-select:none}
   <p>הציונים והתבנית הם הערכה ראשונית של בינה מלאכותית (AI) מתמונה בלבד. הם אינם מדויקים במאה אחוזים ואינם מחליפים ייעוץ אישי. ההתאמה הסופית נקבעת בפגישה עם יובל.</p>
   <h3>הפרות</h3>
   <p>הפרת זכויות היוצרים עלולה לחשוף לתביעה אזרחית ולסעדים לפי הדין, ובהם צו מניעה ופיצויים.</p>
+  <form method="dialog"><button class="x">סגירה</button></form>
+</dialog>
+
+<dialog class="doc share-dlg" id="dlgShare" aria-labelledby="tShare">
+  <h2 id="tShare">התוצאה שלך מוכנה לשיתוף</h2>
+  <img id="shareImg" alt="כרטיס התוצאה לשיתוף: הציון וסוג הגבה">
+  <p class="legend" id="shareHint">לחיצה ארוכה על התמונה כדי לשמור אותה, ואז להעלות לסטורי באינסטגרם ולתייג את <bdi dir="ltr" style="display:inline-block;white-space:nowrap">@_yuvalyaacov_</bdi></p>
+  <a class="btn" id="shareDl" download="brow-lab-result.png">שמירת התמונה</a>
   <form method="dialog"><button class="x">סגירה</button></form>
 </dialog>
 
@@ -1234,7 +1275,7 @@ const colFor = s => s >= 80 ? "var(--good)" : s >= 60 ? "var(--mid)" : "var(--lo
 const txt = (el, t) => { el.textContent = t == null ? "" : String(t); return el; };
 function render(r) {
   $("resImg").onload = () => {};
-  $("resImg").src = imgUrl; $("resImg").alt = "התמונה שלך עם סימון הגבות. הציון הכללי " + r.overall + " מתוך 100, סוג הגבה: " + r.browType + ". פירוט המדידות מופיע בטקסט מתחת לתמונה.";
+  $("resImg").src = imgUrl; $("resImg").alt = "התמונה שלך עם סימון הגבות. הציון הכללי " + r.overall + " מתוך 100, סוג הגבה: " + r.browType + ". פירוט המדידות מופיע ב'לפרטים המלאים' בהמשך העמוד.";
   const av = buildOverlay(r); buildLayers(av);
   $("resImg").addEventListener("load", () => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } }, {once: true}); try { buildZoomBoxes(r); } catch (e) { console.warn(e); }
   if (DEBUG) { const im = $("resImg"); const go = () => { try { buildDebug(r); } catch (e) { console.error(e); } }; if (im.complete && im.naturalWidth) go(); else im.addEventListener("load", go, {once: true}); } buildStatsUI(r.stats); $("statCard").hidden = false;
@@ -1277,6 +1318,82 @@ function updateWa() {
   ["wa0", "waMid", "wa1", "wa2"].forEach(id => { $(id).href = href; });
 }
 $("wa0").href = "https://wa.me/" + WA + "?text=" + encodeURIComponent("היי יובל! אשמח לקבוע תור לעיצוב גבות 🌿");
+/* ---------- full details toggle ---------- */
+$("moreBtn").addEventListener("click", () => {
+  const box = $("moreBox"), open = box.hidden;
+  box.hidden = !open; $("moreBtn").setAttribute("aria-expanded", String(open));
+  $("moreBtn").firstChild.textContent = open ? "להסתיר את הפרטים " : "לפרטים המלאים ";
+  if (open) box.querySelector("section").scrollIntoView({behavior: "smooth", block: "start"});
+});
+
+/* ---------- share card for Instagram stories (1080x1920, no photo of the person) ---------- */
+function wrapLines(ctx, text, maxW) {
+  const words = String(text).split(" "), lines = []; let cur = "";
+  for (const w of words) { const t = cur ? cur + " " + w : w; if (ctx.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }
+  if (cur) lines.push(cur); return lines;
+}
+async function makeShareCard(r) {
+  const W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d");
+  try { await Promise.all(['700 80px "Frank Ruhl Libre"', '500 40px "Frank Ruhl Libre"', '400 40px Heebo', '700 40px Heebo'].map(f => document.fonts.load(f))); } catch (e) {}
+  const SERIF = '"Frank Ruhl Libre", Georgia, serif', SANS = 'Heebo, system-ui, sans-serif';
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#fffaf4"); g.addColorStop(.55, "#f6ece1"); g.addColorStop(1, "#ecd9c3");
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.direction = "rtl"; x.textAlign = "center"; x.textBaseline = "alphabetic";
+  // logo
+  const logo = document.querySelector(".logo");
+  if (logo && logo.complete) {
+    const R = 120, cx = W / 2, cy = 250;
+    x.save(); x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.closePath(); x.fillStyle = "#fff"; x.fill(); x.clip();
+    const s = Math.max(2 * R / logo.naturalWidth, 2 * R / logo.naturalHeight);
+    x.drawImage(logo, cx - logo.naturalWidth * s / 2, cy - logo.naturalHeight * s / 2, logo.naturalWidth * s, logo.naturalHeight * s); x.restore();
+    x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.lineWidth = 5; x.strokeStyle = "#b98f45"; x.stroke();
+  }
+  x.fillStyle = "#3f2e20"; x.font = "700 84px " + SERIF; x.fillText("מעבדת הגבות", W / 2, 490); x.fillText("של יובל יעקב", W / 2, 585);
+  // score ring
+  const sc = r.overall || 0, cx = W / 2, cy = 900, RR = 230;
+  x.lineCap = "round"; x.lineWidth = 34;
+  x.beginPath(); x.arc(cx, cy, RR, 0, Math.PI * 2); x.strokeStyle = "rgba(110,79,51,.15)"; x.stroke();
+  x.beginPath(); x.arc(cx, cy, RR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * sc / 100);
+  x.strokeStyle = sc >= 80 ? "#58824d" : sc >= 60 ? "#b88a2c" : "#b4553f"; x.stroke();
+  x.fillStyle = "#3f2e20"; x.font = "700 190px " + SERIF; x.fillText(String(sc), cx, cy + 60);
+  x.fillStyle = "#7f6a56"; x.font = "500 44px " + SANS; x.fillText("מתוך 100", cx, cy + 125);
+  // brow type
+  x.fillStyle = "#b98f45"; x.font = "500 44px " + SANS; x.fillText("סוג הגבה שלי", W / 2, 1260);
+  x.fillStyle = "#3f2e20"; x.font = "700 96px " + SERIF; x.fillText(r.browType || "", W / 2, 1365);
+  if (r.faceShape) {
+    const t = "מבנה פנים: " + r.faceShape; x.font = "500 42px " + SANS; const tw = x.measureText(t).width + 70;
+    x.fillStyle = "#efdfcc"; x.beginPath(); x.roundRect(W / 2 - tw / 2, 1415, tw, 80, 40); x.fill();
+    x.fillStyle = "#6e4f33"; x.fillText(t, W / 2, 1470);
+  }
+  // call to action
+  x.fillStyle = "#3f2e20"; x.font = "700 56px " + SANS; x.fillText("ומה הציון שלך? ✨", W / 2, 1620);
+  const bw = 760, bx = W / 2 - bw / 2, by = 1660, bg = x.createLinearGradient(bx, 0, bx + bw, 0);
+  bg.addColorStop(0, "#b98f45"); bg.addColorStop(1, "#dcb86f"); x.fillStyle = bg; x.beginPath(); x.roundRect(bx, by, bw, 110, 55); x.fill();
+  x.fillStyle = "#2a1d10"; x.font = "700 50px " + SANS; x.fillText("סריקת גבות בחינם בקישור", W / 2, by + 72);
+  x.fillStyle = "#7f6a56"; x.font = "500 38px " + SANS;
+  x.direction = "ltr"; x.fillText("@_yuvalyaacov_", W / 2, 1830); x.direction = "rtl";
+  x.font = "400 30px " + SANS; x.fillText("הערכה של בינה מלאכותית, לא מדויקת במאה אחוזים", W / 2, 1885);
+  return new Promise(res => c.toBlob(res, "image/png"));
+}
+$("shareBtn").addEventListener("click", async () => {
+  if (!last) return;
+  const btn = $("shareBtn"); btn.disabled = true;
+  try {
+    const blob = await makeShareCard(last);
+    const file = new File([blob], "brow-lab-result.png", {type: "image/png"});
+    const url = location.origin + location.pathname;
+    const text = "קיבלתי " + last.overall + "/100 במעבדת הגבות של יובל יעקב ✨ ומה הציון שלך? " + url;
+    if (navigator.canShare && navigator.canShare({files: [file]})) {
+      try { await navigator.share({files: [file], text}); return; }
+      catch (e) { if (e && e.name === "AbortError") return; }   // fall back to the save dialog
+    }
+    const href = URL.createObjectURL(blob);
+    $("shareImg").src = href; $("shareDl").href = href;
+    $("dlgShare").showModal();
+  } catch (e) { console.error(e); }
+  finally { btn.disabled = false; }
+});
 $("again").addEventListener("click", () => { phase("intake"); window.scrollTo({top: 0, behavior: "smooth"}); });
 window.__analyze = analyze; window.__getLast = () => last;
 
