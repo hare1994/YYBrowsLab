@@ -1144,21 +1144,22 @@ function analyze(lms, W, H, pix) {
     let archOnLine = true;
     if (xA === null || !isFinite(xA) || Math.abs(xA - c.arch[0]) > 0.2 * U) { xA = c.arch[0]; archOnLine = false; }
     const ratio = (xA - xS) / (xT - xS);
-    if (!(ratio > 0.5 && ratio < 0.76)) { xA = xS + (xT - xS) * 0.618; archOnLine = false; }
+    if (!(ratio > 0.45 && ratio < 0.9)) { xA = xS + (xT - xS) * 0.618; archOnLine = false; }   // only extreme cases leave line 2
     const lA = lineX(N, c.IO, yA);
     ideal[s] = {s1: [xStd, yS], s2: [lA !== null && isFinite(lA) ? lA : xA, yA], s3: [xT0, yT], start: [xS, yS], arch: [xA, yA], tail: [xT, yT], N3, wh, wa, wt, base, N, archOnLine};
   });
-  // The two gold brows must be a matching pair: same length and arch position, measured from the middle of the nose.
+  // The two gold brows share their shape (arch height and thickness) so they read as a pair, but each one keeps its
+  // own start, arch and end from its own lines. Averaging the positions around the nose (as before) pulled each
+  // template off its lines whenever the face was slightly turned or not perfectly symmetric.
   if (ideal.L && ideal.R) {
-    const midX = (ideal.L.N[0] + ideal.R.N[0]) / 2, SS = ["L", "R"];
-    const avgD = k => avg(SS.map(s => Math.abs(ideal[s][k][0] - midX)));
-    const capD = SS.map(s => Math.abs(sd[s].tail[0] - midX) + 0.35 * eyeW);   // short hair can be grown to the line, within reason
-    const hD = avgD("start"), tD = Math.max(hD + 0.8 * eyeW, Math.min(avgD("tail"), ...capD));
-    let aD = avgD("arch"); if (!(aD > hD + 0.2 * eyeW && aD < tD - 0.2 * eyeW)) aD = hD + (tD - hD) * 0.618;
+    const SS = ["L", "R"];
     const rise = avg(SS.map(s => ideal[s].start[1] - ideal[s].arch[1])), wh = avg(SS.map(s => ideal[s].wh)), wa = avg(SS.map(s => ideal[s].wa));
     SS.forEach(s => {
-      const o = ideal[s], sg = s === "L" ? -1 : 1;
-      o.start = [midX + sg * hD, o.start[1]]; o.arch = [midX + sg * aD, o.start[1] - rise]; o.tail = [midX + sg * tD, o.tail[1]];
+      const o = ideal[s], yA2 = o.start[1] - rise;
+      // the arch keeps sitting exactly on line 2 at its new height (the line is slanted, so x moves with y)
+      const xl = lineX(o.N, sd[s].IO, yA2);
+      if (o.archOnLine && xl !== null && isFinite(xl)) o.arch = [xl, yA2]; else o.arch = [o.arch[0], yA2];
+      if (xl !== null && isFinite(xl)) o.s2 = [xl, yA2];
       o.wh = wh; o.wa = wa; o.base = o.start[1] + wh / 2;
     });
   }
