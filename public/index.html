@@ -487,6 +487,8 @@ img{-webkit-user-drag:none;user-select:none}
   <p>התמונה שאת מעלה נשארת במכשיר שלך ואינה נשלחת לשום שרת. הזכויות בתמונה שלך נשארות שלך.</p>
   <h3>הערכה ראשונית</h3>
   <p>הציונים והתבנית הם הערכה ראשונית של בינה מלאכותית (AI) מתמונה בלבד. הם אינם מדויקים במאה אחוזים ואינם מחליפים ייעוץ אישי. ההתאמה הסופית נקבעת בפגישה עם יובל.</p>
+  <h3>רכיבים של צד שלישי</h3>
+  <p>זיהוי הגבות נעזר במודל SegFormer-B0 של מאגר <a href="https://github.com/hukenovs/easyportrait" target="_blank" rel="noopener">EasyPortrait</a>, שמופץ ברישיון ציבורי עם ייחוס (מבוסס CC BY-SA 4.0). המודל הומר לפורמט שרץ בדפדפן, בלי שינוי באימון שלו. זיהוי נקודות הפנים נעשה בעזרת MediaPipe של Google.</p>
   <h3>הפרות</h3>
   <p>הפרת זכויות היוצרים עלולה לחשוף לתביעה אזרחית ולסעדים לפי הדין, ובהם צו מניעה ופיצויים.</p>
   <form method="dialog"><button class="x">סגירה</button></form>
@@ -541,6 +543,41 @@ const enginePromise = (async () => {
   try { return await make("GPU"); } catch (_) { return await make("CPU"); }
 })();
 enginePromise.catch(e => { engineErr = e; });
+
+/* ---------- brow segmentation model (EasyPortrait SegFormer-B0, runs on the phone) ----------
+   Marks every pixel as skin / left brow / right brow / eye / lips. When it is available it decides which pixels are
+   brow hair; if it fails to load or run, the scan falls back to the contrast-based detection. */
+const ORT = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
+const SEG_MODEL = "models/brow-seg.onnx", SEG_N = 512;
+const segPromise = (async () => {
+  if (window.__NO_SEG__) return null;
+  const ort = await import(ORT + "ort.wasm.min.mjs");
+  ort.env.wasm.numThreads = 1; ort.env.wasm.wasmPaths = ORT;
+  const sess = await ort.InferenceSession.create(SEG_MODEL, {executionProviders: ["wasm"]});
+  return {ort, sess};
+})();
+segPromise.catch(e => console.warn("brow model unavailable, using the contrast method", e));
+async function runSeg(seg, img, lms) {
+  // a square crop around the face, so the face fills the frame like the portraits the model was trained on
+  const W = img.naturalWidth, H = img.naturalHeight, ps = FACE_OVAL.map(i => [lms[i].x * W, lms[i].y * H]);
+  const xs = ps.map(p => p[0]), ys = ps.map(p => p[1]);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const side = 1.35 * Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)), sx = cx - side / 2, sy = cy - side / 2;
+  const c = document.createElement("canvas"); c.width = c.height = SEG_N;
+  const g = c.getContext("2d", {willReadFrequently: true}); g.fillStyle = "#808080"; g.fillRect(0, 0, SEG_N, SEG_N);
+  g.drawImage(img, sx, sy, side, side, 0, 0, SEG_N, SEG_N);
+  const d = g.getImageData(0, 0, SEG_N, SEG_N).data, N = SEG_N * SEG_N, x = new Float32Array(3 * N);
+  for (let i = 0; i < N; i++) { x[i] = d[4 * i]; x[N + i] = d[4 * i + 1]; x[2 * N + i] = d[4 * i + 2]; }
+  const out = await seg.sess.run({rgb: new seg.ort.Tensor("float32", x, [1, 3, SEG_N, SEG_N])});
+  const lg = out.logits.data, C = out.logits.dims[1], lab = new Uint8Array(N);
+  for (let i = 0; i < N; i++) { let b = 0, bv = lg[i]; for (let k = 1; k < C; k++) { const v = lg[k * N + i]; if (v > bv) { bv = v; b = k; } } lab[i] = b; }
+  return {x0: sx, y0: sy, s: side / SEG_N, lab};
+}
+const isBrowPx = (seg, px, py) => {   // classes 2 and 3 are the two brows
+  const mx = Math.floor((px - seg.x0) / seg.s), my = Math.floor((py - seg.y0) / seg.s);
+  if (mx < 0 || my < 0 || mx >= SEG_N || my >= SEG_N) return false;
+  const v = seg.lab[my * SEG_N + mx]; return v === 2 || v === 3;
+};
 
 /* ---------- upload ---------- */
 function onPick(e) {
@@ -662,7 +699,13 @@ $("go").addEventListener("click", async () => {
     if (bad && !poseOverride) { phase("intake"); showPoseErr(bad); return; }
     poseOverride = false;
     await step(3);
-    const r = analyze(lms, img.naturalWidth, img.naturalHeight, getPix(img));
+    const pix = getPix(img);
+    try {
+      const sm = await Promise.race([segPromise, new Promise(res => setTimeout(() => res(null), 10000))]);
+      if (sm) pix.seg = await runSeg(sm, img, lms);
+    } catch (e) { console.warn("brow model failed, using the contrast method", e); }
+    window.__segUsed = !!pix.seg;
+    const r = analyze(lms, img.naturalWidth, img.naturalHeight, pix);
     if (r.blockers && r.blockers.length) { phase("intake"); showBlockErr(r.blockers); return; }
     await step(4);
     last = r; render(r); await step(5);
@@ -744,14 +787,15 @@ const pctile = (arr, q) => { const a = arr.slice().sort((x, y) => x - y); return
    Returns null when the contrast is too low, so the caller falls back to landmarks. All output is in the straightened frame (toF). */
 function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
   if (!pix) return null;
-  const k = pix.w / 1000, Rr = Math.max(th.head, th.arch, th.tail, 0.14 * ew) / 2 + 0.10 * ew;
+  const seg = pix.seg || null;   // brow mask from the segmentation model, when available
+  const k = pix.w / 1000, Rr = Math.max(th.head, th.arch, th.tail, 0.14 * ew) / 2 + (seg ? 0.16 : 0.10) * ew;
   // The face model usually ends the brow before the real tail, so the search area continues past its last point,
   // along the direction of the brow's last segment.
   const sgE = -outward, uOf = p => toF(p)[0] * sgE;
   const tailFirst = uOf(cen0[0]) < uOf(cen0[cen0.length - 1]);
   const ord = tailFirst ? cen0 : cen0.slice().reverse();            // tail -> head
   const e0 = ord[0], e1 = ord[1], dl = Math.hypot(e0[0] - e1[0], e0[1] - e1[1]) || 1;
-  const ext = [e0[0] + (e0[0] - e1[0]) / dl * 0.30 * ew, e0[1] + (e0[1] - e1[1]) / dl * 0.30 * ew];
+  const extL = (seg ? 0.45 : 0.30) * ew, ext = [e0[0] + (e0[0] - e1[0]) / dl * extL, e0[1] + (e0[1] - e1[1]) / dl * extL];
   const cen = [ext].concat(ord);
   let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
   cen.forEach(p => { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
@@ -774,33 +818,41 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
     inR[i] = 1; vals.push(val[i]);
   }
   if (vals.length < 200) return null;
-  // Hair = LOCALLY darker than the skin right around it. A single brightness threshold also caught the shading under
-  // the brow, the eye socket and the temple, so thin or light brows came out far too long and wide.
-  // Local skin level: a wide box average of the SKIN pixels only. A first rough split (Otsu over the search area) marks
-  // the likely hair, which is left out of the average, so a thick, dark brow does not pull its own reference down.
-  const R1 = Math.max(4, Math.round(0.25 * ew * k));
-  const hist = new Float64Array(256); vals.forEach(v => { hist[Math.min(255, Math.max(0, Math.round(v)))]++; });
-  let wB = 0, sumB = 0, sumAll = 0, best = -1, otsu = 128; for (let i = 0; i < 256; i++) sumAll += i * hist[i];
-  for (let t = 0; t < 256; t++) { wB += hist[t]; if (!wB) continue; const wF = vals.length - wB; if (!wF) break;
-    sumB += t * hist[t]; const mB = sumB / wB, mF = (sumAll - sumB) / wF, v = wB * wF * (mB - mF) * (mB - mF); if (v > best) { best = v; otsu = t; } }
-  const ex0 = Math.max(0, px0 - R1), ex1 = Math.min(w - 1, px1 + R1), ey0 = Math.max(0, py0 - R1), ey1 = Math.min(pix.h - 1, py1 + R1);
-  const EW = ex1 - ex0 + 1, EH = ey1 - ey0 + 1, W1 = EW + 1, I = new Float64Array((EW + 1) * (EH + 1)), C = new Float64Array((EW + 1) * (EH + 1));
-  for (let y = 0; y < EH; y++) { let row = 0, rc = 0;
-    for (let x = 0; x < EW; x++) { const v = L[(ey0 + y) * w + ex0 + x], sk = v > otsu ? 1 : 0; row += sk * v; rc += sk;
-      I[(y + 1) * W1 + x + 1] = I[y * W1 + x + 1] + row; C[(y + 1) * W1 + x + 1] = C[y * W1 + x + 1] + rc; } }
-  const boxMean = (x, y) => {
-    const a0 = Math.max(0, x - ex0 - R1), a1 = Math.min(EW - 1, x - ex0 + R1), b0 = Math.max(0, y - ey0 - R1), b1 = Math.min(EH - 1, y - ey0 + R1);
-    const S = (A, x0, y0, x1, y1) => A[(y1 + 1) * W1 + x1 + 1] - A[y0 * W1 + x1 + 1] - A[(y1 + 1) * W1 + x0] + A[y0 * W1 + x0];
-    const n = S(C, a0, b0, a1, b1); return n > 0 ? S(I, a0, b0, a1, b1) / n : otsu;
-  };
-  const dark = new Float32Array(bw * bh), dv = [];
-  for (let i = 0; i < bw * bh; i++) if (inR[i]) { const x = i % bw, y = (i - x) / bw; dark[i] = boxMean(px0 + x, py0 + y) - val[i]; dv.push(dark[i]); }
-  const p97 = pctile(dv, 0.97), T = Math.max(12, 0.38 * p97);
-  if (pctile(dv, 0.97) < 18) return null;   // no clear brow hair in the photo: fall back to the face model
-  const hair = new Uint8Array(bw * bh); let nHair = 0;
-  for (let i = 0; i < bw * bh; i++) if (inR[i] && dark[i] >= T) { hair[i] = 1; nHair++; }
-  const frac = nHair / dv.length;
-  if (frac < 0.03 || frac > 0.6) return null;
+  let hair, dark = null, T = 0, p97 = 0;
+  if (seg) {
+    // the model's brow mask decides; the search band only keeps it to this side's brow
+    hair = new Uint8Array(bw * bh); let nHair = 0;
+    for (let i = 0; i < bw * bh; i++) if (inR[i]) { const x = i % bw, y = (i - x) / bw; if (isBrowPx(seg, px0 + x, py0 + y)) { hair[i] = 1; nHair++; } }
+    if (nHair < 60) return null;
+  } else {
+    // Hair = LOCALLY darker than the skin right around it. A single brightness threshold also caught the shading under
+    // the brow, the eye socket and the temple, so thin or light brows came out far too long and wide.
+    // Local skin level: a wide box average of the SKIN pixels only. A first rough split (Otsu over the search area) marks
+    // the likely hair, which is left out of the average, so a thick, dark brow does not pull its own reference down.
+    const R1 = Math.max(4, Math.round(0.25 * ew * k));
+    const hist = new Float64Array(256); vals.forEach(v => { hist[Math.min(255, Math.max(0, Math.round(v)))]++; });
+    let wB = 0, sumB = 0, sumAll = 0, best = -1, otsu = 128; for (let i = 0; i < 256; i++) sumAll += i * hist[i];
+    for (let t = 0; t < 256; t++) { wB += hist[t]; if (!wB) continue; const wF = vals.length - wB; if (!wF) break;
+      sumB += t * hist[t]; const mB = sumB / wB, mF = (sumAll - sumB) / wF, v = wB * wF * (mB - mF) * (mB - mF); if (v > best) { best = v; otsu = t; } }
+    const ex0 = Math.max(0, px0 - R1), ex1 = Math.min(w - 1, px1 + R1), ey0 = Math.max(0, py0 - R1), ey1 = Math.min(pix.h - 1, py1 + R1);
+    const EW = ex1 - ex0 + 1, EH = ey1 - ey0 + 1, W1 = EW + 1, I = new Float64Array((EW + 1) * (EH + 1)), C = new Float64Array((EW + 1) * (EH + 1));
+    for (let y = 0; y < EH; y++) { let row = 0, rc = 0;
+      for (let x = 0; x < EW; x++) { const v = L[(ey0 + y) * w + ex0 + x], sk = v > otsu ? 1 : 0; row += sk * v; rc += sk;
+        I[(y + 1) * W1 + x + 1] = I[y * W1 + x + 1] + row; C[(y + 1) * W1 + x + 1] = C[y * W1 + x + 1] + rc; } }
+    const boxMean = (x, y) => {
+      const a0 = Math.max(0, x - ex0 - R1), a1 = Math.min(EW - 1, x - ex0 + R1), b0 = Math.max(0, y - ey0 - R1), b1 = Math.min(EH - 1, y - ey0 + R1);
+      const S = (A, x0, y0, x1, y1) => A[(y1 + 1) * W1 + x1 + 1] - A[y0 * W1 + x1 + 1] - A[(y1 + 1) * W1 + x0] + A[y0 * W1 + x0];
+      const n = S(C, a0, b0, a1, b1); return n > 0 ? S(I, a0, b0, a1, b1) / n : otsu;
+    };
+    dark = new Float32Array(bw * bh); const dv = [];
+    for (let i = 0; i < bw * bh; i++) if (inR[i]) { const x = i % bw, y = (i - x) / bw; dark[i] = boxMean(px0 + x, py0 + y) - val[i]; dv.push(dark[i]); }
+    p97 = pctile(dv, 0.97); T = Math.max(12, 0.38 * p97);
+    if (pctile(dv, 0.97) < 18) return null;   // no clear brow hair in the photo: fall back to the face model
+    hair = new Uint8Array(bw * bh); let nHair = 0;
+    for (let i = 0; i < bw * bh; i++) if (inR[i] && dark[i] >= T) { hair[i] = 1; nHair++; }
+    const frac = nHair / dv.length;
+    if (frac < 0.03 || frac > 0.6) return null;
+  }
   // join the gaps between single hairs (1px closing) before finding the brow as one connected piece
   const joined = new Uint8Array(bw * bh);
   for (let i = 0; i < bw * bh; i++) if (hair[i]) { const x = i % bw, y = (i - x) / bw;
@@ -821,8 +873,8 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
   if (bestN < 40) return null;
   for (let i = 0; i < bw * bh; i++) if (lab[i] === bestLab && !hair[i]) lab[i] = 0;   // measure real hair pixels only
   // The last, thinnest tail hairs are fainter: let the brow grow into the tail with a softer local threshold,
-  // only beyond the tail end of the main piece.
-  {
+  // only beyond the tail end of the main piece. (Not needed when the segmentation model drew the brow.)
+  if (!seg) {
     const sgT = -outward, uPix = i => { const x = i % bw, y = (i - x) / bw; return toF([(px0 + x) / k, (py0 + y) / k])[0] * sgT; };
     let coreT = 1e9; for (let i = 0; i < bw * bh; i++) if (lab[i] === bestLab) coreT = Math.min(coreT, uPix(i));
     const T2 = Math.max(0.6 * T, 0.30 * p97), st = [],   // growth threshold kept where it was: lower picked up hairline shading
