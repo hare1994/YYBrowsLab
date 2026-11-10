@@ -43,7 +43,7 @@ a{color:inherit}
 h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6rem);line-height:1.15}
 .hero svg{width:150px;height:28px;color:var(--gold)}
 .lead{color:var(--muted);max-width:30em}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;width:100%}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px;width:100%}
 .step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 6px;font-size:.82rem;line-height:1.35;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
 .step b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--gold);color:var(--on-gold);font-size:.8rem}
 
@@ -165,7 +165,7 @@ details.m .body em{font-style:normal;font-weight:700;color:var(--brown)}
 .note{font-size:.78rem;color:var(--muted);text-align:center}
 .bar-fixed{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));background:var(--bar);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
 .bar-fixed .btn{max-width:640px;margin:0 auto}
-@media (max-width:420px){.score{grid-template-columns:1fr;justify-items:center;text-align:center}.links,.row2{grid-template-columns:1fr}}
+@media (max-width:420px){.steps{grid-template-columns:repeat(2,1fr)}.score{grid-template-columns:1fr;justify-items:center;text-align:center}.links,.row2{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.beam{animation:none;top:40%}.checks li.now i{animation:none}.l1,.l2,.l3{animation:none}.ring .fg,.prog i,details.m .bar i{transition:none}}
 
 /* accessibility + legal */
@@ -226,6 +226,7 @@ img{-webkit-user-drag:none;user-select:none}
       <div class="step"><b>1</b>מעלים תמונה</div>
       <div class="step"><b>2</b>המעבדה סורקת</div>
       <div class="step"><b>3</b>מקבלים תבנית וציון</div>
+      <div class="step"><b>4</b>קובעים תור</div>
     </div>
     <a class="btn wa" id="wa0" target="_blank" rel="noopener">לקביעת תור אצלי</a>
   </header>
