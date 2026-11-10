@@ -103,7 +103,10 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 /* no double-tap page zoom anywhere (pinch-zoom of the page still works, for accessibility) */
 html,body,button,a,label,.chip,.zoombar,.layers{touch-action:manipulation}
 .zoombar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
-.zoombar .zb{min-width:44px;font-size:1.2rem;font-weight:700;padding:4px 12px}
+.zoombar .zb{min-width:52px;font-size:1.2rem;font-weight:700;padding:4px 12px}
+.zregions{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:420px}
+.zregions .chip{white-space:nowrap}
+.zsteps{display:flex;gap:8px;justify-content:center;width:100%}
 .redo{padding-top:14px;padding-bottom:14px}
 .redo-t{margin:0 0 10px;text-align:center;font-weight:500}
 .redo-b{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -168,12 +171,15 @@ details.m .body em{font-style:normal;font-weight:700;color:var(--brown)}
 .skip{position:absolute;top:-80px;inset-inline-start:8px;z-index:100;background:var(--gold);color:var(--on-gold);padding:10px 16px;border-radius:12px;font-weight:700;text-decoration:none}
 .skip:focus{top:8px}
 .a11y-btn{position:fixed;top:10px;left:10px;z-index:60;font:inherit;font-size:.9rem;font-weight:700;border:2px solid var(--gold);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:44px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.a11y-btn{box-shadow:0 2px 10px rgba(0,0,0,.15);transition:padding .2s}
+.a11y-btn.mini{padding:8px;width:44px;justify-content:center}
+.a11y-btn.mini .t{display:none}
 .a11y-panel{position:fixed;top:62px;left:10px;z-index:60;width:min(300px,calc(100vw - 20px));background:var(--surface);color:var(--ink);border:2px solid var(--gold);border-radius:18px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}
 .a11y-panel .row{display:flex;gap:8px}
 .a11y-panel button{font:inherit;font-size:.92rem;flex:1;border:1px solid var(--gold);background:transparent;color:var(--ink);border-radius:12px;padding:10px;min-height:44px;cursor:pointer}
 .a11y-panel button[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);font-weight:700}
 .a11y-panel h2{font-size:1rem;margin:0 0 2px}
-.foot{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0 90px;text-align:center;font-size:.85rem;color:var(--muted)}
+.foot{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0 24px;text-align:center;font-size:.85rem;color:var(--muted)}
 .foot .fl{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 .foot button{font:inherit;font-size:.88rem;background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;padding:10px 6px;min-height:44px}
 dialog.doc{max-width:min(640px,calc(100vw - 24px));max-height:86vh;overflow:auto;border:2px solid var(--gold);border-radius:20px;background:var(--surface);color:var(--ink);padding:20px;line-height:1.7}
@@ -195,7 +201,7 @@ img{-webkit-user-drag:none;user-select:none}
 </head>
 <body>
 <a class="skip" href="#main">דילוג לתוכן הראשי</a>
-<button class="a11y-btn" id="a11yBtn" type="button" aria-expanded="false" aria-controls="a11yPanel"><span aria-hidden="true">♿</span> נגישות</button>
+<button class="a11y-btn" id="a11yBtn" type="button" aria-label="נגישות" aria-expanded="false" aria-controls="a11yPanel"><span aria-hidden="true">♿</span><span class="t">נגישות</span></button>
 <div class="a11y-panel" id="a11yPanel" role="dialog" aria-label="הגדרות נגישות" hidden>
   <h2>הגדרות נגישות</h2>
   <div class="row"><button type="button" id="fsUp" aria-label="הגדלת טקסט">א+ הגדלת טקסט</button><button type="button" id="fsDown" aria-label="הקטנת טקסט">א- הקטנה</button></div>
@@ -261,12 +267,16 @@ img{-webkit-user-drag:none;user-select:none}
     <section class="card">
       <div class="stage"><img id="resImg" alt="התמונה שלך עם קווי המדידה"><svg id="ov" preserveAspectRatio="none"></svg></div>
       <div class="zoombar" id="zoombar" role="group" aria-label="זום על התמונה">
-        <button type="button" class="chip" data-z="right" aria-pressed="false">🔍 גבה ימנית</button>
-        <button type="button" class="chip" data-z="both" aria-pressed="false">שתי הגבות</button>
-        <button type="button" class="chip" data-z="left" aria-pressed="false">🔍 גבה שמאלית</button>
-        <button type="button" class="chip" data-z="all" aria-pressed="true">כל התמונה</button>
-        <button type="button" class="chip zb" id="zIn" aria-label="הגדלה">+</button>
-        <button type="button" class="chip zb" id="zOut" aria-label="הקטנה">−</button>
+        <div class="zregions">
+          <button type="button" class="chip" data-z="right" aria-pressed="false">🔍 גבה ימנית</button>
+          <button type="button" class="chip" data-z="left" aria-pressed="false">🔍 גבה שמאלית</button>
+          <button type="button" class="chip" data-z="both" aria-pressed="false">שתי הגבות</button>
+          <button type="button" class="chip" data-z="all" aria-pressed="true">כל התמונה</button>
+        </div>
+        <div class="zsteps">
+          <button type="button" class="chip zb" id="zIn" aria-label="הגדלה">+</button>
+          <button type="button" class="chip zb" id="zOut" aria-label="הקטנה">−</button>
+        </div>
       </div>
       <p class="legend">אפשר גם לצבוט בשתי אצבעות להגדלה, לגרור באצבע אחת, ולהקיש פעמיים כדי להגדיל או לחזור.</p>
       <div class="layers" id="layers" role="group" aria-label="שכבות על התמונה"></div>
@@ -463,8 +473,8 @@ function showPoseErr(why) {
   const e = $("err"); e.classList.add("pose"); e.textContent = "";
   const t = document.createElement("b"); t.textContent = "התמונה צולמה מזווית שתפגע בציון";
   const p = document.createElement("p"); p.style.margin = "0";
-  p.textContent = "זיהינו ש" + why.join(", ") + ". בזווית כזו המדידות של הגבות יוצאות לא נכונות והציון יהיה נמוך מהמציאות. כדאי לצלם שוב: טלפון בגובה העיניים, מבט ישר למצלמה, ראש ישר.";
-  const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn alt"; btn.textContent = "להמשיך בכל זאת (התוצאה תהיה פחות מדויקת)";
+  p.textContent = "זיהינו ש" + why.join(", ") + ". בזווית כזו המדידות של הגבות יוצאות לא נכונות והציון יהיה נמוך מהמציאות. כדאי לצלם שוב: טלפון בגובה העיניים, מבט ישר למצלמה, ראש ישר. אפשר גם להמשיך עם התמונה הזו, אבל התוצאה תהיה פחות מדויקת.";
+  const btn = document.createElement("button"); btn.type = "button"; btn.className = "btn alt"; btn.textContent = "להמשיך בכל זאת";
   btn.addEventListener("click", () => { poseOverride = true; $("go").click(); });
   e.append(t, p, btn); e.hidden = false;
   e.scrollIntoView({behavior: "smooth", block: "center"});
@@ -1277,8 +1287,10 @@ window.__analyze = analyze; window.__getLast = () => last;
   }
   load();apply();
   var btn=document.getElementById("a11yBtn"),pan=document.getElementById("a11yPanel");
-  function toggle(open){pan.hidden=!open;btn.setAttribute("aria-expanded",String(open));if(open)document.getElementById("fsUp").focus();else btn.focus();}
+  function toggle(open){pan.hidden=!open;btn.classList.toggle("mini",!open&&window.scrollY>80);btn.setAttribute("aria-expanded",String(open));if(open)document.getElementById("fsUp").focus();else btn.focus();}
   btn.addEventListener("click",function(){toggle(pan.hidden);});
+  function mini(){btn.classList.toggle("mini",window.scrollY>80&&pan.hidden);}
+  window.addEventListener("scroll",mini,{passive:true});mini();
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!pan.hidden)toggle(false);});
   document.getElementById("fsUp").addEventListener("click",function(){st.fs=Math.min(3,st.fs+1);apply();save();});
   document.getElementById("fsDown").addEventListener("click",function(){st.fs=Math.max(0,st.fs-1);apply();save();});
