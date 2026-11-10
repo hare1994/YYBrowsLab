@@ -1114,6 +1114,18 @@ function analyze(lms, W, H, pix) {
     "אליפטי": {lo: 0.18, hi: 0.40, tip: "רוב הצורות מתאימות, וקשת רכה היא בחירה בטוחה"}
   }[faceShape];
 
+  // Symmetric anchors: the lines start from points found separately on each side (nostril edges, iris edge, outer
+  // eye corner). A small detection difference on one side (a shadow, the nose shape, a slight head turn) gave very
+  // different lines and a lopsided template. Each pair is mirrored around the middle of the nose and averaged, so the
+  // lines, and the template drawn on them, come out as a symmetric pair.
+  {
+    const midA = avg([168, 6, 197, 195, 5, 4, 1, 2, 94].map(i => L(i)[0]));
+    ["ALA", "ALAo", "IO", "EO"].forEach(k => {
+      const dL = (midA - sd.L[k][0]), dR = (sd.R[k][0] - midA), dAvg = (dL + dR) / 2, yAvg = (sd.L[k][1] + sd.R[k][1]) / 2;
+      if (!(dAvg > 0)) return;
+      sd.L[k] = [midA - dAvg, yAvg]; sd.R[k] = [midA + dAvg, yAvg];
+    });
+  }
   // ideal brows, from the standard lines (all in the straightened frame)
   const wt = 0.10 * eyeW;
   const ideal = {L: null, R: null};
