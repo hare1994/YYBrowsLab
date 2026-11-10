@@ -81,6 +81,18 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .checks li.now{color:var(--ink);font-weight:500}
 .checks li.now i{border-color:var(--gold);border-top-color:transparent;animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+#scan h2{text-align:center;margin:0}
+.loader{position:relative;width:132px;height:132px;margin:4px auto 0}
+.loader svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.loader circle{fill:none;stroke-width:5;stroke-linecap:round}
+.loader .track{stroke:var(--line)}
+.loader .arc{stroke:var(--gold);stroke-dasharray:95 282;transform-origin:66px 66px;animation:spin 1.1s linear infinite;transition:stroke-dasharray .5s ease}
+.loader img{position:absolute;inset:12px;width:108px;height:108px;border-radius:50%;object-fit:cover;background:#f5ebe2;animation:breathe 1.8s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.05)}}
+#scan.done .loader .arc{animation:none;stroke-dasharray:377 0;stroke:var(--good)}
+#scan.done .loader img{animation:none}
+#scan.done .beam{display:none}
+#scan .stage img{max-height:260px;object-fit:cover}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .drop{border:1.5px dashed var(--gold);border-radius:18px;padding:20px 12px;text-align:center;cursor:pointer;color:var(--brown);display:flex;flex-direction:column;gap:4px;align-items:center;background:var(--surface2)}
 .drop input{display:none}
@@ -110,6 +122,8 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .more-box{display:contents}
 .btn.share{margin-top:12px;background:linear-gradient(90deg,#c13584,#e1306c 45%,#f77737);color:#fff}
 .share-note{margin:6px 0 0}
+.linktip{display:flex;flex-direction:column;gap:2px;background:var(--surface2);border-radius:14px;padding:10px 12px;font-size:.88rem;color:var(--ink);margin-top:8px}
+.linktip.copied{outline:2px solid var(--good)}
 .inapp{background:var(--surface2);border-radius:14px;padding:12px 14px;font-size:.95rem}
 .inapp p{margin:0}
 .inapp ol{margin:6px 0;padding-inline-start:20px}
@@ -206,7 +220,7 @@ details.m .body em{font-style:normal;font-weight:700;color:var(--brown)}
 .bar-fixed{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));background:var(--bar);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
 .bar-fixed .btn{max-width:640px;margin:0 auto}
 @media (max-width:420px){.steps{grid-template-columns:repeat(2,1fr)}.score{grid-template-columns:1fr;justify-items:center;text-align:center}.links,.row2{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){.beam{animation:none;top:40%}.checks li.now i{animation:none}.l1,.l2,.l3{animation:none}.ring .fg,.prog i,details.m .bar i{transition:none}}
+@media (prefers-reduced-motion:reduce){.loader .arc,.loader img{animation:none}.beam{animation:none;top:40%}.checks li.now i{animation:none}.l1,.l2,.l3{animation:none}.ring .fg,.prog i,details.m .bar i{transition:none}}
 
 /* accessibility + legal */
 .skip{position:absolute;top:-80px;inset-inline-start:8px;z-index:100;background:var(--gold);color:var(--on-gold);padding:10px 16px;border-radius:12px;font-weight:700;text-decoration:none}
@@ -295,7 +309,11 @@ img{-webkit-user-drag:none;user-select:none}
   </section>
 
   <section class="card" id="scan" hidden>
-    <h2>סורקת את הגבות…</h2>
+    <div class="loader" aria-hidden="true">
+      <svg viewBox="0 0 132 132"><circle class="track" cx="66" cy="66" r="60"/><circle class="arc" cx="66" cy="66" r="60"/></svg>
+      <img id="loaderLogo" alt="">
+    </div>
+    <h2 id="scanTitle" aria-live="polite">סורקת את הגבות…</h2>
     <div class="stage"><img id="scanImg" alt=""><div class="beam"></div><div class="frame"></div></div>
     <div class="prog"><i id="prog"></i></div>
     <ul class="checks" id="steps" aria-live="polite"></ul>
@@ -348,6 +366,10 @@ img{-webkit-user-drag:none;user-select:none}
       <p class="ainote">זו הערכה של בינה מלאכותית (AI) מתוך תמונה, והיא לא מדויקת במאה אחוזים. ההתאמה הסופית נעשית בפגישה אישית עם יובל.</p>
       <button type="button" class="btn share" id="shareBtn">שיתוף לסטורי באינסטגרם ✨</button>
       <p class="legend share-note">התמונה שלך לא נכללת בשיתוף, רק הציון וסוג הגבה.</p>
+      <div class="linktip" id="linkTip">
+        <b id="linkTipT">🔗 רוצה שהסטורי יוביל לאתר?</b>
+        <span>הקישור יועתק אוטומטית כשתלחצי על שיתוף. בעורך הסטורי: סמל המדבקות ← <b>"קישור"</b> ← הדבקה.</span>
+      </div>
     </section>
 
     <section class="card" id="strCard"><h2>מה כבר עובד לך</h2><div class="tags" id="strengths"></div></section>
@@ -570,12 +592,21 @@ function progress(n) { // n steps are finished; step n is running
   $("prog").style.width = Math.max(6, Math.round(n / STEPS.length * 100)) + "%";
 }
 const nextFrame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 30)));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let stepT = 0;
+async function step(n) {   // show step n, but never faster than a readable pace
+  const wait = 650 - (performance.now() - stepT); if (wait > 0) await sleep(wait);
+  progress(n); stepT = performance.now(); await nextFrame();
+}
+$("loaderLogo").src = document.querySelector(".logo").src;
 
 $("go").addEventListener("click", async () => {
   $("err").hidden = true; $("go").disabled = true;
-  phase("scan"); $("scanImg").src = imgUrl; progress(1); window.scrollTo({top: 0, behavior: "smooth"});
+  $("scan").classList.remove("done"); $("scanTitle").textContent = "סורקת את הגבות…";
+  phase("scan"); $("scanImg").src = imgUrl; progress(1); stepT = performance.now();
+  requestAnimationFrame(() => $("scan").scrollIntoView({behavior: "smooth", block: "start"}));
   try {
-    await enginePromise; progress(2); await nextFrame();
+    await enginePromise; await step(2);
     const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = imgUrl; });
     let lms, mtx = null;
     if (window.__TEST_LM__) lms = window.__TEST_LM__;
@@ -589,10 +620,12 @@ $("go").addEventListener("click", async () => {
     const bad = poseProblem(lms, mtx, img.naturalWidth, img.naturalHeight);
     if (bad && !poseOverride) { phase("intake"); showPoseErr(bad); return; }
     poseOverride = false;
-    progress(3); await nextFrame();
+    await step(3);
     const r = analyze(lms, img.naturalWidth, img.naturalHeight, getPix(img));
-    progress(4); await nextFrame();
-    last = r; render(r); progress(5);
+    await step(4);
+    last = r; render(r); await step(5);
+    $("scan").classList.add("done"); $("scanTitle").textContent = "הסריקה הושלמה ✓";
+    await sleep(900);
     phase("result"); window.scrollTo({top: 0, behavior: "smooth"});
     requestAnimationFrame(() => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } });   // the zoom needs the visible frame size
   } catch (e) {
@@ -1417,6 +1450,11 @@ function openSaveDialog(file, inApp) {
 }
 $("shareBtn").addEventListener("click", async () => {
   if (!last) return;
+  // copy the site link (started inside the tap, before the share sheet opens) for the story's link sticker
+  const siteUrl = location.origin + "/";
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(siteUrl).then(() => {
+    $("linkTipT").textContent = "✓ הקישור לאתר הועתק"; $("linkTip").classList.add("copied");
+  }).catch(() => {});
   const file = shareFile || await shareFileP;
   if (!file) return;
   // Image only, no text: with text attached, iPhone may hide Instagram's "Stories" option.
