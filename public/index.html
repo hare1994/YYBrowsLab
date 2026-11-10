@@ -776,20 +776,26 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
   if (vals.length < 200) return null;
   // Hair = LOCALLY darker than the skin right around it. A single brightness threshold also caught the shading under
   // the brow, the eye socket and the temple, so thin or light brows came out far too long and wide.
-  // Local skin level: a wide box average of the luminance, with dark pixels clipped up to skin level so the hair itself
-  // does not pull the local skin level down.
-  const clip = pctile(vals, 0.2), R1 = Math.max(4, Math.round(0.25 * ew * k));   // only the darkest pixels (the hair) are lifted
+  // Local skin level: a wide box average of the SKIN pixels only. A first rough split (Otsu over the search area) marks
+  // the likely hair, which is left out of the average, so a thick, dark brow does not pull its own reference down.
+  const R1 = Math.max(4, Math.round(0.25 * ew * k));
+  const hist = new Float64Array(256); vals.forEach(v => { hist[Math.min(255, Math.max(0, Math.round(v)))]++; });
+  let wB = 0, sumB = 0, sumAll = 0, best = -1, otsu = 128; for (let i = 0; i < 256; i++) sumAll += i * hist[i];
+  for (let t = 0; t < 256; t++) { wB += hist[t]; if (!wB) continue; const wF = vals.length - wB; if (!wF) break;
+    sumB += t * hist[t]; const mB = sumB / wB, mF = (sumAll - sumB) / wF, v = wB * wF * (mB - mF) * (mB - mF); if (v > best) { best = v; otsu = t; } }
   const ex0 = Math.max(0, px0 - R1), ex1 = Math.min(w - 1, px1 + R1), ey0 = Math.max(0, py0 - R1), ey1 = Math.min(pix.h - 1, py1 + R1);
-  const EW = ex1 - ex0 + 1, EH = ey1 - ey0 + 1, I = new Float64Array((EW + 1) * (EH + 1));
-  for (let y = 0; y < EH; y++) { let row = 0; for (let x = 0; x < EW; x++) { row += Math.max(clip, L[(ey0 + y) * w + ex0 + x]); I[(y + 1) * (EW + 1) + x + 1] = I[y * (EW + 1) + x + 1] + row; } }
+  const EW = ex1 - ex0 + 1, EH = ey1 - ey0 + 1, W1 = EW + 1, I = new Float64Array((EW + 1) * (EH + 1)), C = new Float64Array((EW + 1) * (EH + 1));
+  for (let y = 0; y < EH; y++) { let row = 0, rc = 0;
+    for (let x = 0; x < EW; x++) { const v = L[(ey0 + y) * w + ex0 + x], sk = v > otsu ? 1 : 0; row += sk * v; rc += sk;
+      I[(y + 1) * W1 + x + 1] = I[y * W1 + x + 1] + row; C[(y + 1) * W1 + x + 1] = C[y * W1 + x + 1] + rc; } }
   const boxMean = (x, y) => {
     const a0 = Math.max(0, x - ex0 - R1), a1 = Math.min(EW - 1, x - ex0 + R1), b0 = Math.max(0, y - ey0 - R1), b1 = Math.min(EH - 1, y - ey0 + R1);
-    const n = (a1 - a0 + 1) * (b1 - b0 + 1), W1 = EW + 1;
-    return (I[(b1 + 1) * W1 + a1 + 1] - I[b0 * W1 + a1 + 1] - I[(b1 + 1) * W1 + a0] + I[b0 * W1 + a0]) / n;
+    const S = (A, x0, y0, x1, y1) => A[(y1 + 1) * W1 + x1 + 1] - A[y0 * W1 + x1 + 1] - A[(y1 + 1) * W1 + x0] + A[y0 * W1 + x0];
+    const n = S(C, a0, b0, a1, b1); return n > 0 ? S(I, a0, b0, a1, b1) / n : otsu;
   };
   const dark = new Float32Array(bw * bh), dv = [];
   for (let i = 0; i < bw * bh; i++) if (inR[i]) { const x = i % bw, y = (i - x) / bw; dark[i] = boxMean(px0 + x, py0 + y) - val[i]; dv.push(dark[i]); }
-  const T = Math.max(12, 0.5 * pctile(dv, 0.97));
+  const p97 = pctile(dv, 0.97), T = Math.max(12, 0.38 * p97);
   if (pctile(dv, 0.97) < 18) return null;   // no clear brow hair in the photo: fall back to the face model
   const hair = new Uint8Array(bw * bh); let nHair = 0;
   for (let i = 0; i < bw * bh; i++) if (inR[i] && dark[i] >= T) { hair[i] = 1; nHair++; }
@@ -798,7 +804,7 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
   // join the gaps between single hairs (1px closing) before finding the brow as one connected piece
   const joined = new Uint8Array(bw * bh);
   for (let i = 0; i < bw * bh; i++) if (hair[i]) { const x = i % bw, y = (i - x) / bw;
-    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const nx = x + dx, ny = y + dy; if (nx >= 0 && ny >= 0 && nx < bw && ny < bh && inR[ny * bw + nx]) joined[ny * bw + nx] = 1; } }
+    for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const nx = x + dx, ny = y + dy; if (nx >= 0 && ny >= 0 && nx < bw && ny < bh && inR[ny * bw + nx]) joined[ny * bw + nx] = 1; } }
   const lab = new Int32Array(bw * bh); let bestLab = 0, bestN = 0, cur = 0; const stack = [];
   for (let s0 = 0; s0 < bw * bh; s0++) {
     if (!joined[s0] || lab[s0]) continue;
@@ -819,7 +825,8 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
   {
     const sgT = -outward, uPix = i => { const x = i % bw, y = (i - x) / bw; return toF([(px0 + x) / k, (py0 + y) / k])[0] * sgT; };
     let coreT = 1e9; for (let i = 0; i < bw * bh; i++) if (lab[i] === bestLab) coreT = Math.min(coreT, uPix(i));
-    const T2 = 0.6 * T, st = [], yPix = i => { const x = i % bw, y = (i - x) / bw; return toF([(px0 + x) / k, (py0 + y) / k])[1]; };
+    const T2 = Math.max(0.6 * T, 0.30 * p97), st = [],   // growth threshold kept where it was: lower picked up hairline shading
+      yPix = i => { const x = i % bw, y = (i - x) / bw; return toF([(px0 + x) / k, (py0 + y) / k])[1]; };
     const tailYs = []; for (let i = 0; i < bw * bh; i++) if (lab[i] === bestLab && uPix(i) < coreT + 0.08 * ew) tailYs.push(yPix(i));
     const yT0 = tailYs.length ? avg(tailYs) : 0;
     for (let i = 0; i < bw * bh; i++) if (lab[i] === bestLab && uPix(i) < coreT + 0.12 * ew) st.push(i);
@@ -829,8 +836,21 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
         const nx = qx + dx, ny = qy + dy; if (nx < 0 || ny < 0 || nx >= bw || ny >= bh) continue;
         const ni = ny * bw + nx;
         // softer threshold, beyond the tail only, at most 0.25 eye widths further, and staying on the brow's line
-        if (inR[ni] && lab[ni] !== bestLab && dark[ni] >= T2 && uPix(ni) < coreT + 0.02 * ew && uPix(ni) > coreT - 0.25 * ew &&
-            Math.abs(yPix(ni) - yT0) < 0.10 * ew) { lab[ni] = bestLab; st.push(ni); }
+        // a real tail is a thin line: narrow band on the brow's line, at most 0.18 eye widths further
+        // (a wider box filled up with shading near the hairline on real photos)
+        if (inR[ni] && lab[ni] !== bestLab && dark[ni] >= T2 && uPix(ni) < coreT + 0.02 * ew && uPix(ni) > coreT - 0.18 * ew &&
+            Math.abs(yPix(ni) - yT0) < 0.05 * ew) { lab[ni] = bestLab; st.push(ni); }
+      }
+    }
+    // the head is often feathery (sparse hairs brushed up): same softer growth toward the nose, at most 0.15 eye widths
+    let coreH = -1e9; for (let i = 0; i < bw * bh; i++) if (lab[i] === bestLab) coreH = Math.max(coreH, uPix(i));
+    const sh = []; for (let i = 0; i < bw * bh; i++) if (lab[i] === bestLab && uPix(i) > coreH - 0.12 * ew) sh.push(i);
+    while (sh.length) {
+      const q = sh.pop(), qx = q % bw, qy = (q - qx) / bw;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const nx = qx + dx, ny = qy + dy; if (nx < 0 || ny < 0 || nx >= bw || ny >= bh) continue;
+        const ni = ny * bw + nx;
+        if (inR[ni] && lab[ni] !== bestLab && dark[ni] >= T2 && uPix(ni) > coreH - 0.02 * ew && uPix(ni) < coreH + 0.15 * ew) { lab[ni] = bestLab; sh.push(ni); }
       }
     }
   }
@@ -843,6 +863,26 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
   const keep = pts.filter(p => p[0] * sg >= luT && p[0] * sg <= luH);
   if (keep.length < 60) return null;
   pts.length = 0; keep.forEach(p => pts.push(p));
+  // Cut the brow at a gap: slice it along its length; where two slices in a row hold almost no hair (under 10% of a
+  // typical slice), whatever lies beyond is not brow (on real photos, hairline shading joined by a 1-2px bridge).
+  {
+    const uu = pts.map(p => p[0] * sg), u0 = Math.min(...uu), bwU = 0.04 * ew, nb = Math.max(1, Math.ceil((Math.max(...uu) - u0) / bwU) + 1);
+    const cnt = new Array(nb).fill(0); uu.forEach(u => cnt[Math.floor((u - u0) / bwU)]++);
+    const nz = cnt.filter(c => c > 0).sort((a, b) => a - b), med = nz[Math.floor(nz.length / 2)] || 0, low = 0.10 * med;
+    const pk = Math.floor(nb / 2);   // start from the middle of the brow
+    let lo = pk, hi = pk;
+    while (lo > 0 && !(cnt[lo - 1] < low && (lo < 2 || cnt[lo - 2] < low))) lo--;
+    while (hi < nb - 1 && !(cnt[hi + 1] < low && (hi > nb - 3 || cnt[hi + 2] < low))) hi++;
+    // A tail only narrows toward its end. Walking toward the tail (low bins), if the brow has narrowed a lot and then
+    // widens sharply again, the wide part is not tail (shading near the hairline): the brow ends at the narrow point.
+    let mn = Infinity, im = pk;
+    for (let i = pk; i >= lo; i--) {
+      if (cnt[i] < mn) { mn = cnt[i]; im = i; }
+      if (mn < 0.45 * med && cnt[i] > 2.5 * mn && cnt[i] > 0.8 * med) { lo = im + 1; break; }
+    }
+    const kept = pts.filter((p, i) => { const b = Math.floor((uu[i] - u0) / bwU); return b >= lo && b <= hi; });
+    if (kept.length >= 60) { pts.length = 0; kept.forEach(p => pts.push(p)); }
+  }
   const us = pts.map(p => p[0] * sg);
   const uT = pctile(us, 0.008), uH = pctile(us, 0.98), len = uH - uT;
   if (len < 0.8 * ew || len > 2.6 * ew) return null;
