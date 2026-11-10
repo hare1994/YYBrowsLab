@@ -413,7 +413,7 @@ img{-webkit-user-drag:none;user-select:none}
       <p class="legend" style="text-align:start">קווים 1 ו-2 יוצאים מקצה הנחיר הפנימי: קצה פתח הנחיר שהכי רחוק מאמצע האף. קו 3 יוצא מקצה הנחיר החיצוני: המקום שבו האף מסתיים לצד, בקו אופקי. כך מקובל למפות גבה מקצועית.</p>
       <ol class="how">
         <li><span class="hnum">1</span><div><b>ראש הגבה (הקצה הקרוב לאף)</b><p>קו ישר שעולה מקצה הנחיר הפנימי כלפי מעלה, דרך שקע העין (הפינה הפנימית של העין), עד גובה הגבה. הנקודה שבה הוא פוגש את גובה הגבה היא המקום שבו הגבה אמורה להתחיל.</p></div></li>
-        <li><span class="hnum">2</span><div><b>שיא הקשת (הנקודה הגבוהה ביותר)</b><p>קו אלכסוני מקצה הנחיר שעובר דרך הקצה החיצוני של הקשתית (החלק הצבעוני של העין). המקום שבו הקו פוגש את הגבה הוא השיא, בערך 60% מאורך הגבה כשסופרים מהראש.</p></div></li>
+        <li><span class="hnum">2</span><div><b>שיא הקשת (הנקודה הגבוהה ביותר)</b><p>קו אלכסוני מקצה הנחיר שעובר דרך מרכז האישון (כשמסתכלים ישר למצלמה). המקום שבו הקו פוגש את הגבה הוא השיא, בערך שני שלישים מאורך הגבה כשסופרים מהראש.</p></div></li>
         <li><span class="hnum">3</span><div><b>סוף הגבה (הזנב)</b><p>קו אלכסוני שיוצא מקצה הנחיר החיצוני (המקום שבו האף מסתיים לצד) ועובר דרך הפינה החיצונית של העין. הגבה אמורה להסתיים במקום שבו הקו פוגש את גובה קו הבסיס. אם השיער שלך קצר יותר, התבנית הזהובה לא תתארך מעבר לשיער שקיים, והנקודה 3 תראה לך עד איפה אפשר להצמיח.</p></div></li>
         <li><span class="hnum">&ndash;</span><div><b>קו בסיס</b><p>קו אופקי מתחתית ראש הגבה. הזנב אמור להסתיים בגובה הקו או מעט מעליו. זנב שיורד מתחתיו נותן מראה עייף.</p></div></li>
       </ol>
@@ -593,6 +593,16 @@ function poseProblem(lms, mtx, W, H) {
   if (roll > 22) why.push("הראש נוטה הצידה");
   return why.length ? why : null;
 }
+function showBlockErr(why) {
+  const e = $("err"); e.classList.add("pose"); e.textContent = "";
+  const t = document.createElement("b"); t.textContent = "התמונה לא עומדת בקריטריונים לסריקה";
+  const ul = document.createElement("ul"); ul.style.margin = "4px 0 0"; ul.style.paddingInlineStart = "18px";
+  why.forEach(w => { const li = document.createElement("li"); li.textContent = w; ul.appendChild(li); });
+  const p = document.createElement("p"); p.style.margin = "8px 0 0";
+  p.textContent = "כדי שהתוצאה תהיה מדויקת, אנחנו לא מציגים תוצאה לתמונה כזו. אפשר לנסות תמונה אחרת, או לשלוח את התמונה ליובל בוואטסאפ.";
+  e.append(t, ul, p); e.hidden = false;
+  e.scrollIntoView({behavior: "smooth", block: "center"});
+}
 function showPoseErr(why) {
   const e = $("err"); e.classList.add("pose"); e.textContent = "";
   const t = document.createElement("b"); t.textContent = "התמונה צולמה מזווית שתפגע בציון";
@@ -653,6 +663,7 @@ $("go").addEventListener("click", async () => {
     poseOverride = false;
     await step(3);
     const r = analyze(lms, img.naturalWidth, img.naturalHeight, getPix(img));
+    if (r.blockers && r.blockers.length) { phase("intake"); showBlockErr(r.blockers); return; }
     await step(4);
     last = r; render(r); await step(5);
     $("scan").classList.add("done"); $("scanTitle").textContent = "הסריקה הושלמה ✓";
@@ -1004,7 +1015,7 @@ function refineOuterCorner(pix, eo, ei, ew) {
     if (p.m <= thr) tc = p.t;
     else if (prof[i + 1] && prof[i + 1].m > thr) break;   // two light samples in a row: the corner has ended
   }
-  tc = clampN(tc, 0, 0.12);   // a long liner wing or lashes must not stretch the eye
+  tc = clampN(tc, 0, 0.07);   // a liner wing or lashes must not stretch the eye (real photos: wings reached the old 0.12 limit)
   return [eo[0] + d[0] * tc * ew, eo[1] + d[1] * tc * ew];
 }
 
@@ -1049,8 +1060,10 @@ function analyze(lms, W, H, pix) {
     }
     const ALAout = aRaw ? toF(aRaw) : ALAo;
     let IO;
-    if (hasIris) { const ctr = L(c.iris), rad = avg(c.ring.map(i => dist(ctr, L(i)))); IO = [ctr[0] + c.dir * rad, ctr[1]]; }
-    else { const m = mid(EI, EO); IO = [m[0] + c.dir * 0.2 * eyeW, m[1]]; }
+    // line 2 runs through the center of the pupil: through the outer edge of the iris it met the brow almost at the
+    // tail on real photos (arch at ~80-90% of the brow, a hooked, upturned template)
+    if (hasIris) IO = L(c.iris);
+    else { const m = mid(EI, EO); IO = [m[0] + c.dir * 0.05 * eyeW, m[1]]; }
     const upR = c.up.map(R0), loR = c.lo.map(R0), cenR = upR.map((p, i) => mid(p, loR[i]));
     const up = upR.map(toF), lo = loR.map(toF), centers = cenR.map(toF);
     let ai = 1; for (let i = 1; i <= 3; i++) if (centers[i][1] < centers[ai][1]) ai = i;
@@ -1156,7 +1169,7 @@ function analyze(lms, W, H, pix) {
     let archOnLine = true;
     if (xA === null || !isFinite(xA) || Math.abs(xA - c.arch[0]) > 0.2 * U) { xA = c.arch[0]; archOnLine = false; }
     const ratio = (xA - xS) / (xT - xS);
-    if (!(ratio > 0.45 && ratio < 0.9)) { xA = xS + (xT - xS) * 0.618; archOnLine = false; }   // only extreme cases leave line 2
+    if (!(ratio > 0.5 && ratio < 0.8)) { xA = xS + (xT - xS) * 0.65; archOnLine = false; }   // a natural arch: two thirds along
     const lA = lineX(N, c.IO, yA);
     ideal[s] = {s1: [xStd, yS], s2: [lA !== null && isFinite(lA) ? lA : xA, yA], s3: [xT0, yT], start: [xS, yS], arch: [xA, yA], tail: [xT, yT], N3, wh, wa, wt, base, N, archOnLine};
   });
@@ -1173,6 +1186,35 @@ function analyze(lms, W, H, pix) {
       if (o.archOnLine && xl !== null && isFinite(xl)) o.arch = [xl, yA2]; else o.arch = [o.arch[0], yA2];
       if (xl !== null && isFinite(xl)) o.s2 = [xl, yA2];
       o.wh = wh; o.wa = wa; o.base = o.start[1] + wh / 2;
+    });
+  }
+  // The template never reaches the edge of the face: when line 3 lands near the temple (a wide face, or a short brow
+  // asked to grow), the tail stops 0.15 eye widths inside the face outline.
+  {
+    const ovalF = FACE_OVAL.map(i => L(i));
+    // the face model's outline is a coarse polygon that cuts the corner at the temples, so it reads narrower than the
+    // face: small margin, and never shorter than the brow that already exists on that side
+    const nearEdge = q => !inPoly(q, ovalF) || Math.min(...ovalF.map((a, j) => segDist(q, a, ovalF[(j + 1) % ovalF.length]))) < 0.05 * eyeW;
+    ["L", "R"].forEach(s => {
+      const o = ideal[s]; if (!o) return;
+      const out = IDX[s].dir, ownT = sd[s].tail[0];
+      for (let n = 0; n < 40 && nearEdge(o.tail) && (o.tail[0] - ownT) * out > 0; n++) {
+        const t = [o.tail[0] + (o.start[0] - o.tail[0]) * 0.03, o.tail[1] + (o.start[1] - o.tail[1]) * 0.03];
+        if (Math.abs(t[0] - o.arch[0]) < 0.25 * eyeW) break; o.tail = t;
+      }
+    });
+    if (ideal.L && ideal.R) {
+      // both tails end at the same distance from the middle of the nose (the shorter one), so the pair stays symmetric
+      const midA = avg([168, 6, 197, 195, 5, 4, 1, 2, 94].map(i => L(i)[0]));
+      // (each side's tail is at least as long as its own brow, so the shorter of the two never cuts into existing hair on that side)
+      const dT = Math.min(midA - ideal.L.tail[0], ideal.R.tail[0] - midA);
+      ideal.L.tail = [midA - dT, ideal.L.tail[1]]; ideal.R.tail = [midA + dT, ideal.R.tail[1]];
+    }
+    // if a shorter tail left the arch too close to the end, the arch moves to two thirds of the brow (no hooked tail)
+    ["L", "R"].forEach(s => {
+      const o = ideal[s]; if (!o) return;
+      const r = (o.arch[0] - o.start[0]) / (o.tail[0] - o.start[0]);
+      if (!(r > 0.5 && r < 0.72)) { o.arch = [o.start[0] + (o.tail[0] - o.start[0]) * 0.65, o.arch[1]]; o.archOnLine = false; }
     });
   }
   const both = ["L", "R"].filter(s => ideal[s]);
@@ -1207,7 +1249,7 @@ function analyze(lms, W, H, pix) {
     finding: (rc >= 0.55 && rc <= 0.68) ? "שיא הקשת נמצא ב-" + pct(rc) + "% מאורך הגבה, קרוב ליחס הזהב." :
       rc < 0.55 ? "שיא הקשת מוקדם מדי (" + pct(rc) + "% מהאורך), קרוב לראש הגבה." : "שיא הקשת מאוחר מדי (" + pct(rc) + "% מהאורך), קרוב לזנב.",
     tip: (rc >= 0.55 && rc <= 0.68) ? "לשמור על השיא במקומו." :
-      rc < 0.55 ? "לשרטט את השיא מעל קצה הקשתית ולהסיר שיער שמזיז את השיא פנימה." : "להזיז את השיא פנימה, מעל קצה הקשתית."};
+      rc < 0.55 ? "לשרטט את השיא מעל מרכז האישון ולהסיר שיער שמזיז את השיא פנימה." : "להזיז את השיא פנימה, מעל מרכז האישון."};
   const dropS = gradeMax(drop, 0, 0.05, 0.30), lenS = grade(lr, 1, lr < 1 ? 0.08 : 0.06, 0.30);
   M.tail = {score: (dropS + lenS) / 2,
     finding: drop > 0.10 ? "הזנב יורד מתחת לקו הבסיס של הראש ונותן מראה עייף." :
@@ -1277,7 +1319,33 @@ function analyze(lms, W, H, pix) {
   if (overall >= 80) rec.add("upkeep");
   if (!rec.size) rec.add("upkeep");
 
-  return {lmsRaw: lms, W, H, U, V, eyeW, sd, ideal, both, fromF, toF, roll, measured, M, overall, verdict, browType, browDesc, faceShape, strengths, priorities, recommended: [...rec], warn,
+  // ---------- can this photo be measured reliably? ----------
+  const blockers = [];
+  {
+    const pxPerU = W / 1000, eyePx = eyeW * pxPerU;
+    if (eyePx < 28) blockers.push("הפנים קטנות מדי בתמונה או שהתמונה ברזולוציה נמוכה. צלמי מקרוב יותר, כך שהפנים ימלאו את רוב המסגרת.");
+    if (pix) {   // light in the brow-and-eye area
+      const ptsF = ["L", "R"].flatMap(s => [sd[s].EI, sd[s].EO, sd[s].start, sd[s].arch, sd[s].tail]).map(fromF);
+      const xs = ptsF.map(p => p[0] * pxPerU), ys = ptsF.map(p => p[1] * pxPerU);
+      const bx0 = Math.max(0, Math.floor(Math.min(...xs))), bx1 = Math.min(pix.w - 1, Math.ceil(Math.max(...xs)));
+      const by0 = Math.max(0, Math.floor(Math.min(...ys) - 0.2 * eyePx)), by1 = Math.min(pix.h - 1, Math.ceil(Math.max(...ys) + 0.2 * eyePx));
+      let n = 0, sum = 0, sq = 0;
+      for (let y = by0; y <= by1; y += 2) for (let x = bx0; x <= bx1; x += 2) { const v = pix.lum[y * pix.w + x]; n++; sum += v; sq += v * v; }
+      const mean = n ? sum / n : 128, sdv = n ? Math.sqrt(Math.max(0, sq / n - mean * mean)) : 50;
+      if (mean < 45) blockers.push("התמונה חשוכה מדי באזור הגבות והעיניים. צלמי מול חלון או באור יום.");
+      else if (mean > 228) blockers.push("התמונה בהירה מדי (סנוור או פלאש). צלמי באור רך, בלי פלאש.");
+      else if (sdv < 10) blockers.push("התמונה מטושטשת או חסרת ניגודיות באזור הגבות. נסי תמונה חדה יותר.");
+    }
+    if (!measured.L && !measured.R) blockers.push("לא הצלחנו לזהות את שיער הגבות. ייתכן שהן מוסתרות בשיער, בכובע או בפוני, או שהתאורה חלשה. צלמי עם מצח גלוי ובאור טוב.");
+    // plausibility: a misread brow or template must not reach the results
+    const oval = FACE_OVAL.map(R0);
+    const outside = ["L", "R"].some(s => [sd[s].start, sd[s].arch, sd[s].tail].some(q => !inPoly(fromF(q), oval)));
+    const gapBad = ["L", "R"].some(s => { const g = (sd[s].LID[1] - sd[s].lowArch[1]) / eyeW; return g < 0.12 || g > 1.2; });
+    const lenBad = ["L", "R"].some(s => { const l = dist(sd[s].start, sd[s].tail) / eyeW; return l < 0.8 || l > 2.6; });
+    if (outside || gapBad || lenBad) blockers.push("הזיהוי של הגבות בתמונה הזו לא אמין (הגבה נראית במקום או בגודל לא הגיוניים). נסי תמונה ישרה, באור אחיד, עם מצח גלוי.");
+  }
+
+  return {blockers, lmsRaw: lms, W, H, U, V, eyeW, sd, ideal, both, fromF, toF, roll, measured, M, overall, verdict, browType, browDesc, faceShape, strengths, priorities, recommended: [...rec], warn,
     needsChanges: overall < 90,
     stats: buildStats({gc, gi, gd, rc, ri, drop, lr, rs, dh, FIT, riseT})};
 }
