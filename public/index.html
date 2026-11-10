@@ -686,6 +686,16 @@ const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
 const pct = v => Math.round(v * 100);
 const lineX = (n, q, y) => { const dy = q[1] - n[1]; return Math.abs(dy) < 1e-6 ? null : n[0] + (q[0] - n[0]) * (y - n[1]) / dy; };
 const band = (v, lo, hi, soft) => (v >= lo && v <= hi) ? 100 : Math.max(35, 100 - 65 * (v < lo ? lo - v : v - hi) / soft);
+/* Graded score around a target. 100 only right on the target; inside the "good" distance g it eases down to 88;
+   from g to the "bad" distance b it drops to 60; beyond that it keeps falling slowly to a floor of 35.
+   (The old band() gave a flat 100 anywhere inside a wide range, so almost everyone scored 95-100.) */
+const grade = (v, t, g, b) => {
+  const d = Math.abs(v - t);
+  if (d <= g) return 100 - 12 * Math.pow(d / g, 1.3);
+  if (d <= b) return 88 - 28 * (d - g) / (b - g);
+  return Math.max(35, 60 - 25 * (d - b) / b);
+};
+const gradeMax = (v, lim, g, b) => v <= lim ? 100 : grade(v, lim, g, b);   // one-sided: anything up to lim is perfect
 
 function herm(p0, p1, m0, m1, n) {
   const out = [], dx = p1[0] - p0[0];
@@ -1088,54 +1098,62 @@ function analyze(lms, W, H, pix) {
   }[faceShape];
 
   const M = {};
-  M.start = {score: band(dInN, -0.08, 0.08, 0.35),
+  M.start = {score: grade(dInN, 0, 0.05, 0.30),
     finding: Math.abs(dInN) <= 0.08 ? "ראש הגבה מתחיל על האנך מקצה הנחיר, בדיוק במקום." :
       dInN > 0 ? "ראש הגבה נכנס פנימה, " + pct(dInN) + "% מרוחב עין לפני האנך מקצה הנחיר." : "ראש הגבה מתחיל " + pct(-dInN) + "% מרוחב עין אחרי האנך מקצה הנחיר.",
     tip: Math.abs(dInN) <= 0.08 ? "לשמור על נקודת ההתחלה בכל תחזוקה." :
       dInN > 0 ? "להסיר שערות בין הגבות עד האנך מקצה הנחיר, בפינצטה או בחוט." : "אפשר לתת לשיער לצמוח פנימה ולשרטט את ההתחלה מחדש לפני העיצוב."};
-  M.arch = {score: band(rc, 0.55, 0.68, 0.25),
+  M.arch = {score: grade(rc, 0.615, 0.045, 0.18),
     finding: (rc >= 0.55 && rc <= 0.68) ? "שיא הקשת נמצא ב-" + pct(rc) + "% מאורך הגבה, קרוב ליחס הזהב." :
       rc < 0.55 ? "שיא הקשת מוקדם מדי (" + pct(rc) + "% מהאורך), קרוב לראש הגבה." : "שיא הקשת מאוחר מדי (" + pct(rc) + "% מהאורך), קרוב לזנב.",
     tip: (rc >= 0.55 && rc <= 0.68) ? "לשמור על השיא במקומו." :
       rc < 0.55 ? "לשרטט את השיא מעל קצה הקשתית ולהסיר שיער שמזיז את השיא פנימה." : "להזיז את השיא פנימה, מעל קצה הקשתית."};
-  const dropS = band(drop, -1, 0.10, 0.35), lenS = band(lr, 0.9, 1.1, 0.45);
+  const dropS = gradeMax(drop, 0, 0.05, 0.30), lenS = grade(lr, 1, 0.06, 0.30);
   M.tail = {score: (dropS + lenS) / 2,
     finding: drop > 0.10 ? "הזנב יורד מתחת לקו הבסיס של הראש ונותן מראה עייף." :
       lr < 0.9 ? "הגבה קצרה מהאורך המומלץ (" + pct(lr) + "% ממנו)." : lr > 1.1 ? "הגבה ארוכה מעט מהאורך המומלץ (" + pct(lr) + "% ממנו)." : "הזנב בגובה ובאורך מתאימים.",
     tip: drop > 0.10 ? "להסיר שערות מתחת לזנב ולהרים אותו עד קו הבסיס." :
       lr < 0.9 ? "לתת לשיער לצמוח בזנב, ולשרטט את האורך עד הקו מפינת העין." : lr > 1.1 ? "לקצר את הזנב עד הקו מפינת העין." : "לשמור על הצורה בתחזוקה."};
-  M.height = {score: band(gap, 0.32, 0.65, 0.5),
+  M.height = {score: grade(gap, 0.48, 0.09, 0.34),
     finding: gap < 0.32 ? "הגבות קרובות יחסית לעין (" + pct(gap) + "% מרוחב עין)." : gap > 0.65 ? "הגבות גבוהות יחסית מעל העין (" + pct(gap) + "% מרוחב עין)." : "מרחק נעים בין הגבה לעין.",
     tip: gap < 0.32 ? "להסיר בעדינות שיער מתחת לגבה כדי לפתוח את המבט, בלי לדלל יותר מדי." : gap > 0.65 ? "לשמור על הקו התחתון ולא להסיר שיער מתחת לגבה." : "לשמור על הקו התחתון."};
-  M.spacing = {score: band(gd, -0.12, 0.12, 0.6),
+  M.spacing = {score: grade(gd, 0, 0.07, 0.40),
     finding: Math.abs(gd) <= 0.12 ? "ראשי הגבות במרחק הנכון זה מזה." : gd > 0 ? "ראשי הגבות רחוקים זה מזה." : "ראשי הגבות קרובים מדי זה לזה.",
     tip: Math.abs(gd) <= 0.12 ? "לשמור על המרווח." : gd > 0 ? "אפשר לשקם ולהצמיח פנימה." : "להסיר שיער בין הגבות עד האנך מקצה הנחיר."};
-  M.thickness = {score: (band(thH, 0.18, 0.42, 0.3) + band(thA, 0.15, 0.38, 0.3)) / 2,
+  M.thickness = {score: (grade(thH, 0.30, 0.07, 0.25) + grade(thA, 0.26, 0.07, 0.22)) / 2,
     finding: thH < 0.18 ? "הגבות דקות באזור הראש (" + pct(thH) + "% מרוחב עין)." : thH > 0.42 ? "הגבות עבות יחסית, ויש מקום לדייק את הקו." : "עובי מאוזן ביחס לפנים.",
     tip: thH < 0.18 ? "לשקם: להפסיק תלישה, לתת לשיער לצמוח, ולשרטט צורה מלאה יותר." : thH > 0.42 ? "לדייק את הקו העליון והתחתון בחוט ובפינצטה." : "לשמור על העובי הטבעי."};
-  M.symmetry = {score: (band(dh, 0, 0.06, 0.25) + band(dsym, 0, 0.08, 0.4)) / 2,
+  M.symmetry = {score: (grade(dh, 0, 0.03, 0.20) + grade(dsym, 0, 0.04, 0.30)) / 2,
     finding: dh <= 0.06 && dsym <= 0.08 ? "שתי הגבות סימטריות." :
       dh > 0.06 ? "הפרש גובה של " + pct(dh) + "% מרוחב עין בין שיאי הגבות." : "ראשי הגבות לא סימטריים ביחס לקו האמצע של הפנים.",
     tip: dh <= 0.06 && dsym <= 0.08 ? "לשמור על האיזון." : "לשרטט את שתי הגבות יחד ולאזן בעזרת חוט או פינצטה."};
-  const fitS = band(rs, FIT.lo, FIT.hi, 0.25);
+  const fitS = grade(rs, (FIT.lo + FIT.hi) / 2, (FIT.hi - FIT.lo) * 0.3, (FIT.hi - FIT.lo) / 2 + 0.2);
   M.faceFit = {score: fitS,
-    finding: "מבנה הפנים נראה " + faceShape + ". " + (fitS >= 85 ? "גובה הקשת מתאים לו." : "גובה הקשת הנוכחי לא הכי מחמיא לו."),
+    finding: "מבנה הפנים נראה " + faceShape + ". " + (fitS >= 88 ? "גובה הקשת מתאים לו." : "גובה הקשת הנוכחי לא הכי מחמיא לו."),
     tip: FIT.tip + "."};
 
   const keys = Object.keys(M);
   keys.forEach(k => { M[k].score = Math.round(M[k].score); });
-  const overall = Math.round(avg(keys.map(k => M[k].score)));
-  const verdict = overall >= 90 ? "הגבות מאוזנות מאוד. מספיקה תחזוקה וליטוש קל." : overall >= 75 ? "בסיס יפה, וכמה תיקונים קטנים יתנו תוצאה מושלמת." :
-    overall >= 60 ? "יש פוטנציאל טוב, ועיצוב מדויק ישנה את המראה." : "יש הרבה מקום לשיפור, ובעיצוב ושרטוט נכון ההבדל יהיה גדול.";
+  // Overall: a weighted average, pulled toward the weakest metrics so a real flaw shows in the score
+  // (a plain average let one bad metric hide among seven good ones).
+  const W8 = {start: 1.2, arch: 1.2, tail: 1.1, height: 0.8, spacing: 1, thickness: 1, symmetry: 1, faceFit: 0.7};
+  const wMean = keys.reduce((a, k) => a + M[k].score * W8[k], 0) / keys.reduce((a, k) => a + W8[k], 0);
+  const low3 = avg(keys.map(k => M[k].score).sort((a, b) => a - b).slice(0, 3));
+  let overall = Math.round(0.75 * wMean + 0.25 * low3);
+  // When the brow hair was not detected clearly, the shape comes from the face model's estimate,
+  // which leans toward an average brow, so a near-perfect score would not be trustworthy.
+  if (!(measured.L && measured.R)) overall = Math.min(overall, 90);
+  const verdict = overall >= 93 ? "הגבות מאוזנות מאוד. מספיקה תחזוקה וליטוש קל." : overall >= 82 ? "בסיס יפה, וכמה תיקונים קטנים יתנו תוצאה מושלמת." :
+    overall >= 68 ? "יש פוטנציאל טוב, ועיצוב מדויק ישנה את המראה." : "יש הרבה מקום לשיפור, ובעיצוב ושרטוט נכון ההבדל יהיה גדול.";
   let browType, browDesc;
   if (rs < 0.15) { browType = "הישרה והטבעית"; browDesc = "גבה ישרה ורכה שנותנת מראה צעיר וטבעי."; }
   else if (angle < 135 && rs >= 0.25) { browType = "הזוויתית והדרמטית"; browDesc = "קשת מוגדרת עם שיא ברור שמעניקה מראה חד ובטוח."; }
   else if (angle >= 150) { browType = "הרכה והעגולה"; browDesc = "קשת עדינה ועגולה שמרככת את הפנים."; }
   else { browType = "הקשת האלגנטית"; browDesc = "קשת מאוזנת עם שיא עדין, צורה קלאסית שמתאימה לרוב הפנים."; }
-  const strengths = keys.filter(k => M[k].score >= 85).map(k => ({
+  const strengths = keys.filter(k => M[k].score >= 88).map(k => ({
     start: "נקודת ההתחלה במקום הנכון", arch: "שיא הקשת במיקום מאוזן", tail: "הזנב בגובה ובאורך מתאימים", height: "מרחק נעים בין הגבה לעין",
     spacing: "מרווח מאוזן בין הגבות", thickness: "עובי מאוזן", symmetry: "סימטריה טובה בין שתי הגבות", faceFit: "הצורה מתאימה למבנה הפנים"}[k])).slice(0, 4);
-  const priorities = keys.filter(k => M[k].score < 85).sort((a, b) => M[a].score - M[b].score).slice(0, 3).map(k => ({title: METRIC_LABELS[k], why: M[k].tip}));
+  const priorities = keys.filter(k => M[k].score < 82).sort((a, b) => M[a].score - M[b].score).slice(0, 3).map(k => ({title: METRIC_LABELS[k], why: M[k].tip}));
   const rec = new Set();
   if (priorities.length) rec.add("shape");
   if (thH < 0.18 || lr < 0.9 || dInN < -0.08 || gd > 0.12) rec.add("restore");
