@@ -95,6 +95,14 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .lead .ln,.ainote .ln{display:block;text-wrap:balance}
 .ainote{font-size:.85rem;color:var(--muted);text-align:center;margin:6px 0 0}
 .book-mid{text-align:center}
+.mkey{list-style:none;margin:0;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;background:var(--surface2);border-radius:16px;font-size:.95rem;font-weight:500}
+.mkey li{display:flex;align-items:center;gap:8px;line-height:1.3}
+.mkey li:nth-child(n+4){grid-column:1/-1}
+.mk-num{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#ecd08e;border:2px solid #fff;color:#3b2a1e;font-weight:800;font-size:.9rem;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.mk-sw{flex:none;width:34px;height:14px;border-radius:7px}
+.mk-gold{background:rgba(236,208,142,.35);border:2px dashed #c9a75c}
+.mk-white{background:repeating-linear-gradient(90deg,#8a7663 0 3px,transparent 3px 9px);height:4px;border-radius:2px}
+.mk-line{background:#8a7663;height:3px;border-radius:2px}
 .more-toggle{gap:6px}
 .more-toggle .legend{margin:0;text-align:center}
 #moreBtn span{display:inline-block;transition:transform .2s}
@@ -102,6 +110,9 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .more-box{display:contents}
 .btn.share{margin-top:12px;background:linear-gradient(90deg,#c13584,#e1306c 45%,#f77737);color:#fff}
 .share-note{margin:6px 0 0}
+.inapp{background:var(--surface2);border-radius:14px;padding:12px 14px;font-size:.95rem}
+.inapp p{margin:0}
+.inapp ol{margin:6px 0;padding-inline-start:20px}
 .share-dlg img{display:block;width:min(260px,70vw);margin:8px auto;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .share-dlg .btn{margin:10px 0 0}
 .book-mid p{margin:0 0 10px;font-weight:500}
@@ -301,8 +312,8 @@ img{-webkit-user-drag:none;user-select:none}
         <div class="zregions">
           <button type="button" class="chip" data-z="right" aria-pressed="false">🔍 גבה ימנית</button>
           <button type="button" class="chip" data-z="left" aria-pressed="false">🔍 גבה שמאלית</button>
-          <button type="button" class="chip" data-z="both" aria-pressed="false">שתי הגבות</button>
-          <button type="button" class="chip" data-z="all" aria-pressed="true">כל התמונה</button>
+          <button type="button" class="chip" data-z="both" aria-pressed="true">שתי הגבות</button>
+          <button type="button" class="chip" data-z="all" aria-pressed="false">כל התמונה</button>
         </div>
         <div class="zsteps">
           <button type="button" class="chip zb" id="zIn" aria-label="הגדלה">+</button>
@@ -310,6 +321,14 @@ img{-webkit-user-drag:none;user-select:none}
         </div>
       </div>
       <p class="legend">אפשר גם לצבוט בשתי אצבעות להגדלה, לגרור באצבע אחת, ולהקיש פעמיים כדי להגדיל או לחזור.</p>
+      <ul class="mkey" aria-label="מקרא הסימונים">
+        <li><span class="mk-num">1</span>ראש הגבה</li>
+        <li><span class="mk-num">2</span>שיא הקשת</li>
+        <li><span class="mk-num">3</span>סוף הגבה (הזנב)</li>
+        <li><span class="mk-sw mk-gold"></span>זהב מקווקו: הצורה המומלצת</li>
+        <li><span class="mk-sw mk-white"></span>לבן מנוקד: הגבה שלך היום</li>
+        <li><span class="mk-sw mk-line"></span>קווים לבנים: קווי המדידה מהנחיר</li>
+      </ul>
       <div class="layers" id="layers" role="group" aria-label="שכבות על התמונה"></div>
       <p class="legend">אפשר להדליק ולכבות כל שכבה. הסבר מלא על הנקודות והקווים נמצא ב"לפרטים המלאים" למטה.</p>
     </section>
@@ -327,7 +346,7 @@ img{-webkit-user-drag:none;user-select:none}
       <p id="browDesc" style="color:var(--muted)"></p>
       <p class="angle-warn" id="warn" role="status" hidden></p>
       <p class="ainote">זו הערכה של בינה מלאכותית (AI) מתוך תמונה, והיא לא מדויקת במאה אחוזים. ההתאמה הסופית נעשית בפגישה אישית עם יובל.</p>
-      <button type="button" class="btn share" id="shareBtn">שתפי את התוצאה בסטורי ✨</button>
+      <button type="button" class="btn share" id="shareBtn">שיתוף לסטורי באינסטגרם ✨</button>
       <p class="legend share-note">התמונה שלך לא נכללת בשיתוף, רק הציון וסוג הגבה.</p>
     </section>
 
@@ -429,6 +448,11 @@ img{-webkit-user-drag:none;user-select:none}
 <dialog class="doc share-dlg" id="dlgShare" aria-labelledby="tShare">
   <h2 id="tShare">התוצאה שלך מוכנה לשיתוף</h2>
   <img id="shareImg" alt="כרטיס התוצאה לשיתוף: הציון וסוג הגבה">
+  <div class="inapp" id="shareInApp" hidden>
+    <p><b>כדי לשתף ישירות לסטורי, צריך לפתוח את האתר בדפדפן:</b></p>
+    <ol><li>לחצי על <b>⋯</b> או <b>⋮</b> בפינה העליונה</li><li>בחרי <b>"פתיחה בדפדפן"</b> (Safari או Chrome)</li><li>עשי את הסריקה ולחצי שוב על "שיתוף לסטורי"</li></ol>
+    <p class="legend">או: לחיצה ארוכה על התמונה לשמירה, ואז להעלות אותה לסטורי.</p>
+  </div>
   <p class="legend" id="shareHint">לחיצה ארוכה על התמונה כדי לשמור אותה, ואז להעלות לסטורי באינסטגרם ולתייג את <bdi dir="ltr" style="display:inline-block;white-space:nowrap">@_yuvalyaacov_</bdi></p>
   <a class="btn" id="shareDl" download="brow-lab-result.png">שמירת התמונה</a>
   <form method="dialog"><button class="x">סגירה</button></form>
@@ -570,6 +594,7 @@ $("go").addEventListener("click", async () => {
     progress(4); await nextFrame();
     last = r; render(r); progress(5);
     phase("result"); window.scrollTo({top: 0, behavior: "smooth"});
+    requestAnimationFrame(() => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } });   // the zoom needs the visible frame size
   } catch (e) {
     phase("intake");
     console.error(e);
@@ -1095,17 +1120,15 @@ function buildOverlay(r) {
       if (thru) {
         const tp = P(thru.pt);
         g1 += dot(tp, fs * 0.2, "#fff", "rgba(0,0,0,.55)");
-        if (s === "L") g1 += text(tp[0], tp[1] + fs * (n === "3" ? 2.7 : n === "1" ? 2.7 : 1.5), thru.lab, fs * 0.78);
       }
       g1 += dot(qp, fs * 0.36, "none", "#fff") + dot(qp, fs * 0.13, "#ecd08e");
-      const bp = P([q[0], q[1] - fs * 1.55]);
-      g1 += dot(bp, fs * 0.62, "#ecd08e", "#fff") +
-        `<text x="${f1(bp[0])}" y="${f1(bp[1] + fs * 0.27)}" text-anchor="middle" font-size="${f1(fs * 0.8)}" font-weight="800" fill="#3b2a1e" font-family="Heebo,sans-serif">${n}</text>`;
+      const out = Math.sign(o.tail[0] - o.start[0]) || 1;   // marker 3 steps outward so it does not cover marker 2
+      const bp = n === "3" ? P([q[0] + out * fs * 1.7, q[1] - fs * 0.6]) : P([q[0], q[1] - fs * 1.9]);
+      g1 += dot(bp, fs * 0.82, "#ecd08e", "#fff") +
+        `<text x="${f1(bp[0])}" y="${f1(bp[1] + fs * 0.36)}" text-anchor="middle" font-size="${f1(fs * 1.05)}" font-weight="800" fill="#3b2a1e" font-family="Heebo,sans-serif">${n}</text>`;
     });
     g1 += dot(Np, 6.5, "#ecd08e", "rgba(0,0,0,.55)");
     const N3p = P(o.N3); g1 += dot(N3p, 6.5, "#ecd08e", "rgba(0,0,0,.55)");
-    if (s === "R") g1 += text(N3p[0] + fs * 1.6, N3p[1] + fs * 3.4, "קצה הנחיר החיצוני", fs * 0.78);
-    if (s === "L") g1 += text(Np[0], Np[1] + fs * 1.5, "קצה הנחיר הפנימי", fs * 0.78);
     // baseline: horizontal line at the bottom of the head, to the tail
     const b0 = P([o.start[0], o.base]), b1 = P([o.tail[0] + (o.tail[0] - o.start[0]) * 0.08, o.base]);
     g1 += line(b0, b1, 'stroke="#ecd08e" stroke-opacity=".9" stroke-width="2.2" stroke-dasharray="3 6"');
@@ -1235,7 +1258,7 @@ const Z = {s: 1, x: 0, y: 0, boxes: {}};
   };
   st.addEventListener("pointerup", up); st.addEventListener("pointercancel", up);
   st.addEventListener("wheel", e => { if (!e.ctrlKey && Z.s <= 1.01) return; e.preventDefault(); zoomAt(loc(e), Z.s * Math.exp(-e.deltaY * 0.002), false); zClamp(); zApply(false); }, {passive: false});
-  window.addEventListener("resize", () => zReset(false));
+  window.addEventListener("resize", () => { if (Z.cur && Z.cur !== "all" && Z.boxes[Z.cur]) zTo(Z.cur, false); else zReset(false); });
 })();
 function zoomAt(m, s2, _) { s2 = clampN(s2, 1, 6); const cx = (m[0] - Z.x) / Z.s, cy = (m[1] - Z.y) / Z.s; Z.s = s2; Z.x = m[0] - cx * s2; Z.y = m[1] - cy * s2; }
 function zClamp() { const st = $("resStage"), W = st.clientWidth, H = st.clientHeight, Hc = $("zwrap").offsetHeight; Z.s = clampN(Z.s, 1, 6); Z.x = clampN(Z.x, W - W * Z.s, 0); Z.y = clampN(Z.y, Math.min(0, H - Hc * Z.s), 0); }
@@ -1246,14 +1269,14 @@ function zApply(anim) {
   document.querySelectorAll("#zoombar [data-z]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.z === Z.cur)));
 }
 function zReset(anim) { Z.s = 1; Z.x = 0; Z.y = 0; Z.cur = "all"; const st = $("resStage"); if (st) st.style.height = ""; zApply(anim); }
-function zTo(key) {
+function zTo(key, anim) {
   const bx = Z.boxes[key]; if (!bx) { zReset(true); return; }
   // fill the width with the chosen region and shrink the frame to its height, so a wide brow is shown big
   const st = $("resStage"), W = st.clientWidth, Hc = $("zwrap").offsetHeight, bw = (bx[2] - bx[0]) * W, bh = (bx[3] - bx[1]) * Hc;
   Z.s = clampN(W / bw, 1, 6);
   const vh = Math.min(Hc, Math.max(bh * Z.s, W * 0.55));
   st.style.height = vh.toFixed(0) + "px";
-  Z.x = W / 2 - (bx[0] + bx[2]) / 2 * W * Z.s; Z.y = vh / 2 - (bx[1] + bx[3]) / 2 * Hc * Z.s; Z.cur = key; zClamp(); zApply(true);
+  Z.x = W / 2 - (bx[0] + bx[2]) / 2 * W * Z.s; Z.y = vh / 2 - (bx[1] + bx[3]) / 2 * Hc * Z.s; Z.cur = key; zClamp(); zApply(anim !== false);
 }
 function buildZoomBoxes(r) {
   const P = q => r.fromF(q), boxOf = list => {
@@ -1265,6 +1288,7 @@ function buildZoomBoxes(r) {
   // the picture is shown in image-left / image-right order; name the buttons the way the viewer sees them
   Z.boxes = {right: boxOf(side("R")), left: boxOf(side("L")), both: boxOf(side("L").concat(side("R")))};
   zReset(false);
+  if ($("resImg").complete && $("resImg").naturalWidth && $("resStage").clientWidth) zTo("both", false);
 }
 document.querySelectorAll("#zoombar [data-z]").forEach(b => b.addEventListener("click", () => { if (b.dataset.z === "all") zReset(true); else zTo(b.dataset.z); }));
 $("zIn").addEventListener("click", () => { const st = $("resStage"); zoomAt([st.clientWidth / 2, st.clientHeight / 2], Z.s * 1.5); Z.cur = ""; zClamp(); zApply(true); });
@@ -1309,6 +1333,7 @@ function render(r) {
     tb.appendChild(b);
   });
   updateWa();
+  prepareShare(r);
 }
 function updateWa() {
   const r = last || {}, labels = TREATMENTS.filter(t => selected.has(t.id)).map(t => t.label);
@@ -1376,23 +1401,30 @@ async function makeShareCard(r) {
   x.font = "400 30px " + SANS; x.fillText("הערכה של בינה מלאכותית, לא מדויקת במאה אחוזים", W / 2, 1885);
   return new Promise(res => c.toBlob(res, "image/png"));
 }
+// The card is drawn as soon as the results appear, so a tap opens the share sheet immediately
+// (iPhone Safari refuses to open it if too much time passes after the tap).
+let shareFile = null, shareFileP = null;
+function prepareShare(r) {
+  shareFile = null;
+  shareFileP = makeShareCard(r).then(b => (shareFile = new File([b], "brow-lab-result.png", {type: "image/png"}))).catch(e => { console.error(e); return null; });
+}
+const inAppBrowser = /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Snapchat/i.test(navigator.userAgent);
+function openSaveDialog(file, inApp) {
+  const href = URL.createObjectURL(file);
+  $("shareImg").src = href; $("shareDl").href = href;
+  $("shareHint").hidden = inApp; $("shareInApp").hidden = !inApp;
+  $("dlgShare").showModal();
+}
 $("shareBtn").addEventListener("click", async () => {
   if (!last) return;
-  const btn = $("shareBtn"); btn.disabled = true;
-  try {
-    const blob = await makeShareCard(last);
-    const file = new File([blob], "brow-lab-result.png", {type: "image/png"});
-    const url = location.origin + location.pathname;
-    const text = "קיבלתי " + last.overall + "/100 במעבדת הגבות של יובל יעקב ✨ ומה הציון שלך? " + url;
-    if (navigator.canShare && navigator.canShare({files: [file]})) {
-      try { await navigator.share({files: [file], text}); return; }
-      catch (e) { if (e && e.name === "AbortError") return; }   // fall back to the save dialog
-    }
-    const href = URL.createObjectURL(blob);
-    $("shareImg").src = href; $("shareDl").href = href;
-    $("dlgShare").showModal();
-  } catch (e) { console.error(e); }
-  finally { btn.disabled = false; }
+  const file = shareFile || await shareFileP;
+  if (!file) return;
+  // Image only, no text: with text attached, iPhone may hide Instagram's "Stories" option.
+  if (!inAppBrowser && navigator.canShare && navigator.canShare({files: [file]})) {
+    try { await navigator.share({files: [file]}); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }   // anything else: fall back to the save dialog
+  }
+  openSaveDialog(file, inAppBrowser);
 });
 $("again").addEventListener("click", () => { phase("intake"); window.scrollTo({top: 0, behavior: "smooth"}); });
 window.__analyze = analyze; window.__getLast = () => last;
