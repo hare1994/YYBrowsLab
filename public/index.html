@@ -951,6 +951,36 @@ function refineAlaEdge(pix, n, ew, outward) {
   return {pt: [n[0] + outward * t * ew, avg(top.map(r => r.y))], conf: rows.length + avg(top.map(r => r.g)) / 40};
 }
 
+/* The face model's outer eye corner (33/263) usually sits a little inside the visible corner, where the upper and
+   lower lash lines meet. Walk outward along the eye's axis and follow the dark lash line until it meets skin. */
+function refineOuterCorner(pix, eo, ei, ew) {
+  if (!pix) return null;
+  const k = pix.w / 1000, w = pix.w, L = pix.lum, dl = dist(eo, ei) || 1;
+  const d = [(eo[0] - ei[0]) / dl, (eo[1] - ei[1]) / dl], n = [-d[1], d[0]];
+  const S = (t, o) => {
+    const x = Math.round((eo[0] + (d[0] * t + n[0] * o) * ew) * k), y = Math.round((eo[1] + (d[1] * t + n[1] * o) * ew) * k);
+    if (x < 2 || y < 2 || x >= w - 2 || y >= pix.h - 2) return null;
+    let v = 0; for (let yy = -1; yy <= 1; yy++) for (let xx = -1; xx <= 1; xx++) v += L[(y + yy) * w + x + xx]; return v / 9;
+  };
+  const prof = [];
+  for (let t = -0.08; t <= 0.48 + 1e-9; t += 0.01) {
+    let m = 1e9; for (let o = -0.05; o <= 0.05 + 1e-9; o += 0.0125) { const v = S(t, o); if (v !== null) m = Math.min(m, v); }
+    if (m === 1e9) return null; prof.push({t, m});
+  }
+  const skin = pctile(prof.filter(p => p.t >= 0.34).map(p => p.m), 0.5);
+  const dark = Math.min(...prof.filter(p => p.t <= 0.02).map(p => p.m));
+  if (!(skin - dark >= 18)) return null;
+  const thr = dark + 0.55 * (skin - dark);
+  let tc = 0;
+  for (let i = 0; i < prof.length; i++) {
+    const p = prof[i]; if (p.t < 0) continue;
+    if (p.m <= thr) tc = p.t;
+    else if (prof[i + 1] && prof[i + 1].m > thr) break;   // two light samples in a row: the corner has ended
+  }
+  tc = clampN(tc, 0, 0.12);   // a long liner wing or lashes must not stretch the eye
+  return [eo[0] + d[0] * tc * ew, eo[1] + d[1] * tc * ew];
+}
+
 function analyze(lms, W, H, pix) {
   const U = 1000, V = 1000 * H / W;
   const R0 = i => [lms[i].x * U, lms[i].y * V];
@@ -966,7 +996,7 @@ function analyze(lms, W, H, pix) {
   const sd = {}; const measured = {};
   ["L", "R"].forEach(s => {
     const c = IDX[s];
-    let EI = L(c.ei); const EO = L(c.eo), ALAo = L(c.ala), LID = L(c.lid);
+    let EI = L(c.ei); let EO = L(c.eo); const ALAo = L(c.ala), LID = L(c.lid);
     if (hasIris) {
       try {
         const ir = R0(c.iris), irR = avg(c.ring.map(i => dist(ir, R0(i))));
@@ -974,7 +1004,9 @@ function analyze(lms, W, H, pix) {
         if (eiN) EI = toF(eiN);
       } catch (e) { console.warn(e); }
     }
-    const eyeW = dist(EI, EO);
+    const eyeW = dist(EI, EO);   // all sizes stay in units of the model's eye width
+    // line 3 runs through the real, visible outer corner of the eye
+    try { const eoN = refineOuterCorner(pix, R0(c.eo), R0(c.ei), eyeW); if (eoN) EO = toF(eoN); } catch (e) { console.warn(e); }
     // inner nostril: estimated a little inward and down from the outer wing, then checked against the photo
     const nEst = [ALAo[0] - c.dir * 0.17 * eyeW, ALAo[1] + 0.10 * eyeW];
     let nRaw = null; try { nRaw = refineNostril(pix, fromF(nEst), eyeW, c.dir); } catch (e) { console.warn(e); }
@@ -1078,8 +1110,8 @@ function analyze(lms, W, H, pix) {
     const N3 = c.ALAo;
     let xT = lineX(N3, c.EO, yT), xA = lineX(N, c.IO, yA);
     if (xT === null || !isFinite(xT) || Math.abs(xT - c.tail[0]) > 0.2 * U) xT = c.tail[0];
-    // thread, wax and tweezers cannot add hair: the template tail never runs more than a little past the hair that exists
-    const xT0 = xT, out = IDX[s].dir, capT = c.tail[0] + out * 0.12 * eyeW;
+    // the template tail can run past the hair that exists (short tails are grown to the line), but only within reason
+    const xT0 = xT, out = IDX[s].dir, capT = c.tail[0] + out * 0.30 * eyeW;
     if (out * (xT - capT) > 0) xT = capT;
     if ((s === "L" && !(xT < xS)) || (s === "R" && !(xT > xS))) return;
     let archOnLine = true;
@@ -1093,7 +1125,7 @@ function analyze(lms, W, H, pix) {
   if (ideal.L && ideal.R) {
     const midX = (ideal.L.N[0] + ideal.R.N[0]) / 2, SS = ["L", "R"];
     const avgD = k => avg(SS.map(s => Math.abs(ideal[s][k][0] - midX)));
-    const capD = SS.map(s => Math.abs(sd[s].tail[0] - midX) + 0.25 * eyeW);   // no more than a little past the hair that exists
+    const capD = SS.map(s => Math.abs(sd[s].tail[0] - midX) + 0.35 * eyeW);   // short hair can be grown to the line, within reason
     const hD = avgD("start"), tD = Math.max(hD + 0.8 * eyeW, Math.min(avgD("tail"), ...capD));
     let aD = avgD("arch"); if (!(aD > hD + 0.2 * eyeW && aD < tD - 0.2 * eyeW)) aD = hD + (tD - hD) * 0.618;
     const rise = avg(SS.map(s => ideal[s].start[1] - ideal[s].arch[1])), wh = avg(SS.map(s => ideal[s].wh)), wa = avg(SS.map(s => ideal[s].wa));
