@@ -141,7 +141,8 @@ canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none
 .more-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-weight:400}
 .more-list li{display:flex;gap:10px;align-items:center;background:var(--surface);border-radius:12px;padding:8px 12px}
 .more-btn{background:linear-gradient(90deg,var(--gold),var(--gold2));color:var(--on-gold)}
-.more-btn .chev{display:inline-block;font-size:1.2rem;animation:nudge 1.4s ease-in-out infinite}
+.more-btn .chev{display:inline-flex;align-items:center;justify-content:center;width:26px;height:32px;flex:none;animation:nudge 1.4s ease-in-out infinite}
+.more-btn .chev svg{width:26px;height:26px;display:block}
 .more-btn[aria-expanded="true"] .chev{animation:none;transform:rotate(180deg)}
 @keyframes nudge{50%{transform:translateY(4px)}}
 .more-box{display:contents}
@@ -412,7 +413,7 @@ img{-webkit-user-drag:none;user-select:none}
         <li><span aria-hidden="true">📐</span>המדידות על הפנים שלך מול המומלץ</li>
         <li><span aria-hidden="true">🧭</span>הסבר לכל קו ונקודה בתמונה</li>
       </ul>
-      <button type="button" class="btn more-btn" id="moreBtn" aria-expanded="false" aria-controls="moreBox"><span class="t">לפתוח את הניתוח המלא</span><span class="chev" aria-hidden="true">▾</span></button>
+      <button type="button" class="btn more-btn" id="moreBtn" aria-expanded="false" aria-controls="moreBox"><span class="t">לפתוח את הניתוח המלא</span><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
     </section>
     <div id="moreBox" class="more-box" hidden>
     <section class="card" id="howCard">
@@ -1750,6 +1751,7 @@ function render(r) {
   $("resImg").src = imgUrl; $("resImg").alt = "התמונה שלך עם סימון הגבות. הציון הכללי " + r.overall + " מתוך 100, סוג הגבה: " + r.browType + ". פירוט המדידות מופיע ב'לפרטים המלאים' בהמשך העמוד.";
   const av = buildOverlay(r); buildLayers(av);
   setMagic(false);
+  setMore(false);   // a new scan starts with the full analysis closed
   $("resImg").addEventListener("load", () => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } }, {once: true}); try { buildZoomBoxes(r); } catch (e) { console.warn(e); }
   if (DEBUG) { const im = $("resImg"); const go = () => { try { buildDebug(r); } catch (e) { console.error(e); } }; if (im.complete && im.naturalWidth) go(); else im.addEventListener("load", go, {once: true}); } buildStatsUI(r.stats); $("statCard").hidden = false;
   txt($("browType"), r.browType); txt($("faceTag"), "מבנה פנים: נוטה ל" + r.faceShape); $("faceTag").title = "הערכה כללית מהתמונה, לא אבחנה. ההתאמה המדויקת נקבעת בפגישה עם יובל.";
@@ -1836,11 +1838,13 @@ $("magicBtn").addEventListener("click", () => {
 });
 
 /* ---------- full details toggle ---------- */
-$("moreBtn").addEventListener("click", () => {
-  const box = $("moreBox"), open = box.hidden;
-  box.hidden = !open; $("moreBtn").setAttribute("aria-expanded", String(open));
+function setMore(open) {
+  $("moreBox").hidden = !open; $("moreBtn").setAttribute("aria-expanded", String(open));
   $("moreBtn").querySelector(".t").textContent = open ? "לסגור את הניתוח המלא" : "לפתוח את הניתוח המלא";
-  if (open) box.querySelector("section").scrollIntoView({behavior: "smooth", block: "start"});
+}
+$("moreBtn").addEventListener("click", () => {
+  const open = $("moreBox").hidden; setMore(open);
+  if (open) $("moreBox").querySelector("section").scrollIntoView({behavior: "smooth", block: "start"});
 });
 
 /* ---------- share card for Instagram stories (1080x1920, no photo of the person) ---------- */
