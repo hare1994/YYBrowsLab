@@ -802,7 +802,8 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
   const px0 = Math.max(1, Math.floor((x0 - Rr) * k)), px1 = Math.min(pix.w - 2, Math.ceil((x1 + Rr) * k));
   const py0 = Math.max(1, Math.floor((y0 - Rr) * k)), py1 = Math.min(pix.h - 2, Math.ceil((y1 + Rr) * k));
   const bw = px1 - px0 + 1, bh = py1 - py0 + 1; if (bw < 10 || bh < 6) return null;
-  const val = new Float32Array(bw * bh), inR = new Uint8Array(bw * bh), vals = [];
+  const val = new Float32Array(bw * bh), inR = new Uint8Array(bw * bh), dd = new Float32Array(bw * bh), vals = [];
+  const Rr0 = Math.max(th.head, th.arch, th.tail, 0.14 * ew) / 2 + 0.10 * ew;   // the contrast method's own band
   const L = pix.lum, w = pix.w;
   for (let y = py0; y <= py1; y++) for (let x = px0; x <= px1; x++) {
     const i = (y - py0) * bw + (x - px0), u = [x / k, y / k];
@@ -815,16 +816,11 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
     }
     val[i] = (L[(y - 1) * w + x - 1] + L[(y - 1) * w + x] + L[(y - 1) * w + x + 1] + L[y * w + x - 1] + L[y * w + x] + L[y * w + x + 1] +
       L[(y + 1) * w + x - 1] + L[(y + 1) * w + x] + L[(y + 1) * w + x + 1]) / 9;
-    inR[i] = 1; vals.push(val[i]);
+    inR[i] = 1; dd[i] = d; vals.push(val[i]);
   }
   if (vals.length < 200) return null;
-  let hair, dark = null, T = 0, p97 = 0;
-  if (seg) {
-    // the model's brow mask decides; the search band only keeps it to this side's brow
-    hair = new Uint8Array(bw * bh); let nHair = 0;
-    for (let i = 0; i < bw * bh; i++) if (inR[i]) { const x = i % bw, y = (i - x) / bw; if (isBrowPx(seg, px0 + x, py0 + y)) { hair[i] = 1; nHair++; } }
-    if (nHair < 60) return null;
-  } else {
+  let hair, dark = null, T = 0, p97 = 0, cHair = null;
+  {
     // Hair = LOCALLY darker than the skin right around it. A single brightness threshold also caught the shading under
     // the brow, the eye socket and the temple, so thin or light brows came out far too long and wide.
     // Local skin level: a wide box average of the SKIN pixels only. A first rough split (Otsu over the search area) marks
@@ -847,11 +843,55 @@ function refineBrow(pix, cen0, ew, th, lid, outward, toF, oval) {
     dark = new Float32Array(bw * bh); const dv = [];
     for (let i = 0; i < bw * bh; i++) if (inR[i]) { const x = i % bw, y = (i - x) / bw; dark[i] = boxMean(px0 + x, py0 + y) - val[i]; dv.push(dark[i]); }
     p97 = pctile(dv, 0.97); T = Math.max(12, 0.38 * p97);
-    if (pctile(dv, 0.97) < 18) return null;   // no clear brow hair in the photo: fall back to the face model
-    hair = new Uint8Array(bw * bh); let nHair = 0;
-    for (let i = 0; i < bw * bh; i++) if (inR[i] && dark[i] >= T) { hair[i] = 1; nHair++; }
-    const frac = nHair / dv.length;
-    if (frac < 0.03 || frac > 0.6) return null;
+    if (p97 >= 18) {   // below that there is no clear brow hair in the photo
+      cHair = new Uint8Array(bw * bh); let nC = 0;
+      for (let i = 0; i < bw * bh; i++) if (inR[i] && dd[i] <= Rr0 && dark[i] >= T) { cHair[i] = 1; nC++; }
+      const frac = nC / dv.length;
+      if (frac < 0.03 || frac > 0.6) cHair = null;
+    }
+  }
+  const uOfPix = i => { const x = i % bw, y = (i - x) / bw; return toF([(px0 + x) / k, (py0 + y) / k])[0] * sgE; };   // grows toward the head
+  const yOfPix = i => { const x = i % bw, y = (i - x) / bw; return toF([(px0 + x) / k, (py0 + y) / k])[1]; };
+  if (seg) {
+    // the model's brow mask leads; the search band keeps it to this side's brow
+    hair = new Uint8Array(bw * bh); let nHair = 0, uMin = 1e9, uMax = -1e9;
+    for (let i = 0; i < bw * bh; i++) if (inR[i]) { const x = i % bw, y = (i - x) / bw;
+      if (isBrowPx(seg, px0 + x, py0 + y)) { hair[i] = 1; nHair++; const u = uOfPix(i); uMin = Math.min(uMin, u); uMax = Math.max(uMax, u); } }
+    if (nHair < 60) { if (!cHair) return null; hair = cHair; }   // the model found nothing here: use the contrast detection
+    else {
+      // The brow's own line, from the model's pixels only: a smooth curve (quadratic through the median height of each
+      // slice), extended in a straight line past the model's ends. Every pixel that is kept must sit close to it, so
+      // patches cannot run down the nose or the temple and spill from the model is cut off.
+      const mi = []; for (let i = 0; i < bw * bh; i++) if (hair[i]) mi.push(i);
+      const mu = mi.map(uOfPix), my = mi.map(yOfPix), bU = 0.08 * ew, nb = Math.floor((uMax - uMin) / bU) + 1;
+      const bins = Array.from({length: nb}, () => []); mu.forEach((u, j) => bins[Math.min(nb - 1, Math.floor((u - uMin) / bU))].push(my[j]));
+      const P = [], spr = [];
+      bins.forEach((b, j) => { if (b.length >= 5) { P.push([uMin + (j + 0.5) * bU, pctile(b, 0.5)]); spr.push(pctile(b, 0.9) - pctile(b, 0.1)); } });
+      let curve = null;
+      if (P.length >= 3) {   // least squares y = c0 + c1 t + c2 t^2, with t in eye widths from uMin
+        const S = [0, 0, 0, 0, 0], Y = [0, 0, 0];
+        P.forEach(([u, y]) => { const t = (u - uMin) / ew; let tp = 1; for (let q = 0; q < 5; q++) { S[q] += tp; if (q < 3) Y[q] += tp * y; tp *= t; } });
+        const A = [[S[0], S[1], S[2]], [S[1], S[2], S[3]], [S[2], S[3], S[4]]], det3 = M => M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) - M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) + M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+        const D = det3(A);
+        if (Math.abs(D) > 1e-9) {
+          const c = [0, 1, 2].map(col => det3(A.map((row, r) => row.map((v, q) => q === col ? Y[r] : v))) / D);
+          const f = t => c[0] + c[1] * t + c[2] * t * t, df = t => c[1] + 2 * c[2] * t, tMax = (uMax - uMin) / ew;
+          curve = u => { const t = (u - uMin) / ew; if (t < 0) return f(0) + df(0) * t; if (t > tMax) return f(tMax) + df(tMax) * (t - tMax); return f(t); };
+        }
+      }
+      if (!curve) { const m = pctile(my, 0.5); curve = () => m; }
+      const Tt = spr.length ? pctile(spr, 0.5) : 0.2 * ew, band = Math.max(0.8 * Tt, 0.07 * ew);   // Tt is the 10-90% spread, so half the brow is ~0.6 Tt
+      // patch holes with contrast hair (brushed-up or very dense heads the model misses, Face 2): on the curve only,
+      // up to 0.4 eye widths past the model's head end, and barely past its tail end (hairline shading lives there)
+      if (cHair) for (let i = 0; i < bw * bh; i++) if (cHair[i] && !hair[i]) {
+        const u = uOfPix(i); if (u >= uMin - 0.04 * ew && u <= uMax + 0.4 * ew && Math.abs(yOfPix(i) - curve(u)) <= band) hair[i] = 1;
+      }
+      // remove spill (very light brows, Face 8): anything off the curve goes
+      for (let i = 0; i < bw * bh; i++) if (hair[i] && Math.abs(yOfPix(i) - curve(uOfPix(i))) > band) hair[i] = 0;
+    }
+  } else {
+    if (!cHair) return null;
+    hair = cHair;
   }
   // join the gaps between single hairs (1px closing) before finding the brow as one connected piece
   const joined = new Uint8Array(bw * bh);
@@ -1202,7 +1242,7 @@ function analyze(lms, W, H, pix) {
   // caught almost everyone). Thresholds calibrated on 13 real photos; oval is the default, as it is the most common shape.
   let faceShape = "אליפטי";
   if (lenR >= 1.27) faceShape = "מאורך";
-  else if (lenR < 1.14) faceShape = "עגול";
+  else if (lenR < 1.14 || (lenR < 1.17 && jawR >= 0.77)) faceShape = "עגול";   // a short face with a full jaw also reads round
   else if (jawR >= 0.80 && lenR < 1.20) faceShape = "מרובע";
   else if (jawR < 0.75 && foreR >= 0.89) faceShape = "לב";
   const tip = L(1), dl = Math.abs(tip[0] - L(234)[0]), dr = Math.abs(L(454)[0] - tip[0]);
@@ -1359,7 +1399,7 @@ function analyze(lms, W, H, pix) {
   // Thickness from the brow mask runs 0.18 (thin, over-plucked) to 0.27 (full) eye widths on real brows. Full is
   // 0.26-0.42; thinner loses points steadily (the old target sat above every real brow, so thin and full scored alike).
   const thS = v => v >= 0.26 ? (v <= 0.42 ? 100 : grade(v, 0.42, 0.04, 0.20)) : grade(v, 0.26, 0.03, 0.13);
-  const thin = Math.min(thH, thA) < 0.21;
+  const thin = Math.min(thH, thA) < 0.20;   // 0.21 flagged medium-full brows for restoration
   M.thickness = {score: (thS(thH) + thS(thA)) / 2,
     finding: thin ? "הגבות דקות יחסית (" + pct(Math.min(thH, thA)) + "% מרוחב עין בחלק הדק)." : thH > 0.42 ? "הגבות עבות יחסית, ויש מקום לדייק את הקו." : "עובי מאוזן ביחס לפנים.",
     tip: thin ? "לשקם: להפסיק תלישה, לתת לשיער לצמוח, ולשרטט צורה מלאה יותר." : thH > 0.42 ? "לדייק את הקו העליון והתחתון בחוט ובפינצטה." : "לשמור על העובי הטבעי."};
@@ -1371,7 +1411,7 @@ function analyze(lms, W, H, pix) {
   const riseT = both.length ? avg(both.map(s => ideal[s].start[1] - ideal[s].arch[1])) / eyeW : (FIT.lo + FIT.hi) / 2;
   const fitS = grade(rs, riseT, 0.04, 0.20);
   M.faceFit = {score: fitS,
-    finding: "מבנה הפנים נראה " + faceShape + ". " + (fitS >= 88 ? "גובה הקשת מתאים לו." : "גובה הקשת הנוכחי לא הכי מחמיא לו."),
+    finding: "הערכה כללית: מבנה הפנים נוטה ל" + faceShape + ". " + (fitS >= 88 ? "גובה הקשת מתאים לכיוון הזה." : "גובה קשת קצת אחר יחמיא יותר לכיוון הזה.") + " ההתאמה המדויקת נקבעת בפגישה.",
     tip: FIT.tip + "."};
 
   const keys = Object.keys(M);
@@ -1686,7 +1726,7 @@ function render(r) {
   setMagic(false);
   $("resImg").addEventListener("load", () => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } }, {once: true}); try { buildZoomBoxes(r); } catch (e) { console.warn(e); }
   if (DEBUG) { const im = $("resImg"); const go = () => { try { buildDebug(r); } catch (e) { console.error(e); } }; if (im.complete && im.naturalWidth) go(); else im.addEventListener("load", go, {once: true}); } buildStatsUI(r.stats); $("statCard").hidden = false;
-  txt($("browType"), r.browType); txt($("faceTag"), "מבנה פנים: " + r.faceShape);
+  txt($("browType"), r.browType); txt($("faceTag"), "מבנה פנים: נוטה ל" + r.faceShape); $("faceTag").title = "הערכה כללית מהתמונה, לא אבחנה. ההתאמה המדויקת נקבעת בפגישה עם יובל.";
   const vibe = BROW_VIBES[r.browType] || {e: "✨", t: ""}; txt($("browEmoji"), vibe.e); txt($("browVibe"), vibe.t); $("browVibe").hidden = !vibe.t;
   txt($("verdict"), r.verdict); txt($("browDesc"), r.browDesc);
   const w = $("warn"); w.hidden = !r.warn.length; w.textContent = r.warn.join(" ");
@@ -1813,7 +1853,7 @@ async function makeShareCard(r) {
   x.fillStyle = "#b98f45"; x.font = "500 44px " + SANS; x.fillText("סוג הגבה שלי", W / 2, 1260);
   x.fillStyle = "#3f2e20"; x.font = "700 96px " + SERIF; x.fillText((r.browType || "") + " " + ((BROW_VIBES[r.browType] || {}).e || ""), W / 2, 1365);
   if (r.faceShape) {
-    const t = "מבנה פנים: " + r.faceShape; x.font = "500 42px " + SANS; const tw = x.measureText(t).width + 70;
+    const t = "מבנה פנים: נוטה ל" + r.faceShape; x.font = "500 42px " + SANS; const tw = x.measureText(t).width + 70;
     x.fillStyle = "#efdfcc"; x.beginPath(); x.roundRect(W / 2 - tw / 2, 1415, tw, 80, 40); x.fill();
     x.fillStyle = "#6e4f33"; x.fillText(t, W / 2, 1470);
   }
