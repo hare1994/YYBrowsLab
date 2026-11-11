@@ -1354,7 +1354,12 @@ function analyze(lms, W, H, pix) {
   const both = ["L", "R"].filter(s => ideal[s]);
 
   // numbers
-  const gc = Math.abs(sd.L.start[0] - sd.R.start[0]) / eyeW, gi = (ideal.L && ideal.R ? Math.abs(ideal.L.s1[0] - ideal.R.s1[0]) : Math.abs(sd.L.ALA[0] - sd.R.ALA[0])) / eyeW, gd = gc - gi;
+  // Spacing is judged against the gold template's heads (what the drawing shows), not against line 1 directly: the
+  // template moves each head toward line 1 by a realistic amount, so the metric and the drawing always agree.
+  const gc = Math.abs(sd.L.start[0] - sd.R.start[0]) / eyeW, gi = (ideal.L && ideal.R ? Math.abs(ideal.L.start[0] - ideal.R.start[0]) : Math.abs(sd.L.ALA[0] - sd.R.ALA[0])) / eyeW, gd = gc - gi;
+  // Tolerance ~2.5 mm per side (0.08 eye widths, an average eye is ~30 mm wide): below that the difference is not
+  // visible and is within the accuracy of the detection.
+  const GAP_OK = 0.16, mmSide = Math.max(1, Math.round(Math.abs(gd) / 2 * 30));
   const dIn = avg(["L", "R"].map(s => (sd[s].start[0] - (ideal[s] ? ideal[s].s1[0] : sd[s].ALA[0])) * (-IDX[s].dir)));
   const dInN = dIn / eyeW;
   const rc = avg(["L", "R"].map(s => Math.abs(sd[s].arch[0] - sd[s].start[0]) / Math.abs(sd[s].tail[0] - sd[s].start[0])));
@@ -1393,9 +1398,10 @@ function analyze(lms, W, H, pix) {
   M.height = {score: grade(gap, 0.48, 0.09, 0.34),
     finding: gap < 0.32 ? "הגבות קרובות יחסית לעין (" + pct(gap) + "% מרוחב עין)." : gap > 0.65 ? "הגבות גבוהות יחסית מעל העין (" + pct(gap) + "% מרוחב עין)." : "מרחק נעים בין הגבה לעין.",
     tip: gap < 0.32 ? "להסיר בעדינות שיער מתחת לגבה כדי לפתוח את המבט, בלי לדלל יותר מדי." : gap > 0.65 ? "לשמור על הקו התחתון ולא להסיר שיער מתחת לגבה." : "לשמור על הקו התחתון."};
-  M.spacing = {score: grade(gd, 0, 0.07, 0.40),
-    finding: Math.abs(gd) <= 0.12 ? "ראשי הגבות במרחק הנכון זה מזה." : gd > 0 ? "ראשי הגבות רחוקים זה מזה." : "ראשי הגבות קרובים מדי זה לזה.",
-    tip: Math.abs(gd) <= 0.12 ? "לשמור על המרווח." : gd > 0 ? "אפשר לשקם ולהצמיח פנימה." : "להסיר שיער בין הגבות עד האנך מקצה הנחיר."};
+  M.spacing = {score: grade(gd, 0, GAP_OK, 0.50),
+    finding: Math.abs(gd) <= GAP_OK ? "ראשי הגבות במרחק הנכון זה מזה." :
+      gd > 0 ? "ראשי הגבות רחוקים זה מזה, בערך " + mmSide + " מ\"מ בכל צד לעומת התבנית הזהובה." : "ראשי הגבות קרובים זה לזה, בערך " + mmSide + " מ\"מ בכל צד לעומת התבנית הזהובה.",
+    tip: Math.abs(gd) <= GAP_OK ? "לשמור על המרווח." : gd > 0 ? "אפשר לשקם ולהצמיח פנימה, עד ראש התבנית הזהובה." : "להסיר שיער בין הגבות, עד ראש התבנית הזהובה."};
   // Thickness from the brow mask runs 0.18 (thin, over-plucked) to 0.27 (full) eye widths on real brows. Full is
   // 0.26-0.42; thinner loses points steadily (the old target sat above every real brow, so thin and full scored alike).
   const thS = v => v >= 0.26 ? (v <= 0.42 ? 100 : grade(v, 0.42, 0.04, 0.20)) : grade(v, 0.26, 0.03, 0.13);
@@ -1454,7 +1460,7 @@ function analyze(lms, W, H, pix) {
   const priorities = keys.filter(k => M[k].score < 82).sort((a, b) => M[a].score - M[b].score).slice(0, 3).map(k => ({title: METRIC_LABELS[k], why: M[k].tip}));
   const rec = new Set();
   if (priorities.length) rec.add("shape");
-  if (thin || lr < 0.9 || dInN < -0.08 || gd > 0.12) rec.add("restore");
+  if (thin || lr < 0.9 || dInN < -0.08 || gd > GAP_OK) rec.add("restore");
   if (overall >= 80) rec.add("upkeep");
   if (!rec.size) rec.add("upkeep");
 
@@ -1486,13 +1492,13 @@ function analyze(lms, W, H, pix) {
 
   return {blockers, lmsRaw: lms, W, H, U, V, eyeW, sd, ideal, both, fromF, toF, roll, measured, M, overall, verdict, browType, browDesc, faceShape, strengths, priorities, recommended: [...rec], warn,
     needsChanges: overall < 90,
-    stats: buildStats({gc, gi, gd, rc, ri, drop, lr, rs, dh, FIT, riseT})};
+    stats: buildStats({gc, gi, gd, GAP_OK, rc, ri, drop, lr, rs, dh, FIT, riseT})};
 }
 
 function buildStats(v) {
   const s = [];
-  s.push({label: "מרווח בין ראשי הגבות", cur: v.gc.toFixed(2) + " רוחב עין", ideal: v.gi.toFixed(2) + " (לפי קו הנחיר)", ok: Math.abs(v.gd) <= 0.12,
-    note: Math.abs(v.gd) <= 0.12 ? "ראשי הגבות במקום הנכון" : v.gd > 0 ? "ראשי הגבות רחוקים זה מזה. אפשר לשקם ולהצמיח פנימה" : "ראשי הגבות קרובים מדי. כדאי להסיר שיער בין הגבות"});
+  s.push({label: "מרווח בין ראשי הגבות", cur: v.gc.toFixed(2) + " רוחב עין", ideal: v.gi.toFixed(2) + " (כמו בתבנית הזהובה)", ok: Math.abs(v.gd) <= v.GAP_OK,
+    note: Math.abs(v.gd) <= v.GAP_OK ? "ראשי הגבות במקום הנכון" : v.gd > 0 ? "ראשי הגבות רחוקים זה מזה. אפשר לשקם ולהצמיח פנימה" : "ראשי הגבות קרובים מדי. כדאי להסיר שיער בין הגבות"});
   s.push({label: "מיקום שיא הקשת לאורך הגבה", cur: pct(v.rc) + "%", ideal: pct(v.ri) + "%", ok: Math.abs(v.rc - v.ri) <= 0.07,
     note: Math.abs(v.rc - v.ri) <= 0.07 ? "השיא במקום הנכון" : v.rc < v.ri ? "השיא קרוב מדי לראש הגבה" : "השיא רחוק מדי, קרוב לזנב"});
   s.push({label: "גובה הזנב מול קו הבסיס", cur: v.drop > 0 ? "נמוך ב-" + pct(v.drop) + "%" : "גבוה ב-" + pct(-v.drop) + "%", ideal: "על הקו או מעליו", ok: v.drop <= 0.10,
