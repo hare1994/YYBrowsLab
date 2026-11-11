@@ -24,14 +24,14 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>מעבדת הגבות של יובל יעקב</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&family=Heebo:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* Concept: a brow-mapping lab. The photo becomes a scan plate; measuring lines and a gold stencil are drawn on top of it. */
 :root{
   --bg:#f6ece1; --surface:#fffaf4; --surface2:#f1e3d2; --ink:#3f2e20; --muted:#7f6a56;
   --gold:#b98f45; --gold2:#dcb86f; --brown:#6e4f33; --line:#e6d4bf;
   --good:#58824d; --mid:#b88a2c; --low:#b4553f; --on-gold:#2a1d10; --bar:rgba(246,236,225,.92);
-  --f-display:"Frank Ruhl Libre",Georgia,serif; --f-body:"Heebo",system-ui,sans-serif;
+  --f-display:"Rubik","Heebo",system-ui,sans-serif; --f-body:"Heebo",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#1b1511; --surface:#261d17; --surface2:#32261d; --ink:#f4e8d8; --muted:#bba68e;
@@ -48,6 +48,8 @@ body{text-align:start;margin:0;background:var(--bg);color:var(--ink);font:400 16
 body.has-bar{padding-bottom:110px}
 .wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:var(--f-display);font-weight:700}
+button,input,select,textarea,label,.chip{font-family:var(--f-body)}
 h1,h2{text-wrap:balance}
 a{color:inherit}
 :focus-visible{outline:3px solid var(--gold);outline-offset:3px}
@@ -78,7 +80,7 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .checks li i{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:.75rem;font-weight:700}
 .checks li.done{color:var(--ink)}
 .checks li.done i{background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
-.checks li.now{color:var(--ink);font-weight:500}
+.checks li.now{color:var(--ink);font-weight:400}
 .checks li.now i{border-color:var(--gold);border-top-color:transparent;animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #scan h2{text-align:center;margin:0}
@@ -99,16 +101,16 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 .drop svg{width:34px;height:34px}
 .thumb{width:100%;max-height:300px;object-fit:cover;border-radius:16px}
 .tips{margin:0;padding-right:18px;color:var(--muted);font-size:.9rem}
-.err{color:var(--low);text-align:center;font-weight:500}
+.err{color:var(--low);text-align:center;font-weight:400}
 .err.pose{text-align:start;background:var(--surface2);border:2px solid var(--low);border-radius:16px;padding:14px;line-height:1.6}
 .err.pose b{display:block;font-size:1.05rem;margin-bottom:4px}
 .err.pose button{margin-top:10px}
-.angle-warn{color:var(--low);font-weight:500;background:var(--surface2);border-inline-start:4px solid var(--low);border-radius:12px;padding:10px 12px;font-size:.92rem}
+.angle-warn{color:var(--low);font-weight:400;background:var(--surface2);border-inline-start:4px solid var(--low);border-radius:12px;padding:10px 12px;font-size:.92rem}
 .lead .ln,.ainote .ln{display:block;text-wrap:balance}
 .ainote{font-size:.85rem;color:var(--muted);text-align:center;margin:6px 0 0}
 .book-mid{text-align:center}
 .brow-emoji{font-size:1.4rem}
-.vibe{margin:0;background:var(--surface2);border-radius:14px;padding:10px 14px;font-weight:500;color:var(--brown)}
+.vibe{margin:0;background:var(--surface2);border-radius:14px;padding:10px 14px;font-weight:400;color:var(--brown)}
 .tags .tag{animation:pop .4s cubic-bezier(.2,1.4,.4,1) both}
 .tags .tag:nth-child(2){animation-delay:.08s}.tags .tag:nth-child(3){animation-delay:.16s}.tags .tag:nth-child(4){animation-delay:.24s}.tags .tag:nth-child(5){animation-delay:.32s}
 .tags .tag::before{content:"✨ "}
@@ -118,10 +120,10 @@ h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6re
 #ov.magic #gIdeal polygon{fill:rgba(236,208,142,.55);stroke:#fff3cf;stroke-dasharray:none;filter:drop-shadow(0 0 6px rgba(246,220,160,.9));animation:glow 1.6s ease-in-out infinite}
 @keyframes glow{50%{fill:rgba(236,208,142,.3)}}
 canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:80}
-.mkey{list-style:none;margin:0;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;background:var(--surface2);border-radius:16px;font-size:.95rem;font-weight:500}
+.mkey{list-style:none;margin:0;padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;background:var(--surface2);border-radius:16px;font-size:.95rem;font-weight:400}
 .mkey li{display:flex;align-items:center;gap:8px;line-height:1.3}
 .mkey li:nth-child(n+4){grid-column:1/-1}
-.mk-num{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#ecd08e;border:2px solid #fff;color:#3b2a1e;font-weight:800;font-size:.9rem;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.mk-num{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#ecd08e;border:2px solid #fff;color:#3b2a1e;font-weight:700;font-size:.9rem;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
 .mk-sw{flex:none;width:34px;height:14px;border-radius:7px}
 .mk-gold{background:rgba(236,208,142,.35);border:2px dashed #c9a75c}
 .mk-white{background:repeating-linear-gradient(90deg,#8a7663 0 3px,transparent 3px 9px);height:4px;border-radius:2px}
@@ -131,7 +133,7 @@ canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none
 .more-head h2{margin:0}
 .more-head p{margin:2px 0 0;color:var(--muted);font-size:.92rem}
 .more-ic{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--gold);font-size:1.5rem}
-.more-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-weight:500}
+.more-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-weight:400}
 .more-list li{display:flex;gap:10px;align-items:center;background:var(--surface);border-radius:12px;padding:8px 12px}
 .more-btn{background:linear-gradient(90deg,var(--gold),var(--gold2));color:var(--on-gold)}
 .more-btn .chev{display:inline-block;font-size:1.2rem;animation:nudge 1.4s ease-in-out infinite}
@@ -147,7 +149,7 @@ canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none
 .inapp ol{margin:6px 0;padding-inline-start:20px}
 .share-dlg img{display:block;width:min(260px,70vw);margin:8px auto;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .share-dlg .btn{margin:10px 0 0}
-.book-mid p{margin:0 0 10px;font-weight:500}
+.book-mid p{margin:0 0 10px;font-weight:400}
 
 /* scan stage */
 .stage{position:relative;border-radius:22px;overflow:hidden;background:#17110c;line-height:0}
@@ -158,7 +160,7 @@ canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none
 @keyframes sweep{0%{top:-22%}100%{top:100%}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .l1{animation:fade .6s .2s both}.l2{animation:fade .6s .8s both}.l3{animation:fade .6s 1.4s both}
-.status{text-align:center;font-weight:500;min-height:1.6em}
+.status{text-align:center;font-weight:400;min-height:1.6em}
 .prog{height:6px;border-radius:6px;background:var(--surface2);overflow:hidden}
 .prog i{display:block;height:100%;width:6%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:6px;transition:width .5s ease-out}
 .layers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
@@ -177,7 +179,7 @@ html,body,button,a,label,.chip,.zoombar,.layers{touch-action:manipulation}
 .zregions .chip{white-space:nowrap}
 .zsteps{display:flex;gap:8px;justify-content:center;width:100%}
 .redo{padding-top:14px;padding-bottom:14px}
-.redo-t{margin:0 0 10px;text-align:center;font-weight:500}
+.redo-t{margin:0 0 10px;text-align:center;font-weight:400}
 .redo-b{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .redo-b .btn{margin:0;text-align:center;cursor:pointer}
 
@@ -185,12 +187,12 @@ html,body,button,a,label,.chip,.zoombar,.layers{touch-action:manipulation}
 .how li{display:flex;gap:12px;align-items:flex-start}
 .how p{margin:2px 0 0;font-size:.92rem;color:var(--muted)}
 .how b{font-weight:700}
-.hnum{flex:none;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--on-gold);font-weight:800;display:grid;place-items:center}
+.hnum{flex:none;width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--on-gold);font-weight:700;display:grid;place-items:center}
 
 
 .mlist{display:flex;flex-direction:column;gap:10px}
 .mrow{display:grid;grid-template-columns:1fr auto;gap:3px 10px;padding:12px 14px;border-radius:16px;background:var(--surface2);align-items:center}
-.mrow b{font-weight:500}
+.mrow b{font-weight:400}
 .mrow .st{font-size:.78rem;font-weight:700;border-radius:999px;padding:2px 10px;border:1px solid currentColor}
 .mrow .st.ok{color:var(--good)}
 .mrow .st.warn{color:var(--low)}
@@ -212,7 +214,7 @@ html,body,button,a,label,.chip,.zoombar,.layers{touch-action:manipulation}
 .keylines span{display:block}
 .keylines span+span{margin-top:4px}
 .tag{display:inline-block;font-size:.82rem;color:var(--brown);background:var(--surface2);border-radius:999px;padding:3px 12px;margin-top:6px}
-.verdict{font-weight:500}
+.verdict{font-weight:400}
 .tags{display:flex;flex-wrap:wrap;gap:8px}
 .tags .tag{margin:0;font-size:.9rem;padding:6px 14px}
 ol.prio{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;counter-reset:p}
@@ -224,7 +226,7 @@ ol.prio span{color:var(--muted);font-size:.92rem}
 /* metrics */
 .metrics{display:flex;flex-direction:column;gap:8px}
 details.m{background:var(--surface2);border-radius:16px;padding:0 14px}
-details.m summary{list-style:none;cursor:pointer;padding:12px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-weight:500}
+details.m summary{list-style:none;cursor:pointer;padding:12px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-weight:400}
 details.m summary::-webkit-details-marker{display:none}
 details.m .sc{font-family:var(--f-display);font-weight:700;font-size:1.2rem}
 details.m .bar{grid-column:1/-1;height:6px;border-radius:6px;background:var(--line);overflow:hidden}
@@ -1554,7 +1556,7 @@ function buildOverlay(r) {
       const out = Math.sign(o.tail[0] - o.start[0]) || 1;   // marker 3 steps outward so it does not cover marker 2
       const bp = n === "3" ? P([q[0] + out * fs * 1.7, q[1] - fs * 0.6]) : P([q[0], q[1] - fs * 1.9]);
       g1 += dot(bp, fs * 0.82, "#ecd08e", "#fff") +
-        `<text x="${f1(bp[0])}" y="${f1(bp[1] + fs * 0.36)}" text-anchor="middle" font-size="${f1(fs * 1.05)}" font-weight="800" fill="#3b2a1e" font-family="Heebo,sans-serif">${n}</text>`;
+        `<text x="${f1(bp[0])}" y="${f1(bp[1] + fs * 0.36)}" text-anchor="middle" font-size="${f1(fs * 1.05)}" font-weight="700" fill="#3b2a1e" font-family="Heebo,sans-serif">${n}</text>`;
     });
     g1 += dot(Np, 6.5, "#ecd08e", "rgba(0,0,0,.55)");
     const N3p = P(o.N3); g1 += dot(N3p, 6.5, "#ecd08e", "rgba(0,0,0,.55)");
@@ -1845,8 +1847,8 @@ function wrapLines(ctx, text, maxW) {
 async function makeShareCard(r) {
   const W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
   const x = c.getContext("2d");
-  try { await Promise.all(['700 80px "Frank Ruhl Libre"', '500 40px "Frank Ruhl Libre"', '400 40px Heebo', '700 40px Heebo'].map(f => document.fonts.load(f))); } catch (e) {}
-  const SERIF = '"Frank Ruhl Libre", Georgia, serif', SANS = 'Heebo, system-ui, sans-serif';
+  try { await Promise.all(['700 80px Rubik', '400 40px Heebo', '700 40px Heebo'].map(f => document.fonts.load(f, "אבג"))); } catch (e) {}
+  const SERIF = 'Rubik, Heebo, system-ui, sans-serif', SANS = 'Heebo, system-ui, sans-serif';   // SERIF: the heading font
   const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#fffaf4"); g.addColorStop(.55, "#f6ece1"); g.addColorStop(1, "#ecd9c3");
   x.fillStyle = g; x.fillRect(0, 0, W, H);
   x.direction = "rtl"; x.textAlign = "center"; x.textBaseline = "alphabetic";
@@ -1867,12 +1869,12 @@ async function makeShareCard(r) {
   x.beginPath(); x.arc(cx, cy, RR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * sc / 100);
   x.strokeStyle = sc >= 80 ? "#58824d" : sc >= 60 ? "#b88a2c" : "#b4553f"; x.stroke();
   x.fillStyle = "#3f2e20"; x.font = "700 190px " + SERIF; x.fillText(String(sc), cx, cy + 60);
-  x.fillStyle = "#7f6a56"; x.font = "500 44px " + SANS; x.fillText("מתוך 100", cx, cy + 125);
+  x.fillStyle = "#7f6a56"; x.font = "400 44px " + SANS; x.fillText("מתוך 100", cx, cy + 125);
   // brow type
-  x.fillStyle = "#b98f45"; x.font = "500 44px " + SANS; x.fillText("סוג הגבה שלי", W / 2, 1260);
+  x.fillStyle = "#b98f45"; x.font = "400 44px " + SANS; x.fillText("סוג הגבה שלי", W / 2, 1260);
   x.fillStyle = "#3f2e20"; x.font = "700 96px " + SERIF; x.fillText((r.browType || "") + " " + ((BROW_VIBES[r.browType] || {}).e || ""), W / 2, 1365);
   if (r.faceShape) {
-    const t = "מבנה פנים: נוטה ל" + r.faceShape; x.font = "500 42px " + SANS; const tw = x.measureText(t).width + 70;
+    const t = "מבנה פנים: נוטה ל" + r.faceShape; x.font = "400 42px " + SANS; const tw = x.measureText(t).width + 70;
     x.fillStyle = "#efdfcc"; x.beginPath(); x.roundRect(W / 2 - tw / 2, 1415, tw, 80, 40); x.fill();
     x.fillStyle = "#6e4f33"; x.fillText(t, W / 2, 1470);
   }
@@ -1881,7 +1883,7 @@ async function makeShareCard(r) {
   const bw = 760, bx = W / 2 - bw / 2, by = 1660, bg = x.createLinearGradient(bx, 0, bx + bw, 0);
   bg.addColorStop(0, "#b98f45"); bg.addColorStop(1, "#dcb86f"); x.fillStyle = bg; x.beginPath(); x.roundRect(bx, by, bw, 110, 55); x.fill();
   x.fillStyle = "#2a1d10"; x.font = "700 50px " + SANS; x.fillText("סריקת גבות בחינם בקישור", W / 2, by + 72);
-  x.fillStyle = "#7f6a56"; x.font = "500 38px " + SANS;
+  x.fillStyle = "#7f6a56"; x.font = "400 38px " + SANS;
   x.direction = "ltr"; x.fillText("@_yuvalyaacov_", W / 2, 1830); x.direction = "rtl";
   x.font = "400 30px " + SANS; x.fillText("הערכה של בינה מלאכותית, לא מדויקת במאה אחוזים", W / 2, 1885);
   return new Promise(res => c.toBlob(res, "image/png"));
