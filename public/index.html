@@ -1198,11 +1198,13 @@ function analyze(lms, W, H, pix) {
   // face shape + pose
   const faceLen = dist(L(10), L(152)), cheek = dist(L(234), L(454)), jaw = dist(L(172), L(397)), fore = dist(L(54), L(284));
   const lenR = faceLen / cheek, jawR = jaw / cheek, foreR = fore / cheek;
+  // Point 10 sits mid-forehead, not at the hairline, so lenR runs ~1.12-1.29 on real faces (the old 1.25 "round" cut-off
+  // caught almost everyone). Thresholds calibrated on 13 real photos; oval is the default, as it is the most common shape.
   let faceShape = "אליפטי";
-  if (lenR >= 1.45) faceShape = "מאורך";
-  else if (jawR >= 0.88 && lenR < 1.35) faceShape = "מרובע";
-  else if (jawR < 0.72 && foreR >= 0.88) faceShape = "לב";
-  else if (lenR < 1.25 && jawR >= 0.72) faceShape = "עגול";
+  if (lenR >= 1.27) faceShape = "מאורך";
+  else if (lenR < 1.14) faceShape = "עגול";
+  else if (jawR >= 0.80 && lenR < 1.20) faceShape = "מרובע";
+  else if (jawR < 0.75 && foreR >= 0.89) faceShape = "לב";
   const tip = L(1), dl = Math.abs(tip[0] - L(234)[0]), dr = Math.abs(L(454)[0] - tip[0]);
   const yaw = (dl - dr) / (dl + dr);
   const warn = [];
@@ -1354,9 +1356,13 @@ function analyze(lms, W, H, pix) {
   M.spacing = {score: grade(gd, 0, 0.07, 0.40),
     finding: Math.abs(gd) <= 0.12 ? "ראשי הגבות במרחק הנכון זה מזה." : gd > 0 ? "ראשי הגבות רחוקים זה מזה." : "ראשי הגבות קרובים מדי זה לזה.",
     tip: Math.abs(gd) <= 0.12 ? "לשמור על המרווח." : gd > 0 ? "אפשר לשקם ולהצמיח פנימה." : "להסיר שיער בין הגבות עד האנך מקצה הנחיר."};
-  M.thickness = {score: (grade(thH, 0.30, 0.07, 0.25) + grade(thA, 0.26, 0.07, 0.22)) / 2,
-    finding: thH < 0.18 ? "הגבות דקות באזור הראש (" + pct(thH) + "% מרוחב עין)." : thH > 0.42 ? "הגבות עבות יחסית, ויש מקום לדייק את הקו." : "עובי מאוזן ביחס לפנים.",
-    tip: thH < 0.18 ? "לשקם: להפסיק תלישה, לתת לשיער לצמוח, ולשרטט צורה מלאה יותר." : thH > 0.42 ? "לדייק את הקו העליון והתחתון בחוט ובפינצטה." : "לשמור על העובי הטבעי."};
+  // Thickness from the brow mask runs 0.18 (thin, over-plucked) to 0.27 (full) eye widths on real brows. Full is
+  // 0.26-0.42; thinner loses points steadily (the old target sat above every real brow, so thin and full scored alike).
+  const thS = v => v >= 0.26 ? (v <= 0.42 ? 100 : grade(v, 0.42, 0.04, 0.20)) : grade(v, 0.26, 0.03, 0.13);
+  const thin = Math.min(thH, thA) < 0.21;
+  M.thickness = {score: (thS(thH) + thS(thA)) / 2,
+    finding: thin ? "הגבות דקות יחסית (" + pct(Math.min(thH, thA)) + "% מרוחב עין בחלק הדק)." : thH > 0.42 ? "הגבות עבות יחסית, ויש מקום לדייק את הקו." : "עובי מאוזן ביחס לפנים.",
+    tip: thin ? "לשקם: להפסיק תלישה, לתת לשיער לצמוח, ולשרטט צורה מלאה יותר." : thH > 0.42 ? "לדייק את הקו העליון והתחתון בחוט ובפינצטה." : "לשמור על העובי הטבעי."};
   M.symmetry = {score: (grade(dh, 0, 0.03, 0.20) + grade(dsym, 0, 0.04, 0.30)) / 2,
     finding: dh <= 0.06 && dsym <= 0.08 ? "שתי הגבות סימטריות." :
       dh > 0.06 ? "הפרש גובה של " + pct(dh) + "% מרוחב עין בין שיאי הגבות." : "ראשי הגבות לא סימטריים ביחס לקו האמצע של הפנים.",
@@ -1397,9 +1403,10 @@ function analyze(lms, W, H, pix) {
   const verdict = overall >= 93 ? "הגבות מאוזנות מאוד. מספיקה תחזוקה וליטוש קל." : overall >= 82 ? "בסיס יפה, וכמה תיקונים קטנים יתנו תוצאה מושלמת." :
     overall >= 68 ? "יש פוטנציאל טוב, ועיצוב מדויק ישנה את המראה." : "יש הרבה מקום לשיפור, ובעיצוב ושרטוט נכון ההבדל יהיה גדול.";
   let browType, browDesc;
-  if (rs < 0.15) { browType = "הישרה והטבעית"; browDesc = "גבה ישרה ורכה שנותנת מראה צעיר וטבעי."; }
-  else if (angle < 135 && rs >= 0.25) { browType = "הזוויתית והדרמטית"; browDesc = "קשת מוגדרת עם שיא ברור שמעניקה מראה חד ובטוח."; }
-  else if (angle >= 150) { browType = "הרכה והעגולה"; browDesc = "קשת עדינה ועגולה שמרככת את הפנים."; }
+  // calibrated on 13 real brows: arch rise 0.13-0.24 eye widths, head-arch-tail angle 147-160 degrees
+  if (rs < 0.16) { browType = "הישרה והטבעית"; browDesc = "גבה ישרה ורכה שנותנת מראה צעיר וטבעי."; }
+  else if (rs >= 0.20 && angle < 152) { browType = "הזוויתית והדרמטית"; browDesc = "קשת מוגדרת עם שיא ברור שמעניקה מראה חד ובטוח."; }
+  else if (rs < 0.20) { browType = "הרכה והעגולה"; browDesc = "קשת עדינה ועגולה שמרככת את הפנים."; }
   else { browType = "הקשת האלגנטית"; browDesc = "קשת מאוזנת עם שיא עדין, צורה קלאסית שמתאימה לרוב הפנים."; }
   const strengths = keys.filter(k => M[k].score >= 88).map(k => ({
     start: "נקודת ההתחלה במקום הנכון", arch: "שיא הקשת במיקום מאוזן", tail: "הזנב בגובה ובאורך מתאימים", height: "מרחק נעים בין הגבה לעין",
@@ -1407,7 +1414,7 @@ function analyze(lms, W, H, pix) {
   const priorities = keys.filter(k => M[k].score < 82).sort((a, b) => M[a].score - M[b].score).slice(0, 3).map(k => ({title: METRIC_LABELS[k], why: M[k].tip}));
   const rec = new Set();
   if (priorities.length) rec.add("shape");
-  if (thH < 0.18 || lr < 0.9 || dInN < -0.08 || gd > 0.12) rec.add("restore");
+  if (thin || lr < 0.9 || dInN < -0.08 || gd > 0.12) rec.add("restore");
   if (overall >= 80) rec.add("upkeep");
   if (!rec.size) rec.add("upkeep");
 
