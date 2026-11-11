@@ -318,8 +318,8 @@ img{-webkit-user-drag:none;user-select:none}
     </div>
     <img class="thumb" id="preview" alt="התמונה שלך" hidden>
     <ul class="tips">
-      <li>מבט ישר למצלמה, פנים רפויות, כל הפנים בפריים</li>
-      <li>אור יום טבעי, שיער מורם מהמצח</li>
+      <li>מבט ישר למצלמה, פנים רפויות, בלי להרים את הגבות, כל הפנים בפריים</li>
+      <li>אור יום טבעי מלפנים (לא מהצד ולא מנורה צהובה), שיער אסוף מהמצח ומהרקות</li>
       <li>בלי פילטרים ובלי איפור גבות כבד, אם אפשר</li>
     </ul>
     <button class="btn" id="go" disabled>התחילי סריקה</button>
@@ -1487,6 +1487,19 @@ function analyze(lms, W, H, pix) {
     const outside = ["L", "R"].some(s => [sd[s].start, sd[s].arch, sd[s].tail].some(q => !inPoly(fromF(q), oval)));
     const gapBad = ["L", "R"].some(s => { const g = (sd[s].LID[1] - sd[s].lowArch[1]) / eyeW; return g < 0.12 || g > 1.2; });
     const lenBad = ["L", "R"].some(s => { const l = dist(sd[s].start, sd[s].tail) / eyeW; return l < 0.8 || l > 2.6; });
+    // Consistency between the two sides. On photos that cannot be read well (dim or side light, raised brows,
+    // hair at the temples) the two brows come out very different and the template's tail cannot reach line 3.
+    // Measured on 24 photos: the tail stopped 0.20-0.23 eye widths short of line 3 only on the two bad readings
+    // (others <= 0.07), together with tails 0.34-0.39 apart (others <= 0.25). Brightness alone would also reject
+    // good photos of dark skin, so it is not used here.
+    if (ideal.L && ideal.R) {
+      const midC = avg([168, 6, 197, 195, 5, 4, 1, 2, 94].map(i => L(i)[0]));
+      const tail3 = Math.max(...["L", "R"].map(s => Math.abs(ideal[s].tail[0] - ideal[s].s3[0]) / eyeW));
+      const dxT = Math.abs(Math.abs(sd.L.tail[0] - midC) - Math.abs(sd.R.tail[0] - midC)) / eyeW;
+      const dLen = Math.abs(dist(sd.L.start, sd.L.tail) - dist(sd.R.start, sd.R.tail)) / eyeW;
+      if (tail3 > 0.15 && (dxT > 0.25 || dLen > 0.20))
+        blockers.push("שתי הגבות זוהו באופן שונה מאוד זו מזו, ולכן התוצאה לא תהיה אמינה. זה קורה בדרך כלל באור עמום או מהצד, כשהגבות מורמות, או כששיער מסתיר את הרקות. צלמי מול חלון באור יום, עם פנים רפויות ושיער אסוף.");
+    }
     if (outside || gapBad || lenBad) blockers.push("הזיהוי של הגבות בתמונה הזו לא אמין (הגבה נראית במקום או בגודל לא הגיוניים). נסי תמונה ישרה, באור אחיד, עם מצח גלוי.");
   }
 
