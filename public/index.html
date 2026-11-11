@@ -24,14 +24,14 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>מעבדת הגבות של יובל יעקב</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@700&family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Heebo:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* Concept: a brow-mapping lab. The photo becomes a scan plate; measuring lines and a gold stencil are drawn on top of it. */
 :root{
   --bg:#f6ece1; --surface:#fffaf4; --surface2:#f1e3d2; --ink:#3f2e20; --muted:#7f6a56;
   --gold:#b98f45; --gold2:#dcb86f; --brown:#6e4f33; --line:#e6d4bf;
   --good:#58824d; --mid:#b88a2c; --low:#b4553f; --on-gold:#2a1d10; --bar:rgba(246,236,225,.92);
-  --f-display:"Rubik","Heebo",system-ui,sans-serif; --f-body:"Heebo",system-ui,sans-serif;
+  --f-display:"Fredoka","Heebo",system-ui,sans-serif; --f-body:"Heebo",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#1b1511; --surface:#261d17; --surface2:#32261d; --ink:#f4e8d8; --muted:#bba68e;
@@ -48,8 +48,13 @@ body{text-align:start;margin:0;background:var(--bg);color:var(--ink);font:400 16
 body.has-bar{padding-bottom:110px}
 .wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
 h1,h2,h3,p{margin:0}
-h1,h2,h3{font-family:var(--f-display);font-weight:700}
-button,input,select,textarea,label,.chip{font-family:var(--f-body)}
+h1,h2,h3{font-family:var(--f-display);font-weight:600}
+button,input,select,textarea,label{font-family:var(--f-body)}
+/* buttons and chips: Fredoka, rounded and soft */
+.btn,.chip{font-family:var(--f-display)!important}
+.btn{font-weight:600!important}
+.chip{font-weight:500!important}
+.chip[aria-pressed="true"]{font-weight:600!important}
 h1,h2{text-wrap:balance}
 a{color:inherit}
 :focus-visible{outline:3px solid var(--gold);outline-offset:3px}
@@ -58,7 +63,7 @@ a{color:inherit}
 .hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px}
 .logo{width:92px;height:92px;border-radius:50%;object-fit:cover;border:1px solid var(--gold);padding:3px;background:#f5ebe2}
 .kicker{font-size:.74rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);direction:ltr;margin-top:6px}
-h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.9rem,8vw,2.6rem);line-height:1.15}
+h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);line-height:1.15}
 .hero svg{width:150px;height:28px;color:var(--gold)}
 .lead{color:var(--muted);max-width:30em}
 .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px;width:100%}
@@ -205,7 +210,7 @@ html,body,button,a,label,.chip,.zoombar,.layers{touch-action:manipulation}
 .ring circle{fill:none;stroke-width:9;stroke-linecap:round}
 .ring .bg{stroke:var(--surface2)}
 .ring .fg{stroke:var(--gold);stroke-dasharray:326.7;stroke-dashoffset:326.7;transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
-.ring .num{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-family:var(--f-display);font-weight:700;font-size:2.5rem;line-height:1}
+.ring .num{position:absolute;inset:0;display:grid;place-content:center;text-align:center;font-family:var(--f-display);font-weight:600;font-size:2.5rem;line-height:1}
 .ring .num small{font-family:var(--f-body);font-size:.75rem;font-weight:400;color:var(--muted)}
 .score h2{font-size:1.5rem}
 .score .kicker{letter-spacing:0;direction:rtl;text-transform:none}
@@ -228,7 +233,7 @@ ol.prio span{color:var(--muted);font-size:.92rem}
 details.m{background:var(--surface2);border-radius:16px;padding:0 14px}
 details.m summary{list-style:none;cursor:pointer;padding:12px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-weight:400}
 details.m summary::-webkit-details-marker{display:none}
-details.m .sc{font-family:var(--f-display);font-weight:700;font-size:1.2rem}
+details.m .sc{font-family:var(--f-display);font-weight:600;font-size:1.2rem}
 details.m .bar{grid-column:1/-1;height:6px;border-radius:6px;background:var(--line);overflow:hidden}
 details.m .bar i{display:block;height:100%;width:0;border-radius:6px;transition:width .9s}
 details.m .body{padding:2px 0 14px;display:flex;flex-direction:column;gap:8px;font-size:.93rem}
@@ -1847,8 +1852,8 @@ function wrapLines(ctx, text, maxW) {
 async function makeShareCard(r) {
   const W = 1080, H = 1920, c = document.createElement("canvas"); c.width = W; c.height = H;
   const x = c.getContext("2d");
-  try { await Promise.all(['700 80px Rubik', '400 40px Heebo', '700 40px Heebo'].map(f => document.fonts.load(f, "אבג"))); } catch (e) {}
-  const SERIF = 'Rubik, Heebo, system-ui, sans-serif', SANS = 'Heebo, system-ui, sans-serif';   // SERIF: the heading font
+  try { await Promise.all(['600 80px Fredoka', '400 40px Heebo', '700 40px Heebo'].map(f => document.fonts.load(f, "אבג"))); } catch (e) {}
+  const SERIF = 'Fredoka, Heebo, system-ui, sans-serif', SANS = 'Heebo, system-ui, sans-serif';   // SERIF: the heading font
   const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "#fffaf4"); g.addColorStop(.55, "#f6ece1"); g.addColorStop(1, "#ecd9c3");
   x.fillStyle = g; x.fillRect(0, 0, W, H);
   x.direction = "rtl"; x.textAlign = "center"; x.textBaseline = "alphabetic";
@@ -1861,18 +1866,18 @@ async function makeShareCard(r) {
     x.drawImage(logo, cx - logo.naturalWidth * s / 2, cy - logo.naturalHeight * s / 2, logo.naturalWidth * s, logo.naturalHeight * s); x.restore();
     x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.lineWidth = 5; x.strokeStyle = "#b98f45"; x.stroke();
   }
-  x.fillStyle = "#3f2e20"; x.font = "700 84px " + SERIF; x.fillText("מעבדת הגבות", W / 2, 490); x.fillText("של יובל יעקב", W / 2, 585);
+  x.fillStyle = "#3f2e20"; x.font = "600 84px " + SERIF; x.fillText("מעבדת הגבות", W / 2, 490); x.fillText("של יובל יעקב", W / 2, 585);
   // score ring
   const sc = r.overall || 0, cx = W / 2, cy = 900, RR = 230;
   x.lineCap = "round"; x.lineWidth = 34;
   x.beginPath(); x.arc(cx, cy, RR, 0, Math.PI * 2); x.strokeStyle = "rgba(110,79,51,.15)"; x.stroke();
   x.beginPath(); x.arc(cx, cy, RR, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * sc / 100);
   x.strokeStyle = sc >= 80 ? "#58824d" : sc >= 60 ? "#b88a2c" : "#b4553f"; x.stroke();
-  x.fillStyle = "#3f2e20"; x.font = "700 190px " + SERIF; x.fillText(String(sc), cx, cy + 60);
+  x.fillStyle = "#3f2e20"; x.font = "600 190px " + SERIF; x.fillText(String(sc), cx, cy + 60);
   x.fillStyle = "#7f6a56"; x.font = "400 44px " + SANS; x.fillText("מתוך 100", cx, cy + 125);
   // brow type
   x.fillStyle = "#b98f45"; x.font = "400 44px " + SANS; x.fillText("סוג הגבה שלי", W / 2, 1260);
-  x.fillStyle = "#3f2e20"; x.font = "700 96px " + SERIF; x.fillText((r.browType || "") + " " + ((BROW_VIBES[r.browType] || {}).e || ""), W / 2, 1365);
+  x.fillStyle = "#3f2e20"; x.font = "600 96px " + SERIF; x.fillText((r.browType || "") + " " + ((BROW_VIBES[r.browType] || {}).e || ""), W / 2, 1365);
   if (r.faceShape) {
     const t = "מבנה פנים: נוטה ל" + r.faceShape; x.font = "400 42px " + SANS; const tw = x.measureText(t).width + 70;
     x.fillStyle = "#efdfcc"; x.beginPath(); x.roundRect(W / 2 - tw / 2, 1415, tw, 80, 40); x.fill();
@@ -1882,7 +1887,7 @@ async function makeShareCard(r) {
   x.fillStyle = "#3f2e20"; x.font = "700 56px " + SANS; x.fillText("ומה הציון שלך? ✨", W / 2, 1620);
   const bw = 760, bx = W / 2 - bw / 2, by = 1660, bg = x.createLinearGradient(bx, 0, bx + bw, 0);
   bg.addColorStop(0, "#b98f45"); bg.addColorStop(1, "#dcb86f"); x.fillStyle = bg; x.beginPath(); x.roundRect(bx, by, bw, 110, 55); x.fill();
-  x.fillStyle = "#2a1d10"; x.font = "700 50px " + SANS; x.fillText("סריקת גבות בחינם בקישור", W / 2, by + 72);
+  x.fillStyle = "#2a1d10"; x.font = "600 50px " + SERIF; x.fillText("סריקת גבות בחינם בקישור", W / 2, by + 72);
   x.fillStyle = "#7f6a56"; x.font = "400 38px " + SANS;
   x.direction = "ltr"; x.fillText("@_yuvalyaacov_", W / 2, 1830); x.direction = "rtl";
   x.font = "400 30px " + SANS; x.fillText("הערכה של בינה מלאכותית, לא מדויקת במאה אחוזים", W / 2, 1885);
