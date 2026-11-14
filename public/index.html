@@ -133,6 +133,9 @@ canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none
 .mk-gold{background:rgba(236,208,142,.35);border:2px dashed #c9a75c}
 .mk-white{background:repeating-linear-gradient(90deg,#8a7663 0 3px,transparent 3px 9px);height:4px;border-radius:2px}
 .mk-line{background:#8a7663;height:3px;border-radius:2px}
+.stage.flash{animation:flash .9s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(220,184,111,.95)}100%{box-shadow:0 0 0 14px rgba(220,184,111,0)}}
+.more-jump{border:2px solid var(--gold);background:linear-gradient(160deg,var(--surface),var(--surface2))}
 .more-card{border:2px solid var(--gold);background:linear-gradient(160deg,var(--surface),var(--surface2))}
 .more-head{display:flex;gap:12px;align-items:center}
 .more-head h2{margin:0}
@@ -280,7 +283,7 @@ html.nm *,html.nm *::before,html.nm *::after{animation:none!important;transition
 img{-webkit-user-drag:none;user-select:none}
 </style><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
-<body>
+<body class="has-bar">
 <a class="skip" href="#main">דילוג לתוכן הראשי</a>
 <button class="a11y-btn" id="a11yBtn" type="button" aria-label="נגישות" aria-expanded="false" aria-controls="a11yPanel"><span aria-hidden="true">♿</span><span class="t">נגישות</span></button>
 <div class="a11y-panel" id="a11yPanel" role="dialog" aria-label="הגדרות נגישות" hidden>
@@ -308,7 +311,6 @@ img{-webkit-user-drag:none;user-select:none}
       <div class="step"><b>3</b>מקבלים תבנית וציון</div>
       <div class="step"><b>4</b>קובעים תור</div>
     </div>
-    <a class="btn wa" id="wa0" target="_blank" rel="noopener">לקביעת תור אצלי</a>
   </header>
 
   <section class="card" id="intake">
@@ -375,7 +377,7 @@ img{-webkit-user-drag:none;user-select:none}
         <li><span class="mk-sw mk-line"></span>קווים לבנים: קווי המדידה מהנחיר</li>
       </ul>
       <div class="layers" id="layers" role="group" aria-label="שכבות על התמונה"></div>
-      <p class="legend">אפשר להדליק ולכבות כל שכבה. הסבר מלא על הנקודות והקווים נמצא ב"לפרטים המלאים" למטה.</p>
+      <p class="legend">אפשר להדליק ולכבות כל שכבה. הסבר קצר על הקווים נמצא בסוף הניתוח המלא.</p>
     </section>
 
     <section class="card">
@@ -400,6 +402,11 @@ img{-webkit-user-drag:none;user-select:none}
       </div>
     </section>
 
+    <section class="card more-jump" aria-label="ניתוח מלא">
+      <div class="more-head"><span class="more-ic" aria-hidden="true">🔍</span><div><h2>רוצה לדעת עוד?</h2><p>ציון מפורט לכל אחד מ-8 המדדים והמדידות על הפנים שלך</p></div></div>
+      <button type="button" class="btn more-btn" id="moreJump"><span class="t">לניתוח המלא</span><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
+    </section>
+
     <section class="card" id="strCard"><h2>מה כבר עובד לך</h2><div class="tags" id="strengths"></div></section>
 
     <section class="card" id="prioCard"><h2>מה הכי ישנה את המראה</h2><ol class="prio" id="prio"></ol></section>
@@ -411,22 +418,12 @@ img{-webkit-user-drag:none;user-select:none}
       <ul class="more-list">
         <li><span aria-hidden="true">📊</span>ציון מפורט לכל אחד מ-8 המדדים</li>
         <li><span aria-hidden="true">📐</span>המדידות על הפנים שלך מול המומלץ</li>
-        <li><span aria-hidden="true">🧭</span>הסבר לכל קו ונקודה בתמונה</li>
+        <li><span aria-hidden="true">🧭</span>הסבר קצר על הקווים בתמונה</li>
       </ul>
       <button type="button" class="btn more-btn" id="moreBtn" aria-expanded="false" aria-controls="moreBox"><span class="t">לפתוח את הניתוח המלא</span><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>
     </section>
     <div id="moreBox" class="more-box" hidden>
-    <section class="card" id="howCard">
-      <h2>איך קוראים את הסימונים</h2>
-      <p class="legend" style="text-align:start">קווים 1 ו-2 יוצאים מקצה הנחיר הפנימי: קצה פתח הנחיר שהכי רחוק מאמצע האף. קו 3 יוצא מקצה הנחיר החיצוני: המקום שבו האף מסתיים לצד, בקו אופקי. כך מקובל למפות גבה מקצועית.</p>
-      <ol class="how">
-        <li><span class="hnum">1</span><div><b>ראש הגבה (הקצה הקרוב לאף)</b><p>קו ישר שעולה מקצה הנחיר הפנימי כלפי מעלה, דרך שקע העין (הפינה הפנימית של העין), עד גובה הגבה. הנקודה שבה הוא פוגש את גובה הגבה היא המקום שבו הגבה אמורה להתחיל.</p></div></li>
-        <li><span class="hnum">2</span><div><b>שיא הקשת (הנקודה הגבוהה ביותר)</b><p>קו אלכסוני מקצה הנחיר שעובר דרך מרכז האישון (כשמסתכלים ישר למצלמה). המקום שבו הקו פוגש את הגבה הוא השיא, בערך שני שלישים מאורך הגבה כשסופרים מהראש.</p></div></li>
-        <li><span class="hnum">3</span><div><b>סוף הגבה (הזנב)</b><p>קו אלכסוני שיוצא מקצה הנחיר החיצוני (המקום שבו האף מסתיים לצד) ועובר דרך הפינה החיצונית של העין. הגבה אמורה להסתיים במקום שבו הקו פוגש את גובה קו הבסיס. אם השיער שלך קצר יותר, התבנית הזהובה לא תתארך מעבר לשיער שקיים, והנקודה 3 תראה לך עד איפה אפשר להצמיח.</p></div></li>
-        <li><span class="hnum">&ndash;</span><div><b>קו בסיס</b><p>קו אופקי מתחתית ראש הגבה. הזנב אמור להסתיים בגובה הקו או מעט מעליו. זנב שיורד מתחתיו נותן מראה עייף.</p></div></li>
-      </ol>
-      <p class="legend keylines"><span><b>נקודות לבנות עם קו מקווקו:</b> הגבה שלך כמו שהיא היום.</span><span><b>התבנית הזהובה:</b> הצורה המומלצת.</span><span><b>קו זהב קצר:</b> המרחק בין המקום הנוכחי למקום המומלץ.</span></p>
-    </section>
+    <section class="card"><h2>כל 8 המדדים</h2><div class="metrics" id="metrics"></div></section>
 
     <section class="card" id="statCard" hidden>
       <h2>המדידות על הפנים שלך</h2>
@@ -434,7 +431,15 @@ img{-webkit-user-drag:none;user-select:none}
       <p class="legend">כל המידות נחשבות לפי רוחב העין שלך, ולכן הן לא תלויות בגודל התמונה. זו הערכה מתוך תמונה, ולא מדידה במילימטרים.</p>
     </section>
 
-    <section class="card"><h2>כל 8 המדדים</h2><div class="metrics" id="metrics"></div></section>
+    <section class="card" id="howCard">
+      <h2>איך נמדדים הקווים בתמונה (בקצרה)</h2>
+      <ol class="how">
+        <li><span class="hnum">1</span><div><b>ראש הגבה</b><p>קו ישר מקצה הנחיר הפנימי כלפי מעלה. כאן הגבה מתחילה.</p></div></li>
+        <li><span class="hnum">2</span><div><b>שיא הקשת</b><p>קו מקצה הנחיר דרך מרכז האישון. כאן נמצא השיא.</p></div></li>
+        <li><span class="hnum">3</span><div><b>סוף הגבה</b><p>קו מקצה הנחיר החיצוני דרך הפינה החיצונית של העין. כאן הגבה נגמרת.</p></div></li>
+        <li><span class="hnum">&ndash;</span><div><b>קו בסיס</b><p>קו אופקי מתחתית ראש הגבה. הזנב לא אמור לרדת מתחתיו.</p></div></li>
+      </ol>
+    </section>
     </div>
 
     <section class="card">
@@ -515,7 +520,7 @@ img{-webkit-user-drag:none;user-select:none}
   <form method="dialog"><button class="x">סגירה</button></form>
 </dialog>
 
-<div class="bar-fixed" id="stick" hidden><a class="btn wa" id="wa2" target="_blank" rel="noopener">קבעי תור מהיר בוואטסאפ</a></div>
+<div class="bar-fixed" id="stick"><a class="btn wa" id="wa2" target="_blank" rel="noopener">קבעי תור מהיר בוואטסאפ</a></div>
 
 <script type="module">
 /* מעבדת הגבות: זיהוי נקודות פנים בדפדפן (MediaPipe Face Landmarker), וחישוב לפי כללי מיפוי הגבות.
@@ -662,7 +667,7 @@ function showPoseErr(why) {
 /* ---------- phases + real progress ---------- */
 function phase(p) {
   $("intake").hidden = p !== "intake"; $("scan").hidden = p !== "scan"; $("result").hidden = p !== "result";
-  $("stick").hidden = p !== "result"; document.body.classList.toggle("has-bar", p === "result");
+  $("stick").hidden = false; document.body.classList.add("has-bar");   // the booking bar is always on screen
 }
 const STEPS = ["התמונה התקבלה 📸", "מכינה את המעבדה 🧪", "מאתרת את הפנים 🔍", "ממפה את הקשת ואת הזנב ✏️", "מציירת את התבנית הזהובה ✨"];
 function progress(n) { // n steps are finished; step n is running
@@ -1601,6 +1606,15 @@ function setLayer(gid, on) {
   if (g) { g.style.display = on ? "" : "none"; if (on) g.classList.remove("l1", "l2", "l3"); }   // no replayed delayed fade-in
   if (layerChips[gid]) layerChips[gid].setAttribute("aria-pressed", String(on));
 }
+// Controls that change the photo (layers, the "new brows" view, zoom) sit below it: after a tap, scroll the photo
+// back into view if it is not fully visible, and flash its frame so the change is noticed.
+function focusImage() {
+  const st = $("resStage"); if (!st || $("result").hidden) return;
+  const r = st.getBoundingClientRect(), bar = $("stick").hidden ? 0 : $("stick").offsetHeight;
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("nm");
+  if (r.top < 8 || r.bottom > innerHeight - bar - 8) st.scrollIntoView({behavior: calm ? "auto" : "smooth", block: "center"});
+  if (!calm) { st.classList.remove("flash"); void st.offsetWidth; st.classList.add("flash"); }
+}
 function setMagic(on) {
   $("ov").classList.toggle("magic", on); $("magicBtn").setAttribute("aria-pressed", String(on));
   $("magicBtn").textContent = on ? "חזרה לקווי המדידה" : "✨ הראי לי את הגבות החדשות שלי";
@@ -1615,6 +1629,7 @@ function buildLayers(avail) {
     b.addEventListener("click", () => {
       if ($("ov").classList.contains("magic")) setMagic(false);   // any layer tap leaves the "new brows" view
       setLayer(gid, b.getAttribute("aria-pressed") !== "true");
+      focusImage();
     });
     box.appendChild(b);
   });
@@ -1739,9 +1754,9 @@ function buildZoomBoxes(r) {
   zReset(false);
   if ($("resImg").complete && $("resImg").naturalWidth && $("resStage").clientWidth) zTo("both", false);
 }
-document.querySelectorAll("#zoombar [data-z]").forEach(b => b.addEventListener("click", () => { if (b.dataset.z === "all") zReset(true); else zTo(b.dataset.z); }));
-$("zIn").addEventListener("click", () => { const st = $("resStage"); zoomAt([st.clientWidth / 2, st.clientHeight / 2], Z.s * 1.5); Z.cur = ""; zClamp(); zApply(true); });
-$("zOut").addEventListener("click", () => { const st = $("resStage"); zoomAt([st.clientWidth / 2, st.clientHeight / 2], Z.s / 1.5); Z.cur = ""; zClamp(); zApply(true); });
+document.querySelectorAll("#zoombar [data-z]").forEach(b => b.addEventListener("click", () => { if (b.dataset.z === "all") zReset(true); else zTo(b.dataset.z); focusImage(); }));
+$("zIn").addEventListener("click", () => { const st = $("resStage"); zoomAt([st.clientWidth / 2, st.clientHeight / 2], Z.s * 1.5); Z.cur = ""; zClamp(); zApply(true); focusImage(); });
+$("zOut").addEventListener("click", () => { const st = $("resStage"); zoomAt([st.clientWidth / 2, st.clientHeight / 2], Z.s / 1.5); Z.cur = ""; zClamp(); zApply(true); focusImage(); });
 
 /* ---------- render ---------- */
 const colFor = s => s >= 80 ? "var(--good)" : s >= 60 ? "var(--mid)" : "var(--low)";
@@ -1790,9 +1805,9 @@ function updateWa() {
   const msg = "היי יובל! עשיתי את סריקת הגבות במעבדת הגבות שלך. קיבלתי " + (r.overall || 0) + "/100" + (r.browType ? " (" + r.browType + ")" : "") + ". " +
     (labels.length ? "מה שמעניין אותי: " + labels.join(", ") + ". " : "") + "אשמח לקבוע תור 🌿";
   const href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(msg);
-  ["wa0", "waMid", "wa1", "wa2"].forEach(id => { $(id).href = href; });
+  ["waMid", "wa1", "wa2"].forEach(id => { $(id).href = href; });
 }
-$("wa0").href = "https://wa.me/" + WA + "?text=" + encodeURIComponent("היי יובל! אשמח לקבוע תור לעיצוב גבות 🌿");
+$("wa2").href = "https://wa.me/" + WA + "?text=" + encodeURIComponent("היי יובל! אשמח לקבוע תור לעיצוב גבות 🌿");   // before a scan: a general booking message
 /* ---------- score reveal: plays when the score card scrolls into view ---------- */
 let revealObs = null, revealTimer = null;
 function armScoreReveal(r) {
@@ -1835,6 +1850,7 @@ $("magicBtn").addEventListener("click", () => {
   setMagic(on);
   setLayer("gMeasure", !on); setLayer("gMine", !on); setLayer("gIdeal", true);
   if (on && Z.cur === "all" && Z.boxes.both) zTo("both");
+  focusImage();
 });
 
 /* ---------- full details toggle ---------- */
@@ -1842,6 +1858,10 @@ function setMore(open) {
   $("moreBox").hidden = !open; $("moreBtn").setAttribute("aria-expanded", String(open));
   $("moreBtn").querySelector(".t").textContent = open ? "לסגור את הניתוח המלא" : "לפתוח את הניתוח המלא";
 }
+$("moreJump").addEventListener("click", () => {   // the shortcut opens the full analysis and goes straight to it
+  setMore(true);
+  $("moreBox").querySelector("section").scrollIntoView({behavior: "smooth", block: "start"});
+});
 $("moreBtn").addEventListener("click", () => {
   const open = $("moreBox").hidden; setMore(open);
   if (open) $("moreBox").querySelector("section").scrollIntoView({behavior: "smooth", block: "start"});
