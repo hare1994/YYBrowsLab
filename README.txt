@@ -7,6 +7,10 @@
 אם הוא לא נטען, האתר משתמש אוטומטית בזיהוי לפי ניגודיות. רישיון וייחוס: third_party/.
 
 אירוח: Cloudflare Workers (חינם).
+
+מדידת שימוש (אנונימית): src/worker.js סופר אירועים בלי פרטים מזהים ובלי עוגיות:
+page_view, photo_chosen, scan_done, scan_blocked, wa_click (מאיזה כפתור, לפני/אחרי סריקה), share_click, more_open, magic_view.
+לצפייה: Cloudflare -> Workers & Pages -> yybrowslab -> Observability (Logs) -> קיבוץ לפי event ו-detail.
 - Cloudflare מחובר לריפו הזה ב-GitHub. כל דחיפה (push) ל-main מעדכנת את האתר אוטומטית תוך דקה-שתיים.
 - ההגדרות נמצאות ב-wrangler.jsonc. הקבצים שמתפרסמים הם רק מה שבתיקייה public.
 - public/_headers מגדיר כותרות אבטחה בסיסיות.
