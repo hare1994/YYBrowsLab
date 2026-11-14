@@ -43,6 +43,7 @@
   --good:#8fbb82; --mid:#dcb24f; --low:#e08a74; --bar:rgba(27,21,17,.92); color-scheme:dark}
 *{box-sizing:border-box}
 html{direction:rtl}
+html,body{overflow-anchor:none}   /* the results replace the scan card; scroll anchoring would follow content down to the bottom */
 body{text-align:start;margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--f-body);
   padding-block:22px 36px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 body.has-bar{padding-bottom:110px}
@@ -91,12 +92,15 @@ h1{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,7vw,2.3re
 #scan h2{text-align:center;margin:0}
 .loader{position:relative;width:132px;height:132px;margin:4px auto 0}
 .loader svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.loader .spin{animation:spin90 1.1s linear infinite;will-change:transform}
+@keyframes spin90{from{transform:rotate(-90deg)}to{transform:rotate(270deg)}}
 .loader circle{fill:none;stroke-width:5;stroke-linecap:round}
 .loader .track{stroke:var(--line)}
-.loader .arc{stroke:var(--gold);stroke-dasharray:95 282;transform-origin:66px 66px;animation:spin 1.1s linear infinite;transition:stroke-dasharray .5s ease}
-.loader img{position:absolute;inset:12px;width:108px;height:108px;border-radius:50%;object-fit:cover;background:#f5ebe2;animation:breathe 1.8s ease-in-out infinite}
+.loader .arc{stroke:var(--gold);stroke-dasharray:95 282;transition:stroke-dasharray .5s ease}
+.loader img{position:absolute;inset:12px;width:108px;height:108px;border-radius:50%;object-fit:cover;background:#f5ebe2;animation:breathe 1.8s ease-in-out infinite;will-change:transform}
 @keyframes breathe{50%{transform:scale(1.05)}}
-#scan.done .loader .arc{animation:none;stroke-dasharray:377 0;stroke:var(--good)}
+#scan.done .loader .spin{animation:none}
+#scan.done .loader .arc{stroke-dasharray:377 0;stroke:var(--good)}
 #scan.done .loader img{animation:none}
 #scan.done .beam{display:none}
 #scan .stage img{max-height:260px;object-fit:cover}
@@ -175,9 +179,9 @@ canvas.burst{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none
 .stage{position:relative;border-radius:22px;overflow:hidden;background:#17110c;line-height:0}
 .stage img{width:100%;display:block}
 .stage svg{position:absolute;inset:0;width:100%;height:100%}
-.beam{position:absolute;left:0;right:0;top:-22%;height:22%;background:linear-gradient(to bottom,transparent,rgba(236,208,142,.6),transparent);animation:sweep 2.1s ease-in-out infinite}
+.beam{position:absolute;left:0;right:0;top:-22%;height:22%;background:linear-gradient(to bottom,transparent,rgba(236,208,142,.6),transparent);animation:sweep 2.1s ease-in-out infinite;will-change:transform}
 .frame{position:absolute;inset:14px;border:1.5px solid rgba(236,208,142,.85);border-radius:14px;pointer-events:none}
-@keyframes sweep{0%{top:-22%}100%{top:100%}}
+@keyframes sweep{0%{transform:translateY(0)}100%{transform:translateY(555%)}}   /* 122% of the frame = 5.55 beam heights */
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .l1{animation:fade .6s .2s both}.l2{animation:fade .6s .8s both}.l3{animation:fade .6s 1.4s both}
 .status{text-align:center;font-weight:400;min-height:1.6em}
@@ -260,7 +264,7 @@ details.m .body em{font-style:normal;font-weight:700;color:var(--brown)}
 .bar-fixed{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));background:var(--bar);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
 .bar-fixed .btn{max-width:640px;margin:0 auto}
 @media (max-width:420px){.score{grid-template-columns:1fr;justify-items:center;text-align:center}.links{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){.tags .tag,.more-btn .chev,#ov.magic #gIdeal polygon{animation:none}.loader .arc,.loader img{animation:none}.beam{animation:none;top:40%}.checks li.now i{animation:none}.l1,.l2,.l3{animation:none}.ring .fg,.prog i,details.m .bar i{transition:none}}
+@media (prefers-reduced-motion:reduce){.tags .tag,.more-btn .chev,#ov.magic #gIdeal polygon{animation:none}.loader .spin,.loader img{animation:none}.beam{animation:none;transform:translateY(270%)}.checks li.now i{animation:none}.l1,.l2,.l3{animation:none}.ring .fg,.prog i,details.m .bar i{transition:none}}
 
 /* accessibility + legal */
 .skip{position:absolute;top:-80px;inset-inline-start:8px;z-index:100;background:var(--gold);color:var(--on-gold);padding:10px 16px;border-radius:12px;font-weight:700;text-decoration:none}
@@ -352,7 +356,7 @@ img{-webkit-user-drag:none;user-select:none}
 
   <section class="card" id="scan" hidden>
     <div class="loader" aria-hidden="true">
-      <svg viewBox="0 0 132 132"><circle class="track" cx="66" cy="66" r="60"/><circle class="arc" cx="66" cy="66" r="60"/></svg>
+      <svg class="spin" viewBox="0 0 132 132"><circle class="track" cx="66" cy="66" r="60"/><circle class="arc" cx="66" cy="66" r="60"/></svg>
       <img id="loaderLogo" alt="">
     </div>
     <h2 id="scanTitle" aria-live="polite">סורקת את הגבות…</h2>
@@ -583,12 +587,37 @@ enginePromise.catch(e => { engineErr = e; });
    brow hair; if it fails to load or run, the scan falls back to the contrast-based detection. */
 const ORT = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
 const SEG_MODEL = "models/brow-seg.onnx", SEG_N = 512;
-const segPromise = (async () => {
-  if (window.__NO_SEG__) return null;
+// The model runs in a background thread (seg-worker.js) so the scan animation stays smooth; if a worker cannot be
+// started (old browser), it runs on the page as before.
+function segWorker() {
+  return new Promise((resolve, reject) => {
+    let w; try { w = new Worker("seg-worker.js", {type: "module"}); } catch (e) { reject(e); return; }
+    const pending = new Map(); let nextId = 1;
+    const model = new URL(SEG_MODEL, location.href).href;
+    w.onmessage = e => {
+      const m = e.data || {};
+      if (m.type === "ready") resolve({worker: true, run: (x) => new Promise((res, rej) => { const id = nextId++; pending.set(id, {res, rej}); w.postMessage({type: "run", id, model, n: SEG_N, x}, [x.buffer]); })});
+      else if (m.type === "result" && pending.has(m.id)) { pending.get(m.id).res(m.lab); pending.delete(m.id); }
+      else if (m.type === "error") { if (pending.has(m.id)) { pending.get(m.id).rej(new Error(m.message)); pending.delete(m.id); } else reject(new Error(m.message)); }
+    };
+    w.onerror = e => { e.preventDefault && e.preventDefault(); reject(new Error("seg worker failed")); };
+    w.postMessage({type: "init", model});
+  });
+}
+async function segInPage() {
   const ort = await import(ORT + "ort.wasm.min.mjs");
   ort.env.wasm.numThreads = 1; ort.env.wasm.wasmPaths = ORT;
   const sess = await ort.InferenceSession.create(SEG_MODEL, {executionProviders: ["wasm"]});
-  return {ort, sess};
+  return {worker: false, run: async (x) => {
+    const N = SEG_N * SEG_N, out = await sess.run({rgb: new ort.Tensor("float32", x, [1, 3, SEG_N, SEG_N])});
+    const lg = out.logits.data, C = out.logits.dims[1], lab = new Uint8Array(N);
+    for (let i = 0; i < N; i++) { let b = 0, bv = lg[i]; for (let k = 1; k < C; k++) { const v = lg[k * N + i]; if (v > bv) { bv = v; b = k; } } lab[i] = b; }
+    return lab;
+  }};
+}
+const segPromise = (async () => {
+  if (window.__NO_SEG__) return null;
+  try { return await segWorker(); } catch (e) { console.warn("brow model worker unavailable, running it on the page", e); return await segInPage(); }
 })();
 segPromise.catch(e => console.warn("brow model unavailable, using the contrast method", e));
 async function runSeg(seg, img, lms) {
@@ -602,9 +631,7 @@ async function runSeg(seg, img, lms) {
   g.drawImage(img, sx, sy, side, side, 0, 0, SEG_N, SEG_N);
   const d = g.getImageData(0, 0, SEG_N, SEG_N).data, N = SEG_N * SEG_N, x = new Float32Array(3 * N);
   for (let i = 0; i < N; i++) { x[i] = d[4 * i]; x[N + i] = d[4 * i + 1]; x[2 * N + i] = d[4 * i + 2]; }
-  const out = await seg.sess.run({rgb: new seg.ort.Tensor("float32", x, [1, 3, SEG_N, SEG_N])});
-  const lg = out.logits.data, C = out.logits.dims[1], lab = new Uint8Array(N);
-  for (let i = 0; i < N; i++) { let b = 0, bv = lg[i]; for (let k = 1; k < C; k++) { const v = lg[k * N + i]; if (v > bv) { bv = v; b = k; } } lab[i] = b; }
+  const lab = await seg.run(x);
   return {x0: sx, y0: sy, s: side / SEG_N, lab};
 }
 const isBrowPx = (seg, px, py) => {   // classes 2 and 3 are the two brows
@@ -753,8 +780,11 @@ $("go").addEventListener("click", async () => {
     $("scan").classList.add("done"); $("scanTitle").textContent = "הסריקה הושלמה ✓";
     await sleep(900);
     phase("result"); track("scan_done", String(Math.round(r.overall / 10) * 10));
-    requestAnimationFrame(() => $("resStage").closest("section").scrollIntoView({behavior: "smooth", block: "start"}));
-    requestAnimationFrame(() => { try { buildZoomBoxes(r); } catch (e) { console.warn(e); } });   // the zoom needs the visible frame size
+    // The zoom needs the visible frame size, and it changes the frame's height, so it is set first; then the page
+    // jumps straight to the photo card (a smooth scroll could be cut short, leaving the page somewhere else).
+    try { buildZoomBoxes(r); } catch (e) { console.warn(e); }
+    const goPhoto = () => { const c = $("resStage").closest("section"); window.scrollTo({top: Math.max(0, c.getBoundingClientRect().top + scrollY - 8), behavior: "instant"}); };
+    goPhoto(); requestAnimationFrame(goPhoto);
   } catch (e) {
     phase("intake");
     console.error(e);
